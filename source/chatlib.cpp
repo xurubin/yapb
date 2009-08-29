@@ -33,14 +33,14 @@ void StripTags (char *buffer)
    // this function strips 'clan' tags specified below in given string buffer
 
    // first three tags for Enhanced POD-Bot (e[POD], 3[POD], E[POD])
-   char *tagOpen[25] = {"e[P", "3[P", "E[P", "-=", "-[", "-]", "-}", "-{", "<[", "<]", "[-", "]-", "{-", "}-", "[[", "[", "{", "]", "}", "<", ">", "-", "|", "=", "+"};
-   char *tagClose[25] = {"]", "]", "]", "=-", "]-", "[-", "{-", "}-", "]>", "[>", "-]", "-[", "-}", "-{", "]]", "]", "}", "[", "{", ">", "<", "-", "|", "=", "+"};
+   char *tagOpen[] = {"e[P", "3[P", "E[P", "-=", "-[", "-]", "-}", "-{", "<[", "<]", "[-", "]-", "{-", "}-", "[[", "[", "{", "]", "}", "<", ">", "-", "|", "=", "+"};
+   char *tagClose[] = {"]", "]", "]", "=-", "]-", "[-", "{-", "}-", "]>", "[>", "-]", "-[", "-}", "-{", "]]", "]", "}", "[", "{", ">", "<", "-", "|", "=", "+"};
 
    int index, fieldStart, fieldStop, i;
    int length = strlen (buffer); // get length of string
 
    // foreach known tag...
-   for (index = 0; index < sizeof (tagOpen) / sizeof (tagClose); index++)
+   for (index = 0; index < ARRAYSIZE_HLSDK (tagOpen); index++)
    {
       fieldStart = strstr (buffer, tagOpen[index]) - buffer; // look for a tag start
 
@@ -61,12 +61,12 @@ void StripTags (char *buffer)
    }
 
    // have we stripped too much (all the stuff)?
-   if (strlen (buffer) == 0)
+   if (strlen (buffer) != 0)
    {
       strtrim (buffer); // if so, string is just a tag
 
-      // strip just the tag part...
-      for (index = 0; index < 25; index++)
+      // strip just the tag part..
+      for (index = 0; index < ARRAYSIZE_HLSDK (tagOpen); index++)
       {
          fieldStart = strstr (buffer, tagOpen[index]) - buffer; // look for a tag start
 
