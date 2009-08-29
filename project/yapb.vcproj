@@ -136,7 +136,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="..\..\tool\buildup\release\buildup.exe yapb.rc"
+				CommandLine=""
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -243,117 +243,6 @@
 				CommandLine="copy &quot;$(TargetPath)&quot; &quot;d:\game\steam\steamapps\dmitryzhukov\counter-strike\cstrike\addons\yapb\dlls\&quot; /y&#x0D;&#x0A;copy &quot;$(TargetPath)&quot; &quot;d:\game\steam\steamapps\dmitryzhukov\condition zero\czero\addons\yapb\dlls\&quot; /y&#x0D;&#x0A;"
 			/>
 		</Configuration>
-		<Configuration
-			Name="Debug_Mmgr|Win32"
-			OutputDirectory="$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="2"
-			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="false"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-				CommandLine=""
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-				CommandLine=""
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				PreprocessorDefinitions="NDEBUG"
-				MkTypLibCompatible="true"
-				SuppressStartupBanner="true"
-				TargetEnvironment="1"
-				TypeLibraryName=".\debug/yapb.tlb"
-				HeaderFileName=""
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				Optimization="0"
-				AdditionalIncludeDirectories=".\;..\;..\include"
-				PreprocessorDefinitions="WIN32;_DEBUG;MEMORY_TEST"
-				ExceptionHandling="2"
-				RuntimeLibrary="1"
-				RuntimeTypeInfo="false"
-				UsePrecompiledHeader="0"
-				PrecompiledHeaderThrough="core.h"
-				PrecompiledHeaderFile=".\debug_mmgr\inf\yapb.pch"
-				ExpandAttributedSource="false"
-				AssemblerOutput="4"
-				AssemblerListingLocation=".\debug_mmgr\asm\"
-				ObjectFile=".\debug_mmgr\obj\"
-				ProgramDataBaseFileName=".\debug_mmgr\inf"
-				BrowseInformation="0"
-				BrowseInformationFile=""
-				WarningLevel="4"
-				SuppressStartupBanner="true"
-				DebugInformationFormat="4"
-				CompileAs="0"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="NDEBUG"
-				Culture="1033"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-				CommandLine=""
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				IgnoreImportLibrary="true"
-				OutputFile=".\debug_mmgr\yapb.dll"
-				LinkIncremental="2"
-				SuppressStartupBanner="true"
-				GenerateDebugInformation="true"
-				AssemblyDebug="1"
-				ProgramDatabaseFile=".\debug_mmgr\inf\yapb.pdb"
-				GenerateMapFile="true"
-				MapFileName=".\debug_mmgr\inf\yapb.map"
-				MapExports="true"
-				SubSystem="2"
-				OptimizeReferences="1"
-				EnableCOMDATFolding="1"
-				ResourceOnlyDLL="false"
-				RandomizedBaseAddress="1"
-				DataExecutionPrevention="0"
-				ImportLibrary=".\debug_mmgr\inf\yapb.lib"
-				TargetMachine="1"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-				EmbedManifest="false"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-				CommandLine="copy &quot;$(TargetPath)&quot; &quot;d:\game\steam\steamapps\dmitryzhukov\counter-strike\cstrike\addons\yapb\dlls\&quot; /y&#x0D;&#x0A;copy &quot;$(TargetPath)&quot; &quot;d:\game\steam\steamapps\dmitryzhukov\condition zero\czero\addons\yapb\dlls\&quot; /y&#x0D;&#x0A;"
-			/>
-		</Configuration>
 	</Configurations>
 	<References>
 	</References>
@@ -372,14 +261,6 @@
 						UsePrecompiledHeader="2"
 					/>
 				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug_Mmgr|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\source\chatlib.cpp"
@@ -392,28 +273,12 @@
 						UsePrecompiledHeader="2"
 					/>
 				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug_Mmgr|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\source\combat.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug_Mmgr|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -436,28 +301,12 @@
 						UsePrecompiledHeader="2"
 					/>
 				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug_Mmgr|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\source\globals.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug_Mmgr|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -476,14 +325,6 @@
 						UsePrecompiledHeader="2"
 					/>
 				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug_Mmgr|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\source\navigate.cpp"
@@ -496,28 +337,12 @@
 						UsePrecompiledHeader="2"
 					/>
 				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug_Mmgr|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\source\netmsg.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug_Mmgr|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -544,14 +369,6 @@
 						UsePrecompiledHeader="1"
 					/>
 				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug_Mmgr|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\source\support.cpp"
@@ -564,28 +381,12 @@
 						UsePrecompiledHeader="2"
 					/>
 				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug_Mmgr|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\source\waypoint.cpp"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="2"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug_Mmgr|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -622,91 +423,6 @@
 				>
 			</File>
 		</Filter>
-		<Filter
-			Name="mmgr"
-			>
-			<Filter
-				Name="source"
-				>
-				<File
-					RelativePath="..\source\mmgr\mmgr.cpp"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="2"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Debug_Mmgr|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="2"
-						/>
-					</FileConfiguration>
-				</File>
-			</Filter>
-			<Filter
-				Name="include"
-				>
-				<File
-					RelativePath="..\source\mmgr\mmgr.h"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-						/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\source\mmgr\nommgr.h"
-					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-						/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32"
-						ExcludedFromBuild="true"
-						>
-						<Tool
-							Name="VCCustomBuildTool"
-						/>
-					</FileConfiguration>
-				</File>
-			</Filter>
-		</Filter>
-		<File
-			RelativePath=".\ClassDiagram1.cd"
-			>
-		</File>
 	</Files>
 	<Globals>
 	</Globals>
