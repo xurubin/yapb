@@ -798,8 +798,8 @@ inline Vector CrossProduct (const Vector & a, const Vector & b)
 
 #define TE_GUNSHOTDECAL        109      // decal and ricochet sound
 // coord, coord, coord (position)
-// short (entity index???)
-// byte (decal???)
+// short (entity index)
+// byte (decal)
 
 #define TE_SPRITE_SPRAY        110      // spay of alpha sprites
 // coord, coord, coord (position)
@@ -816,9 +816,9 @@ inline Vector CrossProduct (const Vector & a, const Vector & b)
 #define TE_PLAYERDECAL        112       // ???
 // byte (playerindex)
 // coord, coord, coord (position)
-// short (entity???)
-// byte (decal number???)
-// [optional] short (model index???)
+// short (entity)
+// byte (decal number)
+// [optional] short (model index)
 
 #define TE_BUBBLES            113       // create alpha sprites inside of box, float upwards
 // coord, coord, coord (min start position)
@@ -1091,7 +1091,7 @@ enum
 
 typedef int func_t;
 
-typedef uint8_t byte;
+typedef unsigned char uint8_t;
 typedef unsigned short word;
 
 #define _DEF_BYTE_
@@ -1108,7 +1108,7 @@ typedef int qboolean;
 
 typedef struct
 {
-   byte r, g, b;
+   uint8_t r, g, b;
 } color24;
 
 typedef struct
@@ -1146,7 +1146,7 @@ typedef struct
    qboolean allsolid;           // if true, plane is not valid
    qboolean startsolid;         // if true, the initial point was in a solid area
    qboolean inopen, inwater;
-   float fraction;              // time completed, 1.0 = didn't hit anything
+   float fraction;              // time completed, 1.0f = didn't hit anything
    Vector endpos;               // final position
    plane_t plane;               // surface normal at impact
    edict_t *ent;                // entity the surface is on
@@ -1273,7 +1273,7 @@ typedef struct
    int fStartSolid;             // if true, the initial point was in a solid area
    int fInOpen;
    int fInWater;
-   float flFraction;            // time completed, 1.0 = didn't hit anything
+   float flFraction;            // time completed, 1.0f = didn't hit anything
    Vector vecEndPos;            // final position
    float flPlaneDist;
    Vector vecPlaneNormal;       // surface normal at impact
@@ -1395,7 +1395,7 @@ typedef struct enginefuncs_s
    void (*pfnSetView) (const edict_t * pClient, const edict_t * pViewent);
    float (*pfnTime) (void);
    void (*pfnCrosshairAngle) (const edict_t * pClient, float pitch, float yaw);
-   byte *(*pfnLoadFileForMe) (char *filename, int *pLength);
+   uint8_t *(*pfnLoadFileForMe) (char *filename, int *pLength);
    void (*pfnFreeFile) (void *buffer);
    void (*pfnEndSection) (const char *pszSectionName);  // trigger_endsection
    int (*pfnCompareFileTime) (char *filename1, char *filename2, int *iCompare);
@@ -1403,10 +1403,10 @@ typedef struct enginefuncs_s
    void (*pfnCvar_RegisterVariable) (cvar_t * variable);
    void (*pfnFadeClientVolume) (const edict_t * pentEdict, int fadePercent, int fadeOutSeconds, int holdTime, int fadeInSeconds);
    void (*pfnSetClientMaxspeed) (const edict_t * pentEdict, float fNewMaxspeed);
-   edict_t *(*pfnCreateFakeClient) (const char *netname);       // returns NULL if fake client can't be created
-   void (*pfnRunPlayerMove) (edict_t * fakeclient, const float *viewangles, float forwardmove, float sidemove, float upmove, unsigned short buttons, byte impulse, byte msec);
+   edict_t *(*pfnCreateFakeClient) (const char *netname);       // returns null if fake client can't be created
+   void (*pfnRunPlayerMove) (edict_t * fakeclient, const float *viewangles, float forwardmove, float sidemove, float upmove, unsigned short buttons, uint8_t impulse, uint8_t msec);
    int (*pfnNumberOfEntities) (void);
-   char *(*pfnGetInfoKeyBuffer) (edict_t * e);  // passing in NULL gets the serverinfo
+   char *(*pfnGetInfoKeyBuffer) (edict_t * e);  // passing in null gets the serverinfo
    char *(*pfnInfoKeyValue) (char *infobuffer, char *key);
    void (*pfnSetKeyValue) (char *infobuffer, char *key, char *value);
    void (*pfnSetClientKeyValue) (int clientIndex, char *infobuffer, char *key, char *value);
@@ -1638,7 +1638,7 @@ extern enginefuncs_t g_engfuncs;
 #define RANDOM_LONG       (*g_engfuncs.pfnRandomLong)
 #define RANDOM_FLOAT      (*g_engfuncs.pfnRandomFloat)
 #define GETPLAYERAUTHID   (*g_engfuncs.pfnGetPlayerAuthId)
-inline void MESSAGE_BEGIN (int msg_dest, int msg_type, const float *pOrigin = NULL, edict_t * ed = NULL)
+inline void MESSAGE_BEGIN (int msg_dest, int msg_type, const float *pOrigin = null, edict_t * ed = null)
 {
    (*g_engfuncs.pfnMessageBegin) (msg_dest, msg_type, pOrigin, ed);
 }
@@ -1661,7 +1661,7 @@ inline void MESSAGE_BEGIN (int msg_dest, int msg_type, const float *pOrigin = NU
 #define ALERT           (*g_engfuncs.pfnAlertMessage)
 #define ENGINE_FPRINTF  (*g_engfuncs.pfnEngineFprintf)
 #define ALLOC_PRIVATE   (*g_engfuncs.pfnPvAllocEntPrivateData)
-#define GET_PRIVATE(pent)  (pent ? (pent->pvPrivateData) : NULL);
+#define GET_PRIVATE(pent)  (pent ? (pent->pvPrivateData) : null);
 #define FREE_PRIVATE   (*g_engfuncs.pfnFreeEntPrivateData)
 #define ALLOC_STRING   (*g_engfuncs.pfnAllostring)
 #define FIND_ENTITY_BY_STRING   (*g_engfuncs.pfnFindEntityByString)
@@ -1714,6 +1714,7 @@ inline void MESSAGE_BEGIN (int msg_dest, int msg_type, const float *pOrigin = NU
 #endif
 
 #ifdef _WIN32
+/*
 #pragma warning(disable : 4244) // int or float down-conversion
 #pragma warning(disable : 4305) // int or float data truncation
 #pragma warning(disable : 4201) // nameless struct/union
@@ -1721,7 +1722,7 @@ inline void MESSAGE_BEGIN (int msg_dest, int msg_type, const float *pOrigin = NU
 #pragma warning(disable : 4100) // unreferenced formal parameter
 #pragma warning(disable : 4715) // not all control paths return a value
 #pragma warning(disable : 4996) // function was declared deprecated
-
+*/
 /* (dz): disable deprecation warnings concerning unsafe CRT functions */
 #if !defined _CRT_SECURE_NO_DEPRECATE
 #define _CRT_SECURE_NO_DEPRECATE
@@ -1734,7 +1735,7 @@ inline void MESSAGE_BEGIN (int msg_dest, int msg_type, const float *pOrigin = NU
 #define NOSERVICE
 #define NOMCX
 #define NOIME
-#include "windows.h"
+//#include "windows.h"
 #else // _WIN32
 #define FALSE 0
 #define TRUE (!FALSE)
@@ -1825,8 +1826,8 @@ typedef struct entvars_s
    float frame;                 // % playback position in animation sequences (0..255)
    float animtime;              // world time when frame was set
    float framerate;             // animation playback rate (-8x to 8x)
-   byte controller[4];          // bone controller setting (0..255)
-   byte blending[2];            // blending amount between sub-sequences (0..255)
+   uint8_t controller[4];          // bone controller setting (0..255)
+   uint8_t blending[2];            // blending amount between sub-sequences (0..255)
 
    float scale;                 // sprite rendering scale (0..255)
 
@@ -2044,8 +2045,8 @@ typedef struct hudtextparms_s
    float x;
    float y;
    int effect;
-   byte r1, g1, b1, a1;
-   byte r2, g2, b2, a2;
+   uint8_t r1, g1, b1, a1;
+   uint8_t r2, g2, b2, a2;
    float fadeinTime;
    float fadeoutTime;
    float holdTime;
@@ -2195,19 +2196,19 @@ C_DLLEXPORT int GetEngineFunctions_Post (enginefuncs_t * pengfuncsFromEngine, in
 void inline UTIL_TraceLine (const Vector & start, const Vector & end, bool ignoreMonsters, bool ignoreGlass, edict_t * ignoreEntity, TraceResult * ptr)
 {
 
-   (*g_engfuncs.pfnTraceLine) (start, end, (ignoreMonsters ? TRUE : FALSE) | (ignoreGlass ? 0x100 : 0), ignoreEntity, ptr);
+   (*g_engfuncs.pfnTraceLine) (start, end, (ignoreMonsters ? 1 : 0) | (ignoreGlass ? 0x100 : 0), ignoreEntity, ptr);
 }
 
 void inline UTIL_TraceLine (const Vector & start, const Vector & end, bool ignoreMonsters, edict_t * ignoreEntity, TraceResult * ptr)
 {
 
-   (*g_engfuncs.pfnTraceLine) (start, end, ignoreMonsters ? TRUE : FALSE, ignoreEntity, ptr);
+   (*g_engfuncs.pfnTraceLine) (start, end, ignoreMonsters ? 1 : 0, ignoreEntity, ptr);
 }
 
 void inline UTIL_TraceHull (const Vector & start, const Vector & end, bool ignoreMonsters, int hullNumber, edict_t * ignoreEntity, TraceResult * ptr)
 {
 
-   (*g_engfuncs.pfnTraceHull) (start, end, ignoreMonsters ? TRUE : FALSE, hullNumber, ignoreEntity, ptr);
+   (*g_engfuncs.pfnTraceHull) (start, end, ignoreMonsters ? 1 : 0, hullNumber, ignoreEntity, ptr);
 }
 
 Vector UTIL_VecToAngles (const Vector & vec);
@@ -2330,18 +2331,10 @@ inline EOFFSET OFFSET (EOFFSET eoffset)
 }
 inline EOFFSET OFFSET (const edict_t * pent)
 {
-#if _DEBUG
-   if (!pent)
-      ALERT (at_error, "Bad ent in OFFSET()\n");
-#endif
    return (*g_engfuncs.pfnEntOffsetOfPEntity) (pent);
 }
 inline EOFFSET OFFSET (entvars_t * pev)
 {
-#if _DEBUG
-   if (!pev)
-      ALERT (at_error, "Bad pev in OFFSET()\n");
-#endif
    return OFFSET (ENT (pev));
 }
 inline entvars_t *VARS (entvars_t * pev)
@@ -2352,7 +2345,7 @@ inline entvars_t *VARS (entvars_t * pev)
 inline entvars_t *VARS (edict_t * pent)
 {
    if (!pent)
-      return NULL;
+      return null;
 
    return &pent->v;
 }
@@ -2382,7 +2375,7 @@ inline BOOL FNullEnt (EOFFSET eoffset)
 }
 inline BOOL FNullEnt (entvars_t * pev)
 {
-   return pev == NULL || FNullEnt (OFFSET (pev));
+   return pev == null || FNullEnt (OFFSET (pev));
 }
 inline int FNullEnt (const edict_t * pent)
 {
@@ -2401,7 +2394,7 @@ inline BOOL FStringNull (int iString)
 #define SAFE_FUNCTION_CALL(pfn,args) try { pfn args; } catch (...)  { }
 
    // Dot products for view cone checking
-#define VIEW_FIELD_FULL         (float)-1.0     // +-180 degrees
+#define VIEW_FIELD_FULL         (float)-1.0f     // +-180 degrees
 #define VIEW_FIELD_WIDE         (float)-0.7     // +-135 degrees 0.1 // +-85 degrees, used for full FOV checks
 #define VIEW_FIELD_NARROW       (float)0.7      // +-45 degrees, more narrow check used to set up ranged attacks
 #define VIEW_FIELD_ULTRA_NARROW (float)0.9      // +-25 degrees, more narrow check used to set up ranged attacks
@@ -2413,7 +2406,7 @@ extern inline bool IsNullString (const char *);
 inline BOOL FStrEq (const char *sz1, const char *sz2)
 {
    if (!sz1 || !sz2)
-      return FALSE;             // safety check
+      return 0;             // safety check
 
    return (strcmp (sz1, sz2) == 0);
 }
@@ -2587,14 +2580,14 @@ inline void SET_SERVERINFO (char *key, char *value)
 
 inline char *LOCALINFO (char *key)
 {
-   edict_t *server = NULL;
+   edict_t *server = null;
 
    return (ENTITY_KEYVALUE (server, key));
 }
 
 inline void SET_LOCALINFO (char *key, char *value)
 {
-   edict_t *server = NULL;
+   edict_t *server = null;
    char *ifbuf = GET_INFOKEYBUFFER (server);
 
    SET_SERVER_KEYVALUE (ifbuf, key, value);
@@ -2659,23 +2652,40 @@ enum GlobalVector
 enum TraceIgnore
 {
    NO_MONSTERS = (1 << 0),
-   NO_GLASS = (1 << 1)
+   NO_GLASS = (1 << 1),
+   NO_NOTHING = 0,
+   NO_BOTH = NO_MONSTERS | NO_GLASS
 };
 
 enum TraceTarget
 {
    HULL_HEAD = 3,
-   HULL_POINT = 0
+   HULL_POINT = 0,
+   HULL_IGNORE = -1
+};
+
+enum PrintType
+{
+   PRINT_CONSOLE,
+   PRINT_CHAT,
+   PRINT_CENTER
+};
+
+enum ClientFlag
+{
+   CLIENT_ALIVE,
+   CLIENT_VALID
+};
+
+enum ClientTeam
+{
+   CLIENT_UNASSIGNED = -1,
+   CLIENT_TERRORIST = 0,
+   CLIENT_COUNTER
 };
 
 class ConVar
 {
-private:
-   void AssertValid (void)
-   {
-//      assert (m_eptr != NULL);
-   }
-
 public:
    cvar_t *m_eptr;
 
@@ -2684,7 +2694,7 @@ public:
 
    inline bool GetBool (void)
    {
-	   return m_eptr->value > 0.0;
+	   return m_eptr->value > 0.0f;
    }
 
    inline int GetInt (void)
@@ -2719,7 +2729,7 @@ public:
 
    inline void SetInt (int val)
    {
-	   SetFloat (val);
+	   SetFloat (static_cast <float> (val));
    }
 
    inline void SetString (const char *val)
@@ -2730,7 +2740,6 @@ public:
 
 //
 // RNG is taken for JKBotti
-class Game {};
 
 class Entity
 {
@@ -2738,7 +2747,7 @@ protected:
    edict_t *m_ent;
 
 public:
-   inline Entity (void) : m_ent (NULL)
+   inline Entity (void) : m_ent (null)
    {
       // nothing todo
    }
@@ -2778,29 +2787,29 @@ public:
 
    inline bool operator != (const Entity &other) const
    {
-      return IsValid () && m_ent != other.m_ent;
+      return m_ent != other.m_ent;
    }
 
 public:
-   virtual inline bool IsPlayer (void) const
+   inline bool IsPlayer (void) const
    {
-      return false;
+      return IsValid () && !!(m_ent->v.flags & (FL_FAKECLIENT | FL_CLIENT));
    }
 
    virtual inline bool IsBot (void) const
    {
-      return false;
+      return !! (m_ent->v.flags & FL_FAKECLIENT);
    }
 
    inline bool IsValid (void) const
    {
-      if (m_ent == NULL || g_engfuncs.pfnEntOffsetOfPEntity (m_ent) == 0 || m_ent->free || (m_ent->v.flags & FL_KILLME))
+      if (m_ent == null || g_engfuncs.pfnEntOffsetOfPEntity (m_ent) == 0 || m_ent->free || (m_ent->v.flags & FL_KILLME))
          return false;
 
       return true;
    }
 
-   inline bool IsAlive (void) const
+   inline virtual bool IsAlive (void) const
    {
       if (!IsValid ())
          return false;
@@ -2838,12 +2847,12 @@ public:
       return SDK_Utils::GetStringFromOffset (m_ent->v.netname);
    }
 
-   inline void SetName (const String &name)
+   inline void SetName (const String &name) const
    {
       m_ent->v.netname = SDK_Utils::MakeStringByOffset (name.GetRawData ());
    }
 
-   inline const Vector &GetHeadOrigin (void) const
+   inline Vector GetHeadOrigin (void) const
    {
       return GetOrigin () + m_ent->v.view_ofs;
    }
@@ -2898,7 +2907,7 @@ public:
       return m_ent->v.mins;
    }
 
-   inline const Vector &GeMaxs (void) const
+   inline const Vector &GetMaxs (void) const
    {
       return m_ent->v.maxs;
    }
@@ -2913,12 +2922,12 @@ public:
       m_ent->v.maxspeed = maxSpeed;
    }
 
-   inline const Entity &GetOwner (void) const
+   inline Entity GetOwner (void) const
    {
       return m_ent->v.owner;
    }
 
-   inline const Entity &GetDamageInflictor (void) const
+   inline Entity GetDamageInflictor (void) const
    {
       return m_ent->v.dmg_inflictor;
    }
@@ -2933,14 +2942,14 @@ public:
       m_ent->v.health = health;
    }
 
-   inline String GetTarget (void)
+   inline String GetTarget (void) const
    {
-      return m_ent->v.target;
+      return SDK_Utils::GetStringFromOffset (m_ent->v.target);
    }
 
-   inline String GetTargetName (void)
+   inline String GetTargetName (void) const
    {
-      return m_ent->v.targetname;
+      return SDK_Utils::GetStringFromOffset (m_ent->v.targetname);
    }
 
    inline bool IsOnLadder (void) const
@@ -2950,7 +2959,7 @@ public:
 
    inline bool IsOnFloor (void) const
    {
-      return IsPlayer () ? !!(m_ent->v.flags & (FL_ONGROUND | FL_PARTIALGROUND)) : g_engfuncs.pfnEntIsOnFloor (m_ent);
+      return IsPlayer () ? (!!(m_ent->v.flags & (FL_ONGROUND | FL_PARTIALGROUND))) : g_engfuncs.pfnEntIsOnFloor (m_ent) != 0;
    }
 
    inline bool IsInWater (void) const
@@ -2958,19 +2967,19 @@ public:
       return m_ent->v.waterlevel >= 2;
    }
 
-   inline const Vector &GetCenter (void) const
+   inline Vector GetCenter (void) const
    {
-      return (m_ent->v.absmin + m_ent->v.absmax) * 0.5;
+      return (m_ent->v.absmin + m_ent->v.absmax) * 0.5f;
    }
 
-   inline const Vector &GetOrigin (void) const
+   inline virtual Vector GetOrigin (void) const
    {
-      return HasBoundingBox () ? GetCenter () : m_ent->v.rendercolor == Vector::GetNull () ? m_ent->v.absmin + (m_ent->v.size * 0.5) : m_ent->v.origin;
+      return HasBoundingBox () ? GetCenter () : m_ent->v.rendercolor == nullvec ? m_ent->v.absmin + (m_ent->v.size * 0.5) : m_ent->v.origin;
    }
 
    inline bool HasBoundingBox (void) const
    {
-      return m_ent->v.absmin != Vector::GetNull () && m_ent->v.absmax != Vector::GetNull ();
+      return m_ent->v.absmin != nullvec && m_ent->v.absmax != nullvec;
    }
 
    inline float GetSpeed (void) const
@@ -2992,21 +3001,34 @@ public:
    {
       m_ent->v.fov = fov;
    }
+
+   inline int GetIndex (void) const
+   {
+      return g_engfuncs.pfnIndexOfEdict (m_ent);
+   }
 };
 
 class Client : public Entity
 {
 private:
    int m_team;
+   int m_flags;
+   Vector m_safeOrigin;
 
 public:
    Client (void)
    {
-      m_ent = NULL;
+      m_flags = CLIENT_UNASSIGNED;
+      m_team = CLIENT_UNASSIGNED;
+
+      m_ent = null;
    }
 
    Client (edict_t *ent)
    {
+      m_flags = CLIENT_UNASSIGNED;
+      m_team = CLIENT_UNASSIGNED;
+
       m_ent = ent;
    }
 
@@ -3022,9 +3044,16 @@ public:
       return *this;
    }
 
+
    inline Client &operator = (const Client &other)
    {
       m_ent = other.m_ent;
+      return *this;
+   }
+
+   inline Client &operator = (const Entity &other)
+   {
+      m_ent = other;
       return *this;
    }
 
@@ -3035,29 +3064,75 @@ public:
 
    inline bool operator != (const Client &other) const
    {
-      return IsValid () && m_ent != other.m_ent;
+      return m_ent != other.m_ent;
+   }
+
+   inline bool operator == (const Entity &other) const
+   {
+      return IsValid () && m_ent == other;
+   }
+
+   inline bool operator != (const Entity &other) const
+   {
+      return m_ent != other;
    }
 
 public:
-   inline float GetShootingConeDeviation (const Vector &pos);
+   inline float GetShootingConeDeviation (const Vector &pos) const;
 
-   inline bool IsInViewCone (const Vector &pos);
+   inline bool IsInViewCone (const Vector &pos) const;
 
-   inline bool IsVisible (const Vector &pos);
+   inline bool IsVisible (const Vector &pos) const; 
 
-   virtual bool IsPlayer (void)
+   void Print (PrintType printType, const char *format, ... ) const
    {
-      return IsValid () && !!(m_ent->v.flags & (FL_FAKECLIENT | FL_CLIENT)) && !GetName ().IsEmpty ();
+      if (IsBot ())
+         return;
+
+      char buffer[1024];
+      va_list ap;
+
+      va_start (ap, format);
+      vsprintf (buffer, format, ap);
+      va_end (ap);
+
+      int enginePrintType = 0;
+
+      switch (printType)
+      {
+      case PRINT_CENTER:
+         enginePrintType = 1;
+         break;
+
+      case PRINT_CHAT:
+         enginePrintType = 2;
+         break;
+
+      case PRINT_CONSOLE:
+         enginePrintType = 0;
+         break;
+      }
+      strcat (buffer, "\n");
+
+      // print to client
+      g_engfuncs.pfnClientPrintf (m_ent, static_cast <PRINT_TYPE> (enginePrintType), buffer);
    }
 
-   virtual bool IsBot (void)
-   {
-      return false;
-   }
+   inline bool HasFlag (int clientFlags);
+
+   virtual Vector GetOrigin (void) const;
+   virtual bool IsAlive (void) const;
+
+   void Maintain (const Entity &ent);
 };
 
 class Engine : public Singleton <Engine>
 {
+   friend class Client;
+
+private:
+   Client m_clients[32];
+
 private:
    uint32_t m_rnd[2];
    double m_divider;
@@ -3145,11 +3220,19 @@ public:
    float GetTime (void);
 
    int GetMaxClients (void);
+
+   void PrintAllClients (PrintType printType, const char *format, ...);
+
+   const Entity &GetEntityByIndex (int index);
+
+   const Client &GetClientByIndex (int index);
+
+   void MaintainClients (void);
 };
 
 #define engine Engine::GetReference ()
 
-class Trace
+class Tracer
 {
 private:
    Vector m_hitEndPos;
@@ -3163,12 +3246,46 @@ private:
 
    bool m_monsters;
    bool m_glass;
+   bool m_solid;
+   bool m_allSolid;
 
    Entity m_ignore;
    int m_hullNumber;
 
 public:
-   Trace (const Vector &start, const Vector &end, int ignoreFlags, const Entity &ignore, int hull = -1)
+   Tracer (const Vector &start, const Vector &end, int ignoreFlags, const Entity &ignore, int hull = -1, bool run = false)
+   {
+      // @DEPRECATEME@
+      SetParameters (start, end, ignoreFlags, ignore, hull);
+
+      if (run)
+         Fire ();
+   }
+
+   Tracer (void)
+   {
+   }
+
+   inline float Fire (void)
+   {
+      TraceResult tr;
+
+      if (m_hullNumber != -1)
+         g_engfuncs.pfnTraceHull (m_start, m_end, m_monsters ? 1 : 0, m_hullNumber, m_ignore ? m_ignore : null, &tr);
+      else
+         g_engfuncs.pfnTraceLine (m_start, m_end, m_monsters ? 1 : 0 | m_glass ? 0x100 : 0,  m_ignore ? m_ignore : null, &tr);
+
+      m_fraction = tr.flFraction;
+      m_planeNormal = tr.vecPlaneNormal;
+      m_end = tr.vecEndPos;
+      m_hit = tr.pHit;
+      m_solid = tr.fStartSolid > 0;
+      m_allSolid = tr.fAllSolid > 0;
+
+      return m_fraction;
+   }
+
+   inline Tracer *SetParameters (const Vector &start, const Vector &end, int ignoreFlags, const Entity &ignore, int hull = -1)
    {
       m_start = start;
       m_end = end;
@@ -3176,30 +3293,26 @@ public:
       m_hullNumber = hull;
       m_glass = false;
       m_monsters = false;
+      m_solid = false;
+      m_allSolid = false;
 
       if (ignoreFlags & NO_GLASS)
          m_glass = true;
 
       if (ignoreFlags & NO_MONSTERS)
          m_monsters = true;
+
+      return this;
    }
 
-   float Fire (void)
+   inline bool IsStartSolid (void)
    {
-      TraceResult tr;
+      return m_solid;
+   }
 
-      if (m_hullNumber != -1)
-         g_engfuncs.pfnTraceHull (m_start, m_end, m_monsters ? 1 : 0, m_hullNumber, m_ignore ? m_ignore : NULL, &tr);
-      else
-         g_engfuncs.pfnTraceLine (m_start, m_end, m_monsters ? 1 : 0 | m_glass ? 0x100 : 0,  m_ignore ? m_ignore : NULL, &tr);
-
-      m_fraction = tr.flFraction;
-      m_planeNormal = tr.vecPlaneNormal;
-      m_end = tr.vecEndPos;
-      m_hit = tr.pHit;
-
-      return m_fraction;
-
+   inline bool IsAllSolid (void)
+   {
+      return m_allSolid;
    }
 
    inline const Vector &GetHitEndPos (void)
@@ -3217,12 +3330,28 @@ public:
       return m_hit;
    }
 
+   inline bool HasHitEntity (void)
+   {
+      return m_hit.IsValid ();
+   }
+
+   inline bool CheckHitClassname (const String &other)
+   {
+      if (m_hit.GetClassname ().Find  (other) != -1)
+         return true;
+
+      return false;
+   }
+
+   inline String GetClassname (void)
+   {
+      return m_hit.GetClassname ();
+   }
+
    inline float GetFraction (void)
    {
       return m_fraction;
    }
 };
-
-
 
 #endif

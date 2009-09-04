@@ -19,7 +19,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //
-// $Id: support.cpp 23 2009-06-16 21:59:33Z jeefo $
+// $Id:$
 //
 
 #include <core.h>
@@ -43,7 +43,7 @@ void TraceLine (const Vector &start, const Vector &end, bool ignoreMonsters, boo
    // in ignoreEntity in order to ignore it as a possible obstacle.
    // this is an overloaded prototype to add IGNORE_GLASS in the same way as IGNORE_MONSTERS work.
 
-   (*g_engfuncs.pfnTraceLine) (start, end, (ignoreMonsters ? TRUE : FALSE) | (ignoreGlass ? 0x100 : 0), ignoreEntity, ptr);
+   (*g_engfuncs.pfnTraceLine) (start, end, (ignoreMonsters ? 1 : 0) | (ignoreGlass ? 0x100 : 0), ignoreEntity, ptr);
 }
 
 void TraceLine (const Vector &start, const Vector &end, bool ignoreMonsters, edict_t *ignoreEntity, TraceResult *ptr)
@@ -56,7 +56,7 @@ void TraceLine (const Vector &start, const Vector &end, bool ignoreMonsters, edi
    // whether the trace starts "inside" an entity's polygonal model, and if so, to specify that entity
    // in ignoreEntity in order to ignore it as a possible obstacle.
 
-   (*g_engfuncs.pfnTraceLine) (start, end, ignoreMonsters ? TRUE : FALSE, ignoreEntity, ptr);
+   (*g_engfuncs.pfnTraceLine) (start, end, ignoreMonsters ? 1 : 0, ignoreEntity, ptr);
 }
 
 void TraceHull (const Vector &start, const Vector &end, bool ignoreMonsters, int hullNumber, edict_t *ignoreEntity, TraceResult *ptr)
@@ -72,7 +72,7 @@ void TraceHull (const Vector &start, const Vector &end, bool ignoreMonsters, int
    // function allows to specify whether the trace starts "inside" an entity's polygonal model,
    // and if so, to specify that entity in ignoreEntity in order to ignore it as an obstacle.
 
-   (*g_engfuncs.pfnTraceHull) (start, end, ignoreMonsters ? TRUE : FALSE, hullNumber, ignoreEntity, ptr);
+   (*g_engfuncs.pfnTraceHull) (start, end, ignoreMonsters ? 1 : 0, hullNumber, ignoreEntity, ptr);
 }
 
 uint16 FixedUnsigned16 (float value, float scale)
@@ -122,7 +122,7 @@ bool IsInViewCone (Vector origin, edict_t *ent)
 {
    MakeVectors (ent->v.v_angle);
 
-   if (((origin - (ent->v.origin + ent->v.view_ofs)).Normalize () | g_pGlobals->v_forward) >= cosf (((ent->v.fov > 0 ? ent->v.fov : 90.0) / 2) * Math::MATH_PI / 180.0))
+   if (((origin - (ent->v.origin + ent->v.view_ofs)).Normalize () | g_pGlobals->v_forward) >= cosf (((ent->v.fov > 0 ? ent->v.fov : 90.0f) / 2) * Math::MATH_PI / 180.0f))
       return true;
 
    return false;
@@ -136,7 +136,7 @@ bool IsVisible (const Vector &origin, edict_t *ent)
    TraceResult tr;
    TraceLine (ent->v.origin + ent->v.view_ofs, origin, true, true, ent, &tr);
 
-   if (tr.flFraction != 1.0)
+   if (tr.flFraction != 1.0f)
       return false; // line of sight is not established
 
    return true; // line of sight is valid.
@@ -148,9 +148,9 @@ Vector GetEntityOrigin (edict_t *ent)
    // entity that has a bounding box has its center at the center of the bounding box itself.
 
    if (FNullEnt (ent))
-      return Vector::GetNull ();
+      return nullvec;
 
-   if (ent->v.origin == Vector::GetNull ())
+   if (ent->v.origin == nullvec)
       return ent->v.absmin + (ent->v.size * 0.5);
 
    return ent->v.origin;
@@ -163,7 +163,7 @@ void DisplayMenuToClient (edict_t *ent, MenuText *menu)
 
    int clientIndex = ENTINDEX (ent) - 1;
 
-   if (menu != NULL)
+   if (menu != null)
    {
       String tempText = String (menu->menuText);
       tempText.Replace ("\v", "\n");
@@ -179,7 +179,7 @@ void DisplayMenuToClient (edict_t *ent, MenuText *menu)
 
       while (strlen (text) >= 64)
       {
-         MESSAGE_BEGIN (MSG_ONE_UNRELIABLE, g_netMsg->GetId (NETMSG_SHOWMENU), NULL, ent);
+         MESSAGE_BEGIN (MSG_ONE_UNRELIABLE, g_netMsg->GetId (NETMSG_SHOWMENU), null, ent);
             WRITE_SHORT (menu->validSlots);
             WRITE_CHAR (-1);
             WRITE_BYTE (1);
@@ -192,7 +192,7 @@ void DisplayMenuToClient (edict_t *ent, MenuText *menu)
          text += 64;
       }
 
-      MESSAGE_BEGIN (MSG_ONE_UNRELIABLE, g_netMsg->GetId (NETMSG_SHOWMENU), NULL, ent);
+      MESSAGE_BEGIN (MSG_ONE_UNRELIABLE, g_netMsg->GetId (NETMSG_SHOWMENU), null, ent);
          WRITE_SHORT (menu->validSlots);
          WRITE_CHAR (-1);
          WRITE_BYTE (0);
@@ -203,14 +203,14 @@ void DisplayMenuToClient (edict_t *ent, MenuText *menu)
    }
    else
    {
-      MESSAGE_BEGIN (MSG_ONE_UNRELIABLE, g_netMsg->GetId (NETMSG_SHOWMENU), NULL, ent);
+      MESSAGE_BEGIN (MSG_ONE_UNRELIABLE, g_netMsg->GetId (NETMSG_SHOWMENU), null, ent);
          WRITE_SHORT (0);
          WRITE_CHAR (0);
          WRITE_BYTE (0);
          WRITE_STRING ("");
       MESSAGE_END();
 
-     g_clients[clientIndex].menu = NULL;
+     g_clients[clientIndex].menu = null;
    }
    CLIENT_COMMAND (ent, "speak \"player/geiger1\"\n"); // Stops others from hearing menu sounds..
 }
@@ -232,7 +232,7 @@ void DecalTrace (entvars_t *pev, TraceResult *trace, int logotypeIndex)
    if (decalIndex < 0)
       decalIndex = (*g_engfuncs.pfnDecalIndex) ("{lambda06");
 
-   if (trace->flFraction == 1.0)
+   if (trace->flFraction == 1.0f)
       return;
 
    if (!FNullEnt (trace->pHit))
@@ -299,9 +299,9 @@ void FreeLibraryMemory (void)
    g_botManager->Free ();
    g_waypoint->Initialize (); // frees waypoint data
 
-   if (g_experienceData != NULL)
+   if (g_experienceData != null)
       delete [] g_experienceData;
-   g_experienceData = NULL;
+   g_experienceData = null;
 }
 
 void FakeClientCommand (edict_t *fakeClient, const char *format, ...)
@@ -564,7 +564,7 @@ void DrawLine (edict_t *ent, Vector start, Vector end, int width, int noise, int
    if (!IsValidPlayer (ent))
       return; // reliability check
 
-   MESSAGE_BEGIN (MSG_ONE_UNRELIABLE, SVC_TEMPENTITY, NULL, ent);
+   MESSAGE_BEGIN (MSG_ONE_UNRELIABLE, SVC_TEMPENTITY, null, ent);
       WRITE_BYTE (TE_BEAMPOINTS);
       WRITE_COORD (start.x);
       WRITE_COORD (start.y);
@@ -597,7 +597,7 @@ void DrawArrow (edict_t *ent, Vector start, Vector end, int width, int noise, in
    if (!IsValidPlayer (ent))
       return; // reliability check
 
-   MESSAGE_BEGIN (MSG_ONE_UNRELIABLE, SVC_TEMPENTITY, NULL, ent);
+   MESSAGE_BEGIN (MSG_ONE_UNRELIABLE, SVC_TEMPENTITY, null, ent);
       WRITE_BYTE (TE_BEAMPOINTS);
       WRITE_COORD (end.x);
       WRITE_COORD (end.y);
@@ -749,14 +749,14 @@ void RoundInit (void)
    g_waypoint->ClearGoalScore ();
 
    g_bombSayString = false;
-   g_timeBombPlanted = 0.0;
-   g_timeNextBombUpdate = 0.0;
+   g_timeBombPlanted = 0.0f;
+   g_timeNextBombUpdate = 0.0f;
 
    g_leaderChoosen[TEAM_COUNTER] = false;
    g_leaderChoosen[TEAM_TERRORIST] =  false;
 
-   g_lastRadioTime[0] = 0.0;
-   g_lastRadioTime[1] = 0.0;
+   g_lastRadioTime[0] = 0.0f;
+   g_lastRadioTime[1] = 0.0f;
    g_botsCanPause = false;
 
    UpdateGlobalExperienceData (); // update experience data on round start
@@ -797,7 +797,7 @@ bool IsValidPlayer (edict_t *ent)
    if (FNullEnt (ent))
       return false;
 
-   if ((ent->v.flags & (FL_CLIENT | FL_FAKECLIENT)) || g_botManager->GetBot (ent) != NULL)
+   if ((ent->v.flags & (FL_CLIENT | FL_FAKECLIENT)) || g_botManager->GetBot (ent) != null)
       return !IsNullString (STRING (ent->v.netname));
 
    return false;
@@ -805,7 +805,7 @@ bool IsValidPlayer (edict_t *ent)
 
 bool IsValidBot (edict_t *ent)
 {
-   if (g_botManager->GetBot (ent) != NULL || (!FNullEnt (ent) && (ent->v.flags & FL_FAKECLIENT)))
+   if (g_botManager->GetBot (ent) != null || (!FNullEnt (ent) && (ent->v.flags & FL_FAKECLIENT)))
       return true;
 
    return false;
@@ -833,7 +833,7 @@ bool TryFileOpen (char *fileName)
    return false;
 }
 
-void HudMessage (edict_t *ent, bool toCenter, Vector rgb, char *format, ...)
+void HudMessage (edict_t *ent, bool toCenter, const Color &rgb, char *format, ...)
 {
    if (!IsValidPlayer (ent) || IsValidBot (ent))
       return;
@@ -845,15 +845,15 @@ void HudMessage (edict_t *ent, bool toCenter, Vector rgb, char *format, ...)
    vsprintf (buffer, format, ap);
    va_end (ap);
 
-   MESSAGE_BEGIN (MSG_ONE, SVC_TEMPENTITY, NULL, ent);
+   MESSAGE_BEGIN (MSG_ONE, SVC_TEMPENTITY, null, ent);
       WRITE_BYTE (TE_TEXTMESSAGE);
       WRITE_BYTE (1);
       WRITE_SHORT (FixedSigned16 (-1, 1 << 13));
       WRITE_SHORT (FixedSigned16 (toCenter ? -1 : 0, 1 << 13));
       WRITE_BYTE (2);
-      WRITE_BYTE (static_cast <int> (rgb.x));
-      WRITE_BYTE (static_cast <int> (rgb.y));
-      WRITE_BYTE (static_cast <int> (rgb.z));
+      WRITE_BYTE (static_cast <int> (rgb.red));
+      WRITE_BYTE (static_cast <int> (rgb.green));
+      WRITE_BYTE (static_cast <int> (rgb.blue));
       WRITE_BYTE (0);
       WRITE_BYTE (engine->RandomInt (230, 255));
       WRITE_BYTE (engine->RandomInt (230, 255));
@@ -1042,7 +1042,7 @@ void RegisterCommand (char *command, void funcPtr (void))
    // that for every "command_name" server command it receives, it should call the function
    // pointed to by "function" in order to handle it.
 
-   if (IsNullString (command) || funcPtr == NULL)
+   if (IsNullString (command) || funcPtr == null)
       return; // reliability check
 
    REG_SVR_COMMAND (command, funcPtr); // ask the engine to register this new command
@@ -1053,7 +1053,7 @@ void CheckWelcomeMessage (void)
    // the purpose of this function, is  to send quick welcome message, to the listenserver entity.
 
    static bool isReceived = false;
-   static float receiveTime = 0.0;
+   static float receiveTime = 0.0f;
 
    if (isReceived)
       return;
@@ -1078,25 +1078,25 @@ void CheckWelcomeMessage (void)
    sentences.Push ("attention, expect experimental armed hostile presence");
    sentences.Push ("warning, medical attention required");
 
-   if (IsAlive (g_hostEntity) && !isReceived && receiveTime < 1.0 && (g_numWaypoints > 0 ? g_isCommencing : true))
-      receiveTime = engine->GetTime () + 4.0; // receive welcome message in four seconds after game has commencing
+   if (IsAlive (g_hostEntity) && !isReceived && receiveTime < 1.0f && (g_numWaypoints > 0 ? g_isCommencing : true))
+      receiveTime = engine->GetTime () + 4.0f; // receive welcome message in four seconds after game has commencing
 
-   if (receiveTime > 0.0 && receiveTime < engine->GetTime () && !isReceived && (g_numWaypoints > 0 ? g_isCommencing : true))
+   if (receiveTime > 0.0f && receiveTime < engine->GetTime () && !isReceived && (g_numWaypoints > 0 ? g_isCommencing : true))
    {
       if (yb_synth.GetBool ())
          ServerCommand ("speak \"%s\"", sentences.GetRandomElement ());
 
       ChartPrint ("----- YaPB v%s (Build: %u), {%s}, (c) %s, by %s -----", PRODUCT_VERSION, GenerateBuildNumber (), PRODUCT_DATE, PRODUCT_COPYRIGHT_YEAR, PRODUCT_AUTHOR);
-      HudMessage (g_hostEntity, true, Vector (engine->RandomInt (33, 255), engine->RandomInt (33, 255), engine->RandomInt (33, 255)), "\nServer is running YaPB v%s (Build: %u)\nDeveloped by %s\n\n%s", PRODUCT_VERSION, GenerateBuildNumber (), PRODUCT_AUTHOR, g_waypoint->GetInfo ());
+      HudMessage (g_hostEntity, true, Color (engine->RandomInt (33, 255), engine->RandomInt (33, 255), engine->RandomInt (33, 255)), "\nServer is running YaPB v%s (Build: %u)\nDeveloped by %s\n\n%s", PRODUCT_VERSION, GenerateBuildNumber (), PRODUCT_AUTHOR, g_waypoint->GetInfo ());
 
-      receiveTime = 0.0;
+      receiveTime = 0.0f;
       isReceived = true;
    }
 }
 
 void DetectCSVersion (void)
 {
-   byte *detection = NULL;
+   uint8_t *detection = null;
    const char *const infoBuffer = "Game Registered: CS %s (0x%d)";
 
    // switch version returned by dll loader
@@ -1109,21 +1109,21 @@ void DetectCSVersion (void)
 
    // counter-strike 1.6 or higher (plus detects for non-steam versions of 1.5)
    case CSVER_CSTRIKE:
-      detection = (*g_engfuncs.pfnLoadFileForMe) ("events/galil.sc", NULL);
+      detection = (*g_engfuncs.pfnLoadFileForMe) ("events/galil.sc", null);
 
-      if (detection != NULL)
+      if (detection != null)
       {
          ServerPrint (infoBuffer, "1.6 (Steam)", sizeof (Bot));
          g_gameVersion = CSVER_CSTRIKE; // just to be sure
       }
-      else if (detection == NULL)
+      else if (detection == null)
       {
          ServerPrint (infoBuffer, "1.5 (WON)", sizeof (Bot));
          g_gameVersion = CSVER_VERYOLD; // reset it to WON
       }
 
       // if we have loaded the file free it
-      if (detection != NULL)
+      if (detection != null)
          (*g_engfuncs.pfnFreeFile) (detection);
       break;
 
@@ -1181,7 +1181,7 @@ float GetWaveLength (const char *fileName)
    float secondLength = waveHdr.dataChunkLength / waveHdr.bytesPerSecond;
    float milliSecondLength = atof (ch);
 
-   return (secondLength == 0.0 ? milliSecondLength : secondLength);
+   return (secondLength == 0.0f ? milliSecondLength : secondLength);
 }
 
 void AddLogEntry (bool outputToConsole, int logLevel, const char *format, ...)
@@ -1250,8 +1250,8 @@ void AddLogEntry (bool outputToConsole, int logLevel, const char *format, ...)
       FreeLibraryMemory ();
 
 #if defined (PLATFORM_WIN32)
-      MessageBox (NULL, buffer, "YaPB Critical Error", MB_ICONERROR);
-      ExitProcess (true);
+//      MessageBox (null, buffer, "YaPB Critical Error", MB_ICONERROR);
+//      ExitProcess (true);
 #else
       exit (1);
 #endif
@@ -1296,8 +1296,8 @@ bool FindNearestPlayer (void **pvHolder, edict_t *to, float searchDistance, bool
    // team, live status, search distance etc. if needBot is true, then pvHolder, will
    // be filled with bot pointer, else with edict pointer(!).
 
-   edict_t *ent = NULL, *survive = NULL; // pointer to temporaly & survive entity
-   float nearestPlayer = 4096.0; // nearest player
+   edict_t *ent = null, *survive = null; // pointer to temporaly & survive entity
+   float nearestPlayer = 4096.0f; // nearest player
 
    while (!FNullEnt (ent = FIND_ENTITY_IN_SPHERE (ent, to->v.origin, searchDistance)))
    {
@@ -1363,66 +1363,66 @@ void SoundAttachToThreat (edict_t *ent, const char *sample, float volume)
    if (strncmp ("player/bhit_flesh", sample, 17) == 0 || strncmp ("player/headshot", sample, 15) == 0)
    {
       // hit/fall sound?
-      g_clients[index].hearingDistance = 768.0 * volume;
-      g_clients[index].timeSoundLasting = engine->GetTime () + 0.5;
-      g_clients[index].maxTimeSoundLasting = 0.5;
+      g_clients[index].hearingDistance = 768.0f * volume;
+      g_clients[index].timeSoundLasting = engine->GetTime () + 0.5f;
+      g_clients[index].maxTimeSoundLasting = 0.5f;
       g_clients[index].soundPosition = origin;
    }
    else if (strncmp ("items/gunpickup", sample, 15) == 0)
    {
       // weapon pickup?
-      g_clients[index].hearingDistance = 768.0 * volume;
-      g_clients[index].timeSoundLasting = engine->GetTime () + 0.5;
-      g_clients[index].maxTimeSoundLasting = 0.5;
+      g_clients[index].hearingDistance = 768.0f * volume;
+      g_clients[index].timeSoundLasting = engine->GetTime () + 0.5f;
+      g_clients[index].maxTimeSoundLasting = 0.5f;
       g_clients[index].soundPosition = origin;
    }
    else if (strncmp ("weapons/zoom", sample, 12) == 0)
    {
       // sniper zooming?
-      g_clients[index].hearingDistance = 512.0 * volume;
-      g_clients[index].timeSoundLasting = engine->GetTime () + 0.1;
-      g_clients[index].maxTimeSoundLasting = 0.1;
+      g_clients[index].hearingDistance = 512.0f * volume;
+      g_clients[index].timeSoundLasting = engine->GetTime () + 0.1f;
+      g_clients[index].maxTimeSoundLasting = 0.1f;
       g_clients[index].soundPosition = origin;
    }
    else if (strncmp ("items/9mmclip", sample, 13) == 0)
    {
       // ammo pickup?
-      g_clients[index].hearingDistance = 512.0 * volume;
-      g_clients[index].timeSoundLasting = engine->GetTime () + 0.1;
-      g_clients[index].maxTimeSoundLasting = 0.1;
+      g_clients[index].hearingDistance = 512.0f * volume;
+      g_clients[index].timeSoundLasting = engine->GetTime () + 0.1f;
+      g_clients[index].maxTimeSoundLasting = 0.1f;
       g_clients[index].soundPosition = origin;
    }
    else if (strncmp ("hostage/hos", sample, 11) == 0)
    {
       // CT used hostage?
-      g_clients[index].hearingDistance = 1024.0 * volume;
-      g_clients[index].timeSoundLasting = engine->GetTime () + 5.0;
-      g_clients[index].maxTimeSoundLasting = 0.5;
+      g_clients[index].hearingDistance = 1024.0f * volume;
+      g_clients[index].timeSoundLasting = engine->GetTime () + 5.0f;
+      g_clients[index].maxTimeSoundLasting = 0.5f;
       g_clients[index].soundPosition = origin;
    }
    else if (strncmp ("debris/bustmetal", sample, 16) == 0 || strncmp ("debris/bustglass", sample, 16) == 0)
    {
       // broke something?
-      g_clients[index].hearingDistance = 1024.0 * volume;
-      g_clients[index].timeSoundLasting = engine->GetTime () + 2.0;
-      g_clients[index].maxTimeSoundLasting = 2.0;
+      g_clients[index].hearingDistance = 1024.0f * volume;
+      g_clients[index].timeSoundLasting = engine->GetTime () + 2.0f;
+      g_clients[index].maxTimeSoundLasting = 2.0f;
       g_clients[index].soundPosition = origin;
    }
    else if (strncmp ("doors/doormove", sample, 14) == 0)
    {
       // someone opened a door
-      g_clients[index].hearingDistance = 1024.0 * volume;
-      g_clients[index].timeSoundLasting = engine->GetTime () + 3.0;
-      g_clients[index].maxTimeSoundLasting = 3.0;
+      g_clients[index].hearingDistance = 1024.0f * volume;
+      g_clients[index].timeSoundLasting = engine->GetTime () + 3.0f;
+      g_clients[index].maxTimeSoundLasting = 3.0f;
       g_clients[index].soundPosition = origin;
    }
 #if 0
    else if (strncmp ("weapons/reload",  sample, 14) == 0)
    {
       // reloading ?
-      g_clients[index].hearingDistance = 512.0 * volume;
-      g_clients[index].timeSoundLasting = engine->GetTime () + 0.5;
-      g_clients[index].maxTimeSoundLasting = 0.5;
+      g_clients[index].hearingDistance = 512.0f * volume;
+      g_clients[index].timeSoundLasting = engine->GetTime () + 0.5f;
+      g_clients[index].maxTimeSoundLasting = 0.5f;
       g_clients[index].soundPosition = origin;
    }
 #endif
@@ -1442,35 +1442,35 @@ void SoundSimulateUpdate (int playerIndex)
    edict_t *player = g_clients[playerIndex].ent;
 
    float velocity = player->v.velocity.GetLength2D ();
-   float hearDistance = 0.0;
-   float timeSound = 0.0;
-   float timeMaxSound = 0.5;
+   float hearDistance = 0.0f;
+   float timeSound = 0.0f;
+   float timeMaxSound = 0.5f;
 
    if (player->v.oldbuttons & IN_ATTACK) // pressed attack button?
    {
-      hearDistance = 3072.0;
-      timeSound = engine->GetTime () + 0.3;
-      timeMaxSound = 0.3;
+      hearDistance = 3072.0f;
+      timeSound = engine->GetTime () + 0.3f;
+      timeMaxSound = 0.3f;
    }
    else if (player->v.oldbuttons & IN_USE) // pressed used button?
    {
-      hearDistance = 512.0;
-      timeSound = engine->GetTime () + 0.5;
-      timeMaxSound = 0.5;
+      hearDistance = 512.0f;
+      timeSound = engine->GetTime () + 0.5f;
+      timeMaxSound = 0.5f;
    }
    else if (player->v.oldbuttons & IN_RELOAD) // pressed reload button?
    {
-      hearDistance = 512.0;
-      timeSound = engine->GetTime () + 0.5;
-      timeMaxSound = 0.5;
+      hearDistance = 512.0f;
+      timeSound = engine->GetTime () + 0.5f;
+      timeMaxSound = 0.5f;
    }
    else if (player->v.movetype == MOVETYPE_FLY) // uses ladder?
    {
-      if (fabs (player->v.velocity.z) > 50.0)
+      if (fabs (player->v.velocity.z) > 50.0f)
       {
-         hearDistance = 1024.0;
-         timeSound = engine->GetTime () + 0.3;
-         timeMaxSound = 0.3;
+         hearDistance = 1024.0f;
+         timeSound = engine->GetTime () + 0.3f;
+         timeMaxSound = 0.3f;
       }
    }
    else
@@ -1478,21 +1478,21 @@ void SoundSimulateUpdate (int playerIndex)
       if (engine->IsFootstepsOn ())
       {
          // moves fast enough?
-         hearDistance = 1280.0 * (velocity / 240);
-         timeSound = engine->GetTime () + 0.3;
-         timeMaxSound = 0.3;
+         hearDistance = 1280.0f * (velocity / 240);
+         timeSound = engine->GetTime () + 0.3f;
+         timeMaxSound = 0.3f;
       }
    }
 
-   if (hearDistance <= 0.0)
+   if (hearDistance <= 0.0f)
       return; // didn't issue sound?
 
    // some sound already associated
    if (g_clients[playerIndex].timeSoundLasting > engine->GetTime ())
    {
       // new sound louder (bigger range) than old one ?
-      if (g_clients[playerIndex].maxTimeSoundLasting <= 0.0)
-         g_clients[playerIndex].maxTimeSoundLasting = 0.5;
+      if (g_clients[playerIndex].maxTimeSoundLasting <= 0.0f)
+         g_clients[playerIndex].maxTimeSoundLasting = 0.5f;
 
       if (g_clients[playerIndex].hearingDistance * (g_clients[playerIndex].timeSoundLasting - engine->GetTime ()) / g_clients[playerIndex].maxTimeSoundLasting <= hearDistance)
       {
@@ -1524,7 +1524,7 @@ uint16 GenerateBuildNumber (void)
    const char *months[12] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 
    // array of the month days
-   byte monthDays[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+   uint8_t monthDays[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
    int day = 0; // day of the year
    int year = 0; // year
@@ -1541,7 +1541,7 @@ uint16 GenerateBuildNumber (void)
    day += atoi (&date[4]) - 1; // finally calculate day
    year = atoi (&date[7]) - 2000; // get years since year 2000
 
-   uint16 buildNumber = day + static_cast <int> ((year - 1) * 365.25);
+   int buildNumber = day + static_cast <int> ((year - 1) * 365.25);
 
    // if the year is a leap year?
    if ((year % 4) == 0 && i > 1)

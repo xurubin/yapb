@@ -19,7 +19,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //
-// $Id: globals.cpp 19 2009-06-16 16:32:17Z jeefo $
+// $Id:$
 //
 
 #include <core.h>
@@ -40,14 +40,14 @@ bool g_autoWaypoint = false;
 bool g_bLearnJumpWaypoint = false;
 bool g_leaderChoosen[2] = {false, false};
 
-float g_lastChatTime = 0.0;
-float g_timeRoundStart = 0.0;
-float g_timeRoundEnd = 0.0;
-float g_timeRoundMid = 0.0;
-float g_timeNextBombUpdate = 0.0;
-float g_timeBombPlanted = 0.0;
-float g_lastRadioTime[2] = {0.0, 0.0};
-float g_autoPathDistance = 250.0;
+float g_lastChatTime = 0.0f;
+float g_timeRoundStart = 0.0f;
+float g_timeRoundEnd = 0.0f;
+float g_timeRoundMid = 0.0f;
+float g_timeNextBombUpdate = 0.0f;
+float g_timeBombPlanted = 0.0f;
+float g_lastRadioTime[2] = {0.0f, 0.0f};
+float g_autoPathDistance = 250.0f;
 
 int g_lastRadio[2];
 int g_storeAddbotVars[4];
@@ -56,36 +56,36 @@ int g_fakeArgc = 0;
 int g_gameVersion = CSVER_CSTRIKE;
 int g_numWaypoints = 0;
 int g_mapType = 0;
-int g_killHistory = 0;
+unsigned short g_killHistory = 0;
 
-short g_modelIndexLaser = 0;
-short g_modelIndexArrow = 0;
+int g_modelIndexLaser = 0;
+int g_modelIndexArrow = 0;
 char g_fakeArgv[256];
 
 Array <Array <String> > g_chatFactory;
 Array <Array <ChatterItem> > g_chatterFactory;
 Array <NameItem> g_botNames;
 Array <KwChat> g_replyFactory;
-Library *g_gameLib = NULL;
+Library *g_gameLib = null;
 
-meta_globals_t *gpMetaGlobals = NULL;
-gamedll_funcs_t *gpGamedllFuncs = NULL;
-mutil_funcs_t *gpMetaUtilFuncs = NULL;
+meta_globals_t *gpMetaGlobals = null;
+gamedll_funcs_t *gpGamedllFuncs = null;
+mutil_funcs_t *gpMetaUtilFuncs = null;
 
 DLL_FUNCTIONS g_functionTable;
-EntityAPI_t g_entityAPI = NULL;
-NewEntityAPI_t g_getNewEntityAPI = NULL;
-BlendAPI_t g_serverBlendingAPI = NULL;
-FuncPointers_t g_funcPointers = NULL;
+EntityAPI_t g_entityAPI = null;
+NewEntityAPI_t g_getNewEntityAPI = null;
+BlendAPI_t g_serverBlendingAPI = null;
+FuncPointers_t g_funcPointers = null;
 
 enginefuncs_t g_engfuncs;
 Client_old g_clients[32];
 WeaponProperty g_weaponDefs[Const_MaxWeapons + 1];
 
-edict_t *g_worldEdict = NULL;
-edict_t *g_hostEntity = NULL;
-globalvars_t *g_pGlobals = NULL;
-Experience *g_experienceData = NULL;
+edict_t *g_worldEdict = null;
+edict_t *g_hostEntity = null;
+globalvars_t *g_pGlobals = null;
+Experience *g_experienceData = null;
 
 // default tables for personality weapon preferences, overridden by weapons.cfg
 int g_normalWeaponPrefs[Const_NumWeapons] =
@@ -105,12 +105,12 @@ int g_botBuyEconomyTable[Const_NumWeapons - 15] =
 
 SkillDef g_skillTab[6] =
 {
-   {0.8, 1.0, 45.0, 65.0, 2.0, 3.0, 40.0, 40.0, 50.0,   0,   0,   0, 50},
-   {0.6, 0.8, 40.0, 60.0, 3.0, 4.0, 30.0, 30.0, 42.0,  10,   0,   0, 40},
-   {0.4, 0.6, 35.0, 55.0, 4.0, 6.0, 20.0, 20.0, 32.0,  30,   0,  50, 35},
-   {0.2, 0.3, 30.0, 50.0, 6.0, 8.0, 10.0, 10.0, 18.0,   0,  30,  80, 30},
-   {0.1, 0.2, 25.0, 40.0, 8.0, 10.0, 5.0,  5.0, 10.0,  80,  50, 100, 23},
-   {0.0, 0.1, 20.0, 30.0, 9.0, 12.0, 0.0,  5.0,  0.0, 100, 100, 100, 20}
+   {0.8f, 1.0, 45.0, 65.0, 2.0, 3.0, 40.0f, 40.0f, 50.0f,   0,   0,   0, 50},
+   {0.6f, 0.8f, 40.0f, 60.0f, 3.0, 4.0, 30.0f, 30.0f, 42.0,  10,   0,   0, 40},
+   {0.4f, 0.6f, 35.0, 55.0, 4.0, 6.0, 20.0f, 20.0f, 32.0,  30,   0,  50, 35},
+   {0.2f, 0.3f, 30.0f, 50.0f, 6.0, 8.0, 10.0f, 10.0f, 18.0,   0,  30,  80, 30},
+   {0.1f, 0.2f, 25.0, 40.0f, 8.0, 10.0f, 5.0,  5.0, 10.0f,  80,  50, 100, 23},
+   {0.0f, 0.1f, 20.0f, 30.0f, 9.0, 12.0, 0.0f,  5.0,  0.0f, 100, 100, 100, 20}
 };
 
 int *g_weaponPrefs[] =
@@ -125,14 +125,14 @@ extern "C" int GetEntityAPI2 (DLL_FUNCTIONS *functionTable, int *interfaceVersio
 // metamod engine & dllapi function tables
 metamod_funcs_t gMetaFunctionTable =
 {
-   NULL, // pfnEntityAPI_t ()
-   NULL, // pfnEntityAPI_t_Post ()
+   null, // pfnEntityAPI_t ()
+   null, // pfnEntityAPI_t_Post ()
    GetEntityAPI2, // pfnEntityAPI_t2 ()
    GetEntityAPI2_Post, // pfnEntityAPI_t2_Post ()
-   NULL, // pfnGetNewDLLFunctions ()
-   NULL, // pfnGetNewDLLFunctions_Post ()
+   null, // pfnGetNewDLLFunctions ()
+   null, // pfnGetNewDLLFunctions_Post ()
    GetEngineFunctions, // pfnGetEngineFunctions ()
-   NULL, // pfnGetEngineFunctions_Post ()
+   null, // pfnGetEngineFunctions_Post ()
 };
 
 // metamod plugin information
@@ -152,26 +152,26 @@ plugin_info_t Plugin_info =
 // table with all available actions for the bots (filtered in & out in Bot::SetConditions) some of them have subactions included
 Task g_taskFilters[] =
 {
-   {NULL, NULL, TASK_NORMAL, 0, -1, 0.0, true},
-   {NULL, NULL, TASK_PAUSE, 0, -1, 0.0, false},
-   {NULL, NULL, TASK_MOVETOPOSITION, 0, -1, 0.0, true},
-   {NULL, NULL, TASK_FOLLOWUSER, 0, -1,0.0, true},
-   {NULL, NULL, TASK_PICKUPITEM, 0, -1, 0.0, true},
-   {NULL, NULL, TASK_CAMP, 0, -1, 0.0, true},
-   {NULL, NULL, TASK_PLANTBOMB, 0, -1, 0.0, false},
-   {NULL, NULL, TASK_DEFUSEBOMB, 0, -1, 0.0, false},
-   {NULL, NULL, TASK_FIGHTENEMY, 0, -1, 0.0, false},
-   {NULL, NULL, TASK_HUNTENEMY, 0, -1, 0.0, false},
-   {NULL, NULL, TASK_SEEKCOVER, 0, -1, 0.0, false},
-   {NULL, NULL, TASK_THROWHEGRENADE, 0, -1, 0.0, false},
-   {NULL, NULL, TASK_THROWFBGRENADE, 0, -1, 0.0, false},
-   {NULL, NULL, TASK_THROWSMGRENADE, 0, -1, 0.0, false},
-   {NULL, NULL, TASK_DOUBLEJUMP, 0, -1, 0.0, false},
-   {NULL, NULL, TASK_ESCAPEFROMBOMB, 0, -1, 0.0, false},
-   {NULL, NULL, TASK_DESTROYBREAKABLE, 0, -1, 0.0, false},
-   {NULL, NULL, TASK_HIDE, 0, -1, 0.0, false},
-   {NULL, NULL, TASK_BLINDED, 0, -1, 0.0, false},
-   {NULL, NULL, TASK_SPRAYLOGO, 0, -1, 0.0, false}
+   {null, null, TASK_NORMAL, 0, -1, 0.0f, true},
+   {null, null, TASK_PAUSE, 0, -1, 0.0f, false},
+   {null, null, TASK_MOVETOPOSITION, 0, -1, 0.0f, true},
+   {null, null, TASK_FOLLOWUSER, 0, -1,0.0f, true},
+   {null, null, TASK_PICKUPITEM, 0, -1, 0.0f, true},
+   {null, null, TASK_CAMP, 0, -1, 0.0f, true},
+   {null, null, TASK_PLANTBOMB, 0, -1, 0.0f, false},
+   {null, null, TASK_DEFUSEBOMB, 0, -1, 0.0f, false},
+   {null, null, TASK_FIGHTENEMY, 0, -1, 0.0f, false},
+   {null, null, TASK_HUNTENEMY, 0, -1, 0.0f, false},
+   {null, null, TASK_SEEKCOVER, 0, -1, 0.0f, false},
+   {null, null, TASK_THROWHEGRENADE, 0, -1, 0.0f, false},
+   {null, null, TASK_THROWFBGRENADE, 0, -1, 0.0f, false},
+   {null, null, TASK_THROWSMGRENADE, 0, -1, 0.0f, false},
+   {null, null, TASK_DOUBLEJUMP, 0, -1, 0.0f, false},
+   {null, null, TASK_ESCAPEFROMBOMB, 0, -1, 0.0f, false},
+   {null, null, TASK_DESTROYBREAKABLE, 0, -1, 0.0f, false},
+   {null, null, TASK_HIDE, 0, -1, 0.0f, false},
+   {null, null, TASK_BLINDED, 0, -1, 0.0f, false},
+   {null, null, TASK_SPRAYLOGO, 0, -1, 0.0f, false}
 };
 
 // weapons and their specifications
@@ -209,33 +209,33 @@ WeaponSelect g_weaponSelect[Const_NumWeapons + 1] =
 // weapon firing delay based on skill (min and max delay for each weapon)
 FireDelay g_fireDelay[Const_NumWeapons + 1] =
 {
-   {WEAPON_KNIFE,    255, 256, 0.10, {0.0, 0.2, 0.3, 0.4, 0.6, 0.8}, {0.1, 0.3, 0.5, 0.7, 1.0, 1.2}, 0.0, {0.0, 0.0, 0.0, 0.0, 0.0}, {0.0, 0.0, 0.0, 0.0, 0.0}},
-   {WEAPON_USP,      3,   853, 0.15, {0.0, 0.1, 0.2, 0.3, 0.4, 0.6}, {0.1, 0.2, 0.3, 0.4, 0.5, 0.7}, 0.2, {0.0, 0.0, 0.1, 0.1, 0.2}, {0.1, 0.1, 0.2, 0.2, 0.4}},
-   {WEAPON_GLOCK18,  5,   853, 0.15, {0.0, 0.1, 0.2, 0.3, 0.4, 0.6}, {0.1, 0.2, 0.3, 0.4, 0.5, 0.7}, 0.2, {0.0, 0.0, 0.1, 0.1, 0.2}, {0.1, 0.1, 0.2, 0.2, 0.4}},
-   {WEAPON_DEAGLE,   2,   640, 0.20, {0.0, 0.1, 0.2, 0.3, 0.4, 0.6}, {0.1, 0.2, 0.3, 0.4, 0.5, 0.7}, 0.2, {0.0, 0.0, 0.1, 0.1, 0.2}, {0.1, 0.1, 0.2, 0.2, 0.4}},
-   {WEAPON_P228,     4,   853, 0.14, {0.0, 0.1, 0.2, 0.3, 0.4, 0.6}, {0.1, 0.2, 0.3, 0.4, 0.5, 0.7}, 0.2, {0.0, 0.0, 0.1, 0.1, 0.2}, {0.1, 0.1, 0.2, 0.2, 0.4}},
-   {WEAPON_ELITE,    3,   640, 0.20, {0.0, 0.1, 0.2, 0.3, 0.4, 0.6}, {0.1, 0.2, 0.3, 0.4, 0.5, 0.7}, 0.2, {0.0, 0.0, 0.1, 0.1, 0.2}, {0.1, 0.1, 0.2, 0.2, 0.4}},
-   {WEAPON_FN57,     4,   731, 0.14, {0.0, 0.1, 0.2, 0.3, 0.4, 0.6}, {0.1, 0.2, 0.3, 0.4, 0.5, 0.7}, 0.2, {0.0, 0.0, 0.1, 0.1, 0.2}, {0.1, 0.1, 0.2, 0.2, 0.4}},
-   {WEAPON_M3,       8,   365, 0.86, {0.0, 0.1, 0.2, 0.3, 0.4, 0.6}, {0.1, 0.2, 0.3, 0.4, 0.5, 0.7}, 0.2, {0.0, 0.0, 0.1, 0.1, 0.2}, {0.1, 0.1, 0.2, 0.2, 0.4}},
-   {WEAPON_XM1014,   7,   512, 0.15, {0.0, 0.1, 0.2, 0.3, 0.4, 0.6}, {0.1, 0.2, 0.3, 0.4, 0.5, 0.7}, 0.2, {0.0, 0.0, 0.1, 0.1, 0.2}, {0.1, 0.1, 0.2, 0.2, 0.4}},
-   {WEAPON_MP5,      4,   731, 0.10, {0.0, 0.1, 0.2, 0.3, 0.4, 0.6}, {0.1, 0.2, 0.3, 0.4, 0.5, 0.7}, 0.2, {0.0, 0.0, 0.1, 0.1, 0.2}, {0.1, 0.1, 0.2, 0.2, 0.4}},
-   {WEAPON_TMP,      3,   731, 0.05, {0.0, 0.1, 0.2, 0.3, 0.4, 0.6}, {0.1, 0.2, 0.3, 0.4, 0.5, 0.7}, 0.2, {0.0, 0.0, 0.1, 0.1, 0.2}, {0.1, 0.1, 0.2, 0.2, 0.4}},
-   {WEAPON_P90,      4,   731, 0.10, {0.0, 0.1, 0.2, 0.3, 0.4, 0.6}, {0.1, 0.2, 0.3, 0.4, 0.5, 0.7}, 0.2, {0.0, 0.0, 0.1, 0.1, 0.2}, {0.1, 0.1, 0.2, 0.2, 0.4}},
-   {WEAPON_MAC10,    3,   731, 0.06, {0.0, 0.1, 0.2, 0.3, 0.4, 0.6}, {0.1, 0.2, 0.3, 0.4, 0.5, 0.7}, 0.2, {0.0, 0.0, 0.1, 0.1, 0.2}, {0.1, 0.1, 0.2, 0.2, 0.4}},
-   {WEAPON_UMP45,    4,   731, 0.15, {0.0, 0.1, 0.2, 0.3, 0.4, 0.6}, {0.1, 0.2, 0.3, 0.4, 0.5, 0.7}, 0.2, {0.0, 0.0, 0.1, 0.1, 0.2}, {0.1, 0.1, 0.2, 0.2, 0.4}},
-   {WEAPON_AK47,     2,   512, 0.09, {0.0, 0.1, 0.2, 0.3, 0.4, 0.6}, {0.1, 0.2, 0.3, 0.4, 0.5, 0.7}, 0.2, {0.0, 0.0, 0.1, 0.1, 0.2}, {0.1, 0.1, 0.2, 0.2, 0.4}},
-   {WEAPON_SG552,    3,   512, 0.11, {0.0, 0.1, 0.2, 0.3, 0.4, 0.6}, {0.1, 0.2, 0.3, 0.4, 0.5, 0.7}, 0.2, {0.0, 0.0, 0.1, 0.1, 0.2}, {0.1, 0.1, 0.2, 0.2, 0.4}},
-   {WEAPON_M4A1,     3,   512, 0.08, {0.0, 0.1, 0.2, 0.3, 0.4, 0.6}, {0.1, 0.2, 0.3, 0.4, 0.5, 0.7}, 0.2, {0.0, 0.0, 0.1, 0.1, 0.2}, {0.1, 0.1, 0.2, 0.2, 0.4}},
-   {WEAPON_GALIL,    4,   512, 0.09, {0.0, 0.1, 0.2, 0.3, 0.4, 0.6}, {0.1, 0.2, 0.3, 0.4, 0.5, 0.7}, 0.2, {0.0, 0.0, 0.1, 0.1, 0.2}, {0.1, 0.1, 0.2, 0.2, 0.4}},
-   {WEAPON_FAMAS,    4,   512, 0.10, {0.0, 0.1, 0.2, 0.3, 0.4, 0.6}, {0.1, 0.2, 0.3, 0.4, 0.5, 0.7}, 0.2, {0.0, 0.0, 0.1, 0.1, 0.2}, {0.1, 0.1, 0.2, 0.2, 0.4}},
-   {WEAPON_AUG,      3,   512, 0.11, {0.0, 0.1, 0.2, 0.3, 0.4, 0.6}, {0.1, 0.2, 0.3, 0.4, 0.5, 0.7}, 0.2, {0.0, 0.0, 0.1, 0.1, 0.2}, {0.1, 0.1, 0.2, 0.2, 0.4}},
-   {WEAPON_SCOUT,    10,  256, 0.18, {0.0, 0.1, 0.2, 0.3, 0.4, 0.6}, {0.1, 0.2, 0.3, 0.4, 0.5, 0.7}, 0.2, {0.0, 0.0, 0.1, 0.1, 0.2}, {0.1, 0.1, 0.2, 0.2, 0.4}},
-   {WEAPON_AWP,      10,  170, 0.22, {0.0, 0.1, 0.2, 0.3, 0.4, 0.6}, {0.1, 0.2, 0.3, 0.4, 0.5, 0.7}, 0.2, {0.0, 0.0, 0.1, 0.1, 0.2}, {0.1, 0.1, 0.2, 0.2, 0.4}},
-   {WEAPON_G3SG1,    4,   256, 0.25, {0.0, 0.1, 0.2, 0.3, 0.4, 0.6}, {0.1, 0.2, 0.3, 0.4, 0.5, 0.7}, 0.2, {0.0, 0.0, 0.1, 0.1, 0.2}, {0.1, 0.1, 0.2, 0.2, 0.4}},
-   {WEAPON_SG550,    4,   256, 0.25, {0.0, 0.1, 0.2, 0.3, 0.4, 0.6}, {0.1, 0.2, 0.3, 0.4, 0.5, 0.7}, 0.2, {0.0, 0.0, 0.1, 0.1, 0.2}, {0.1, 0.1, 0.2, 0.2, 0.4}},
-   {WEAPON_M249,      3,   640, 0.10, {0.0, 0.1, 0.2, 0.3, 0.4, 0.6}, {0.1, 0.2, 0.3, 0.4, 0.5, 0.7}, 0.2, {0.0, 0.0, 0.1, 0.1, 0.2}, {0.1, 0.1, 0.2, 0.2, 0.4}},
-   {WEAPON_SHIELDGUN, 0,   256, 0.00, {0.0, 0.0, 0.0, 0.0, 0.0, 0.0}, {0.0, 0.0, 0.0, 0.0, 0.0, 0.0}, 0.0, {0.0, 0.0, 0.0, 0.0, 0.0}, {0.0, 0.0, 0.0, 0.0, 0.0}},
-   {0,                0,   256, 0.00, {0.0, 0.0, 0.0, 0.0, 0.0, 0.0}, {0.0, 0.0, 0.0, 0.0, 0.0, 0.0}, 0.0, {0.0, 0.0, 0.0, 0.0, 0.0}, {0.0, 0.0, 0.0, 0.0, 0.0}}
+   {WEAPON_KNIFE,    255, 256, 0.10f, {0.0f, 0.2f, 0.3f, 0.4f, 0.6f, 0.8f}, {0.1f, 0.3f, 0.5f, 0.7f, 1.0f, 1.2f}, 0.0f, {0.0f, 0.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 0.0f, 0.0f}},
+   {WEAPON_USP,      3,   853, 0.15f, {0.0f, 0.1f, 0.2f, 0.3f, 0.4f, 0.6f}, {0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.7f}, 0.2f, {0.0f, 0.0f, 0.1f, 0.1f, 0.2f}, {0.1f, 0.1f, 0.2f, 0.2f, 0.4f}},
+   {WEAPON_GLOCK18,  5,   853, 0.15f, {0.0f, 0.1f, 0.2f, 0.3f, 0.4f, 0.6f}, {0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.7f}, 0.2f, {0.0f, 0.0f, 0.1f, 0.1f, 0.2f}, {0.1f, 0.1f, 0.2f, 0.2f, 0.4f}},
+   {WEAPON_DEAGLE,   2,   640, 0.20f, {0.0f, 0.1f, 0.2f, 0.3f, 0.4f, 0.6f}, {0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.7f}, 0.2f, {0.0f, 0.0f, 0.1f, 0.1f, 0.2f}, {0.1f, 0.1f, 0.2f, 0.2f, 0.4f}},
+   {WEAPON_P228,     4,   853, 0.14f, {0.0f, 0.1f, 0.2f, 0.3f, 0.4f, 0.6f}, {0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.7f}, 0.2f, {0.0f, 0.0f, 0.1f, 0.1f, 0.2f}, {0.1f, 0.1f, 0.2f, 0.2f, 0.4f}},
+   {WEAPON_ELITE,    3,   640, 0.20f, {0.0f, 0.1f, 0.2f, 0.3f, 0.4f, 0.6f}, {0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.7f}, 0.2f, {0.0f, 0.0f, 0.1f, 0.1f, 0.2f}, {0.1f, 0.1f, 0.2f, 0.2f, 0.4f}},
+   {WEAPON_FN57,     4,   731, 0.14f, {0.0f, 0.1f, 0.2f, 0.3f, 0.4f, 0.6f}, {0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.7f}, 0.2f, {0.0f, 0.0f, 0.1f, 0.1f, 0.2f}, {0.1f, 0.1f, 0.2f, 0.2f, 0.4f}},
+   {WEAPON_M3,       8,   365, 0.86f, {0.0f, 0.1f, 0.2f, 0.3f, 0.4f, 0.6f}, {0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.7f}, 0.2f, {0.0f, 0.0f, 0.1f, 0.1f, 0.2f}, {0.1f, 0.1f, 0.2f, 0.2f, 0.4f}},
+   {WEAPON_XM1014,   7,   512, 0.15f, {0.0f, 0.1f, 0.2f, 0.3f, 0.4f, 0.6f}, {0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.7f}, 0.2f, {0.0f, 0.0f, 0.1f, 0.1f, 0.2f}, {0.1f, 0.1f, 0.2f, 0.2f, 0.4f}},
+   {WEAPON_MP5,      4,   731, 0.10f, {0.0f, 0.1f, 0.2f, 0.3f, 0.4f, 0.6f}, {0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.7f}, 0.2f, {0.0f, 0.0f, 0.1f, 0.1f, 0.2f}, {0.1f, 0.1f, 0.2f, 0.2f, 0.4f}},
+   {WEAPON_TMP,      3,   731, 0.05f, {0.0f, 0.1f, 0.2f, 0.3f, 0.4f, 0.6f}, {0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.7f}, 0.2f, {0.0f, 0.0f, 0.1f, 0.1f, 0.2f}, {0.1f, 0.1f, 0.2f, 0.2f, 0.4f}},
+   {WEAPON_P90,      4,   731, 0.10f, {0.0f, 0.1f, 0.2f, 0.3f, 0.4f, 0.6f}, {0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.7f}, 0.2f, {0.0f, 0.0f, 0.1f, 0.1f, 0.2f}, {0.1f, 0.1f, 0.2f, 0.2f, 0.4f}},
+   {WEAPON_MAC10,    3,   731, 0.06f, {0.0f, 0.1f, 0.2f, 0.3f, 0.4f, 0.6f}, {0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.7f}, 0.2f, {0.0f, 0.0f, 0.1f, 0.1f, 0.2f}, {0.1f, 0.1f, 0.2f, 0.2f, 0.4f}},
+   {WEAPON_UMP45,    4,   731, 0.15f, {0.0f, 0.1f, 0.2f, 0.3f, 0.4f, 0.6f}, {0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.7f}, 0.2f, {0.0f, 0.0f, 0.1f, 0.1f, 0.2f}, {0.1f, 0.1f, 0.2f, 0.2f, 0.4f}},
+   {WEAPON_AK47,     2,   512, 0.09f, {0.0f, 0.1f, 0.2f, 0.3f, 0.4f, 0.6f}, {0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.7f}, 0.2f, {0.0f, 0.0f, 0.1f, 0.1f, 0.2f}, {0.1f, 0.1f, 0.2f, 0.2f, 0.4f}},
+   {WEAPON_SG552,    3,   512, 0.11f, {0.0f, 0.1f, 0.2f, 0.3f, 0.4f, 0.6f}, {0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.7f}, 0.2f, {0.0f, 0.0f, 0.1f, 0.1f, 0.2f}, {0.1f, 0.1f, 0.2f, 0.2f, 0.4f}},
+   {WEAPON_M4A1,     3,   512, 0.08f, {0.0f, 0.1f, 0.2f, 0.3f, 0.4f, 0.6f}, {0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.7f}, 0.2f, {0.0f, 0.0f, 0.1f, 0.1f, 0.2f}, {0.1f, 0.1f, 0.2f, 0.2f, 0.4f}},
+   {WEAPON_GALIL,    4,   512, 0.09f, {0.0f, 0.1f, 0.2f, 0.3f, 0.4f, 0.6f}, {0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.7f}, 0.2f, {0.0f, 0.0f, 0.1f, 0.1f, 0.2f}, {0.1f, 0.1f, 0.2f, 0.2f, 0.4f}},
+   {WEAPON_FAMAS,    4,   512, 0.10f, {0.0f, 0.1f, 0.2f, 0.3f, 0.4f, 0.6f}, {0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.7f}, 0.2f, {0.0f, 0.0f, 0.1f, 0.1f, 0.2f}, {0.1f, 0.1f, 0.2f, 0.2f, 0.4f}},
+   {WEAPON_AUG,      3,   512, 0.11f, {0.0f, 0.1f, 0.2f, 0.3f, 0.4f, 0.6f}, {0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.7f}, 0.2f, {0.0f, 0.0f, 0.1f, 0.1f, 0.2f}, {0.1f, 0.1f, 0.2f, 0.2f, 0.4f}},
+   {WEAPON_SCOUT,    10,  256, 0.18f, {0.0f, 0.1f, 0.2f, 0.3f, 0.4f, 0.6f}, {0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.7f}, 0.2f, {0.0f, 0.0f, 0.1f, 0.1f, 0.2f}, {0.1f, 0.1f, 0.2f, 0.2f, 0.4f}},
+   {WEAPON_AWP,      10,  170, 0.22f, {0.0f, 0.1f, 0.2f, 0.3f, 0.4f, 0.6f}, {0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.7f}, 0.2f, {0.0f, 0.0f, 0.1f, 0.1f, 0.2f}, {0.1f, 0.1f, 0.2f, 0.2f, 0.4f}},
+   {WEAPON_G3SG1,    4,   256, 0.25f, {0.0f, 0.1f, 0.2f, 0.3f, 0.4f, 0.6f}, {0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.7f}, 0.2f, {0.0f, 0.0f, 0.1f, 0.1f, 0.2f}, {0.1f, 0.1f, 0.2f, 0.2f, 0.4f}},
+   {WEAPON_SG550,    4,   256, 0.25f, {0.0f, 0.1f, 0.2f, 0.3f, 0.4f, 0.6f}, {0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.7f}, 0.2f, {0.0f, 0.0f, 0.1f, 0.1f, 0.2f}, {0.1f, 0.1f, 0.2f, 0.2f, 0.4f}},
+   {WEAPON_M249,     3,   640, 0.10f, {0.0f, 0.1f, 0.2f, 0.3f, 0.4f, 0.6f}, {0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.7f}, 0.2f, {0.0f, 0.0f, 0.1f, 0.1f, 0.2f}, {0.1f, 0.1f, 0.2f, 0.2f, 0.4f}},
+   {WEAPON_SHIELDGUN,0,   256, 0.00f, {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f}, 0.0f, {0.0f, 0.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 0.0f, 0.0f}},
+   {0,               0,   256, 0.00f, {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f}, 0.0f, {0.0f, 0.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 0.0f, 0.0f}}
 };
 
 // bot menus
@@ -427,25 +427,25 @@ MenuText g_menus[21] =
    // kickmenu #1
    {
       0x0,
-      NULL,
+      null,
    },
 
    // kickmenu #2
    {
       0x0,
-      NULL,
+      null,
    },
 
    // kickmenu #3
    {
       0x0,
-      NULL,
+      null,
    },
 
    // kickmenu #4
    {
       0x0,
-      NULL,
+      null,
    },
 
    // command menu

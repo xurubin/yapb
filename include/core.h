@@ -28,7 +28,7 @@
 //
 // Huge thanks to them.
 //
-// $Id: core.h 23 2009-06-16 21:59:33Z jeefo $
+// $Id:$
 //
 
 #ifndef YAPB_INCLUDED
@@ -41,134 +41,7 @@
 
 using namespace Math;
 
-// detects the build platform
-#if defined (__linux__) || defined (__debian__) || defined (__linux)
-   #define PLATFORM_LINUX32 1
-#elif defined (__x86_64__) || defined (__amd64__)
-   #define PLATFORM_LINUX64 1
-#elif defined (_WIN32)
-   #define PLATFORM_WIN32 1
-#endif
-
-// detects the compiler
-#if defined (_MSC_VER)
-   #define COMPILER_VISUALC _MSC_VER
-#elif defined (__BORLANDC__)
-   #define COMPILER_BORLAND __BORLANDC__
-#elif defined (__MINGW32__)
-   #define COMPILER_MINGW32 __MINGW32__
-#endif
-
-// configure export macros
-#if defined (COMPILER_VISUALC) || defined (COMPILER_MINGW32)
-   #define export extern "C" __declspec (dllexport)
-#elif defined (PLATFORM_LINUX32) || defined (PLATFORM_LINUX64) || defined (COMPILER_BORLAND)
-   #define export extern "C"
-#else
-   #error "Can't configure export macros. Compiler unrecognized."
-#endif
-
-// operating system specific macros, functions and typedefs
-#ifdef PLATFORM_WIN32
-
-   #include <direct.h>
-
-   #define DLL_ENTRYPOINT int STDCALL DllMain (HINSTANCE hModule, DWORD dwReason, LPVOID)
-   #define DLL_DETACHING (dwReason == DLL_PROCESS_DETACH)
-   #define DLL_RETENTRY return TRUE
-
-   #if defined (COMPILER_VISUALC)
-      #define DLL_GIVEFNPTRSTODLL extern "C" void STDCALL
-   #elif defined (COMPILER_MINGW32)
-      #define DLL_GIVEFNPTRSTODLL export void STDCALL
-   #endif
-
-   // specify export parameter
-   #if defined (COMPILER_VISUALC) && (COMPILER_VISUALC > 1000)
-      #pragma comment (linker, "/EXPORT:GiveFnptrsToDll=_GiveFnptrsToDll@8,@1")
-      #pragma comment (linker, "/SECTION:.data,RW")
-   #endif
-
-   typedef int (FAR *EntityAPI_t) (DLL_FUNCTIONS *, int);
-   typedef int (FAR *NewEntityAPI_t) (NEW_DLL_FUNCTIONS *, int *);
-   typedef int (FAR *BlendAPI_t) (int, void **, void *, float (*)[3][4], float (*)[128][3][4]);
-   typedef void (STDCALL *FuncPointers_t) (enginefuncs_t *, globalvars_t *);
-   typedef void (FAR *EntityPtr_t) (entvars_t *);
-
-#elif defined (PLATFORM_LINUX32) || defined (PLATFORM_LINUX64)
-
-   #include <unistd.h>
-   #include <dlfcn.h>
-   #include <errno.h>
-   #include <sys/stat.h>
-
-   #define DLL_ENTRYPOINT void _fini (void)
-   #define DLL_DETACHING TRUE
-   #define DLL_RETENTRY return
-   #define DLL_GIVEFNPTRSTODLL extern "C" void
-
-   inline uint32 _lrotl (uint32 x, int r) { return (x << r) | (x >> (sizeof (x) * 8 - r));}
-
-   typedef int (*EntityAPI_t) (DLL_FUNCTIONS *, int);
-   typedef int (*NewEntityAPI_t) (NEW_DLL_FUNCTIONS *, int *);
-   typedef int (*BlendAPI_t) (int, void **, void *, float (*)[3][4], float (*)[128][3][4]);
-   typedef void (*FuncPointers_t) (enginefuncs_t *, globalvars_t *);
-   typedef void (*EntityPtr_t) (entvars_t *);
-
-#else
-   #error "Platform unrecognized."
-#endif
-
-// library wrapper
-class Library
-{
-private:
-   void *m_ptr;
-   
-public:
-
-   Library (const char *fileName)
-   {
-      if (fileName == NULL)
-         return;
-
-#ifdef PLATFORM_WIN32
-      m_ptr = LoadLibrary (fileName);
-#else
-      m_ptr = dlopen (fileName, RTLD_NOW);
-#endif
-   }
-
- ~Library (void)
-  {
-      if (!IsLoaded ())
-         return;
-
-#ifdef PLATFORM_WIN32
-      FreeLibrary ((HMODULE) m_ptr);
-#else
-      dlclose (m_ptr);
-#endif
-  }
-
-public:
-   void *GetFunctionAddr (const char *functionName)
-   {
-      if (!IsLoaded ())
-         return NULL;
-
-#ifdef PLATFORM_WIN32
-      return GetProcAddress ((HMODULE) m_ptr, functionName);
-#else
-      return dlsym (m_ptr, functionName);
-#endif
-   }
-
-   inline bool IsLoaded (void) const
-   {
-      return m_ptr != NULL;
-   }
-};
+#include <platform.h>
 
 #include <assert.h>
 #include <ctype.h>
@@ -547,25 +420,25 @@ const char FH_VISTABLE[] = "PODVIS!";
 
 const int FV_WAYPOINT = 7;
 const int FV_EXPERIENCE = 3;
-const int FV_VISTABLE = 1;
+const int FV_VISTABLE = 2;
 
 // some hardcoded desire defines used to override calculated ones
-const float TASKPRI_NORMAL = 35.0;
-const float TASKPRI_PAUSE = 36.0;
-const float TASKPRI_CAMP  = 37.0;
-const float TASKPRI_SPRAYLOGO = 38.0;
-const float TASKPRI_FOLLOWUSER = 39.0;
-const float TASKPRI_MOVETOPOSITION = 50.0;
-const float TASKPRI_DEFUSEBOMB = 89.0;
-const float TASKPRI_PLANTBOMB = 89.0;
-const float TASKPRI_FIGHTENEMY = 90.0;
-const float TASKPRI_SEEKCOVER = 91.0;
-const float TASKPRI_HIDE = 92.0;
-const float TASKPRI_THROWGRENADE = 99.0;
-const float TASKPRI_DOUBLEJUMP = 99.0;
-const float TASKPRI_BLINDED = 100.0;
-const float TASKPRI_SHOOTBREAKABLE = 100.0;
-const float TASKPRI_ESCAPEFROMBOMB = 100.0;
+const float TASKPRI_NORMAL = 35.0f;
+const float TASKPRI_PAUSE = 36.0f;
+const float TASKPRI_CAMP  = 37.0f;
+const float TASKPRI_SPRAYLOGO = 38.0f;
+const float TASKPRI_FOLLOWUSER = 39.0f;
+const float TASKPRI_MOVETOPOSITION = 50.0f;
+const float TASKPRI_DEFUSEBOMB = 89.0f;
+const float TASKPRI_PLANTBOMB = 89.0f;
+const float TASKPRI_FIGHTENEMY = 90.0f;
+const float TASKPRI_SEEKCOVER = 91.0f;
+const float TASKPRI_HIDE = 92.0f;
+const float TASKPRI_THROWGRENADE = 99.0f;
+const float TASKPRI_DOUBLEJUMP = 99.0f;
+const float TASKPRI_BLINDED = 100.0f;
+const float TASKPRI_SHOOTBREAKABLE = 100.0f;
+const float TASKPRI_ESCAPEFROMBOMB = 100.0f;
 
 const int Const_GrenadeTimer = 3;
 const int Const_MaxHostages = 8;
@@ -764,7 +637,7 @@ struct WeaponProperty
 // define chatting collection structure
 struct SayText
 {
-   char chatProbability;
+   int chatProbability;
    float chatDelay;
    float timeNextChat;
    int entityIndex;
@@ -857,9 +730,9 @@ private:
    float m_firstCollideTime; // time of first collision
    float m_probeTime; // time of probing different moves
    float m_lastCollTime; // time until next collision check
-   char m_collisionProbeBits; // bits of possible collision moves
-   char m_collideMoves[4]; // sorted array of movements
-   char m_collStateIndex; // index into collide moves
+   int m_collisionProbeBits; // bits of possible collision moves
+   int m_collideMoves[4]; // sorted array of movements
+   int m_collStateIndex; // index into collide moves
    CollisionState m_collisionState; // collision State
 
    PathNode *m_navNode; // pointer to current node from path
@@ -872,7 +745,7 @@ private:
    int m_prevWptIndex[5]; // previous waypoint indices from waypoint find
    int m_waypointFlags; // current waypoint flags
    int m_loosedBombWptIndex; // nearest to loosed bomb waypoint
-   int m_skillOffset; // offset to bots skill
+   float m_skillOffset; // offset to bots skill
 
    unsigned short m_currentTravelFlags; // connection flags like jumping
    bool m_jumpFinished; // has bot finished jumping
@@ -907,7 +780,7 @@ private:
    float m_duckDefuseCheckTime; // time to check for ducking for defuse
 
    int m_msecBuiltin; // random msec method for this bot
-   byte m_msecVal; // calculated msec value
+   uint8_t m_msecVal; // calculated msec value
    float m_msecDel; // used for msec calculation
    float m_msecNum; // also used for mseccalculation
    float m_msecInterval; // used for leon hartwig's method for msec calculation
@@ -986,7 +859,7 @@ private:
 
    bool IsInViewCone (Vector origin);
    void ReactOnSound (void);
-   bool CheckVisibility (entvars_t *targetOrigin, Vector *origin, byte *bodyPart);
+   bool CheckVisibility (entvars_t *targetOrigin, Vector *origin, uint8_t *bodyPart);
    bool IsEnemyViewable (edict_t *player);
 
    edict_t *FindNearestButton (const char *className);
@@ -1002,7 +875,7 @@ private:
    int GetMessageQueue (void);
    bool GoalIsValid (void);
    bool HeadTowardWaypoint (void);
-   int InFieldOfView (Vector dest);
+   float InFieldOfView (Vector dest);
 
    bool IsBombDefusing (Vector bombOrigin);
    bool IsBlockedLeft (void);
@@ -1012,7 +885,7 @@ private:
    inline bool IsOnLadder (void) { return pev->movetype == MOVETYPE_FLY; }
    inline bool IsOnFloor (void) { return (pev->flags & (FL_ONGROUND | FL_PARTIALGROUND)) != 0; }
    inline bool IsInWater (void) { return pev->waterlevel >= 2; }
-   inline float GetWalkSpeed (void) { return static_cast <float> ((static_cast <int> (pev->maxspeed) / 2) + (static_cast <int> (pev->maxspeed) / 50)) - 18; }
+   inline float GetWalkSpeed (void) { return static_cast <float> ((static_cast <int> (pev->maxspeed) * 0.5f) + (static_cast <int> (pev->maxspeed) / 50)) - 18; }
    
    bool ItemIsVisible (Vector dest, char *itemName, bool bomb = false);
    bool LastEnemyShootable (void);
@@ -1020,7 +893,7 @@ private:
    bool IsBehindSmokeClouds (edict_t *ent);
    void RunTask (void);
    void CheckTasksPriorities (void);
-   void StartTask (Task *task);
+   void PushTask (Task *task);
 
    bool IsShootableBreakable (edict_t *ent);
    bool RateGroundWeapon (edict_t *ent);
@@ -1189,7 +1062,7 @@ public:
    inline EOFFSET GetOffset (void) { return OFFSET (pev); };
    inline int GetIndex (void) { return ENTINDEX (GetEntity ()); };
 
-   inline Vector Center (void) { return (pev->absmax + pev->absmin) * 0.5; };
+   inline Vector Center (void) { return (pev->absmax + pev->absmin) * 0.5f; };
    inline Vector EyePosition (void) { return pev->origin + pev->view_ofs; };
    inline Vector EarPosition (void) { return pev->origin + pev->view_ofs; };
    inline Vector GetGunPosition (void) { return (pev->origin + pev->view_ofs); }
@@ -1209,7 +1082,7 @@ public:
    void ResetTasks (void);
    void TakeDamage (edict_t *inflictor, int damage, int armor, int bits);
    void TakeBlinded (Vector fade, int alpha);
-   void StartTask (BotTask taskID, float desire, int data, float time, bool canContinue);
+   void PushTask (BotTask taskID, float desire, int data, float time, bool canContinue);
    void DiscardWeaponForUser (edict_t *user, bool discardC4);
 
    void SayText (const char *text);
@@ -1322,7 +1195,7 @@ public:
   ~NetworkMsg   (void) { };
 
    void Execute (void *p);
-   void Reset (void) { m_message = NETMSG_UNDEFINED; m_state = 0; m_bot = NULL; };
+   void Reset (void) { m_message = NETMSG_UNDEFINED; m_state = 0; m_bot = null; };
    void HandleMessageIfRequired (int messageType, int requiredType);
 
    void SetMessage (int message) { m_message = message; }
@@ -1354,7 +1227,7 @@ private:
    int m_lastJumpWaypoint;
    int m_visibilityIndex;
    Vector m_lastWaypoint;
-   byte m_visLUT[Const_MaxWaypoints][Const_MaxWaypoints / 4];
+   uint8_t m_visLUT[Const_MaxWaypoints][Const_MaxWaypoints / 4];
 
    float m_pathDisplayTime;
    float m_arrowDisplayTime;
@@ -1386,15 +1259,15 @@ public:
    void InitVisibilityTab (void);
 
    void InitTypes (void);
-   void AddPath (short int addIndex,  short int pathIndex, float distance);
+   void AddPath (int addIndex, int pathIndex, float distance);
 
    int GetFacingIndex (void);
-   int FindFarest (Vector origin, float maxDistance = 32.0);
+   int FindFarest (Vector origin, float maxDistance = 32.0f);
    int FindNearest (Vector origin, float minDistance = 9999.0, int flags = -1);
    void FindInRadius (Vector origin, float radius, int *holdTab, int *count);
    void FindInRadius (Array <int> &queueID, float radius, Vector origin);
 
-   void Add (int flags, Vector waypointOrigin = Vector::GetNull ());
+   void Add (int flags, Vector waypointOrigin = nullvec);
    void Delete (void);
    void ToggleFlags (int toggleFlag);
    void SetRadius (int radius);
@@ -1429,6 +1302,8 @@ public:
    bool LoadPathMatrix (void);
 
    int GetPathDistance (int srcIndex, int destIndex);
+   float GetPathDistanceFloat (int srcIndex, int destIndex);
+
    Path *GetPath (int id);
    char *GetWaypointInfo (int id);
    char *GetInfo (void) { return m_infoBuffer; }
@@ -1494,7 +1369,7 @@ extern void ChartPrint (const char *format, ...);
 extern void ServerPrintNoTag (const char *format, ...);
 extern void CenterPrint (const char *format, ...);
 extern void ClientPrint (edict_t *ent, int dest, const char *format, ...);
-extern void HudMessage (edict_t *ent, bool toCenter, Vector rgb, char *format, ...);
+extern void HudMessage (edict_t *ent, bool toCenter, const Color &rgb, char *format, ...);
 
 extern void AddLogEntry (bool outputToConsole, int logLevel, const char *format, ...);
 extern void DrawLine (edict_t *ent, Vector start, Vector end, int width, int noise, int red, int green, int blue, int brightness, int speed, int life);
@@ -1510,7 +1385,7 @@ extern void TraceHull (const Vector &start, const Vector &end, bool ignoreMonste
 
 inline bool IsNullString (const char *input)
 {
-   if (input == NULL)
+   if (input == null)
       return true;
 
    return *input == '\0';

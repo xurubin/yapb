@@ -19,7 +19,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //
-// $Id: netmsg.cpp 23 2009-06-16 21:59:33Z jeefo $
+// $Id:$
 //
 
 #include <core.h>
@@ -28,7 +28,7 @@ NetworkMsg::NetworkMsg (void)
 {
     m_message = NETMSG_UNDEFINED;
     m_state = 0;
-    m_bot = NULL;
+    m_bot = null;
 
     for (register int i = 0; i < NETMSG_BOTVOICE; i++)
        m_registerdMessages[i] = -1;
@@ -46,8 +46,8 @@ void NetworkMsg::Execute (void *p)
       return; // no message or not for bot, return
 
    // some needed variables
-   static byte r, g, b;
-   static byte enabled;
+   static uint8_t r, g, b;
+   static uint8_t enabled;
 
    static int damageArmor, damageTaken, damageBits;
    static int killerIndex, victimIndex, playerIndex;
@@ -165,7 +165,7 @@ void NetworkMsg::Execute (void *p)
             if (id == m_bot->m_currentWeapon && m_bot->m_ammoInClip[id] > clip)
             {
                // time fired with in burst firing time ?
-               if (m_bot->m_timeLastFired + 1.0 > engine->GetTime ())
+               if (m_bot->m_timeLastFired + 1.0f > engine->GetTime ())
                   m_bot->m_burstShotsFired++;
 
                m_bot->m_timeLastFired = engine->GetTime (); // remember the last bullet time
@@ -287,7 +287,7 @@ void NetworkMsg::Execute (void *p)
             {
                Bot *bot = g_botManager->GetBot (i);
 
-               if (bot != NULL && IsAlive (bot->GetEntity ()) && killer != bot->GetEntity () && bot->EntityIsVisible (victim->v.origin) && GetTeam (killer) == GetTeam (bot->GetEntity ()) && GetTeam (killer) != GetTeam (victim))
+               if (bot != null && IsAlive (bot->GetEntity ()) && killer != bot->GetEntity () && bot->EntityIsVisible (victim->v.origin) && GetTeam (killer) == GetTeam (bot->GetEntity ()) && GetTeam (killer) != GetTeam (victim))
                {
                   if (killer == g_hostEntity)
                      bot->HandleChatterMessage ("#Bot_NiceShotCommander");
@@ -303,9 +303,9 @@ void NetworkMsg::Execute (void *p)
             {
                Bot *bot = g_botManager->GetBot (i);
 
-               if (bot != NULL && IsAlive (bot->GetEntity ()) && GetTeam (bot->GetEntity ()) == GetTeam (victim) && IsVisible (killer->v.origin, bot->GetEntity ()) && FNullEnt (bot->m_enemy) && GetTeam (killer) != GetTeam (victim))
+               if (bot != null && IsAlive (bot->GetEntity ()) && GetTeam (bot->GetEntity ()) == GetTeam (victim) && IsVisible (killer->v.origin, bot->GetEntity ()) && FNullEnt (bot->m_enemy) && GetTeam (killer) != GetTeam (victim))
                {
-                  bot->m_actualReactionTime = 0.0;
+                  bot->m_actualReactionTime = 0.0f;
                   bot->m_seeEnemyTime = engine->GetTime ();
                   bot->m_enemy = killer;
                   bot->m_lastEnemy = killer;
@@ -316,14 +316,14 @@ void NetworkMsg::Execute (void *p)
             Bot *bot = g_botManager->GetBot (killer);
 
             // is this message about a bot who killed somebody?
-            if (bot != NULL)
+            if (bot != null)
                bot->m_lastVictim = victim;
 
             else // did a human kill a bot on his team?
             {
                Bot *iter = g_botManager->GetBot (victim);
 
-               if (iter != NULL)
+               if (iter != null)
                {
                   if (GetTeam (killer) == GetTeam (victim))
                      iter->m_voteKickIndex = killerIndex;
@@ -374,7 +374,7 @@ void NetworkMsg::Execute (void *p)
 
    case NETMSG_RESETHUD:
 #if 0
-      if (m_bot != NULL)
+      if (m_bot != null)
          m_bot->NewRound ();
 #endif
       break;
@@ -422,7 +422,7 @@ void NetworkMsg::Execute (void *p)
             {
                Bot *bot = g_botManager->GetBot (i);
 
-               if (bot != NULL && IsAlive (bot->GetEntity ()))
+               if (bot != null && IsAlive (bot->GetEntity ()))
                {
                   bot->DeleteSearchNodes ();
                   bot->ResetTasks ();
@@ -433,9 +433,9 @@ void NetworkMsg::Execute (void *p)
             }
             g_waypoint->SetBombPosition ();
          }
-         else if (m_bot != NULL && FStrEq (PTR_TO_STR (p), "#Switch_To_BurstFire"))
+         else if (m_bot != null && FStrEq (PTR_TO_STR (p), "#Switch_To_BurstFire"))
             m_bot->m_weaponBurstMode = BURST_ENABLED;
-         else if (m_bot != NULL && FStrEq (PTR_TO_STR (p), "#Switch_To_SemiAuto"))
+         else if (m_bot != null && FStrEq (PTR_TO_STR (p), "#Switch_To_SemiAuto"))
             m_bot->m_weaponBurstMode = BURST_DISABLED;
       }
       break;

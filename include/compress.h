@@ -19,7 +19,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //
-// $Id: compress.h 22 2009-06-16 19:25:34Z jeefo $
+// $Id:$
 //
 
 #ifndef COMPRESS_INCLUDED
@@ -33,7 +33,7 @@ protected:
    unsigned long int m_textSize;
    unsigned long int m_codeSize;
 
-   byte m_textBuffer[N + F - 1];
+   uint8_t m_textBuffer[N + F - 1];
    int m_matchPosition;
    int m_matchLength;
 
@@ -57,7 +57,7 @@ private:
 
       int compare = 1;
 
-      byte *key = &m_textBuffer[node];
+      uint8_t *key = &m_textBuffer[node];
       int temp = N + 1 + key[0];
 
       m_right[node] = m_left[node] = NIL;
@@ -172,10 +172,10 @@ public:
       m_codeSize = 0;
    }
 
-   int InternalEncode (char *fileName, byte *header, int headerSize, byte *buffer, int bufferSize)
+   int InternalEncode (char *fileName, uint8_t *header, int headerSize, uint8_t *buffer, int bufferSize)
    {
-      int i, bit, length, node, strPtr, lastMatchLength, codeBufferPtr, bufferPtr = 0;
-      byte codeBuffer[17], mask;
+      int i, length, node, strPtr, lastMatchLength, codeBufferPtr, bufferPtr = 0;
+      uint8_t codeBuffer[17], mask, bit;
 
       File fp (fileName, "wb");
 
@@ -273,11 +273,12 @@ public:
       return m_codeSize;
    }
 
-   int InternalDecode (char *fileName, int headerSize, byte *buffer, int bufferSize)
+   int InternalDecode (char *fileName, int headerSize, uint8_t *buffer, int bufferSize)
    {
-      int i, j, k, node, bit;
+      int i, j, k, node;
       unsigned int flags;
       int bufferPtr = 0;
+	  uint8_t bit;
 
       File fp (fileName, "rb");
 
@@ -343,14 +344,14 @@ public:
    }
 
    // external decoder
-   static int Uncompress (char *fileName, int headerSize, byte *buffer, int bufferSize)
+   static int Uncompress (char *fileName, int headerSize, uint8_t *buffer, int bufferSize)
    {
       Compressor kDecompress = Compressor ();
       return kDecompress.InternalDecode (fileName, headerSize, buffer, bufferSize);
    }
 
    // external encoder
-   static int Compress(char *fileName, byte *header, int headerSize, byte *buffer, int bufferSize)
+   static int Compress(char *fileName, uint8_t *header, int headerSize, uint8_t *buffer, int bufferSize)
    {
       Compressor kCompress = Compressor ();
       return kCompress.InternalEncode (fileName, header, headerSize, buffer, bufferSize);

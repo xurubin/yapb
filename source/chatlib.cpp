@@ -19,7 +19,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //
-// $Id: chatlib.cpp 23 2009-06-16 21:59:33Z jeefo $
+// $Id:$
 //
 
 // todo: kill that file
@@ -116,7 +116,7 @@ char *HumanizeName (char *name)
    if (engine->RandomInt (1, 100) <= 6)
    {
       for (int i = 0; i < static_cast <int> (strlen (outputName)); i++)
-         outputName[i] = tolower (outputName[i]); // to lower case
+         outputName[i] = static_cast <char> (tolower (outputName[i])); // to lower case
    }
    return &outputName[0]; // return terminated string
 }
@@ -133,7 +133,7 @@ void HumanizeChat (char *buffer)
    if (engine->RandomInt (1, 100) <= 4)
    {
       for (i = 0; i < length; i++)
-         buffer[i] = tolower (buffer[i]); // switch to lowercase
+         buffer[i] = static_cast <char> (tolower (buffer[i])); // switch to lowercase
    }
 
    if (length > 15)
@@ -175,14 +175,14 @@ void Bot::PrepareChatMessage (char *text)
    char *textStart = text;
    char *pattern = text;
 
-   edict_t *talkEntity = NULL;
+   edict_t *talkEntity = null;
 
-   while (pattern != NULL)
+   while (pattern != null)
    {
       // all replacement placeholders start with a %
       pattern = strstr (textStart, "%");
 
-      if (pattern != NULL)
+      if (pattern != null)
       {
          int length = pattern - textStart;
 
@@ -364,7 +364,7 @@ bool CheckKeywords (char *tempMessage, char *reply)
       ITERATE_ARRAY (g_replyFactory[i].keywords, j)
       {
          // check is keyword has occurred in message
-         if (strstr (tempMessage, g_replyFactory[i].keywords[j]) != NULL)
+         if (strstr (tempMessage, g_replyFactory[i].keywords[j]) != null)
          {
             if (g_replyFactory[i].usedReplies.GetElementNumber () >= g_replyFactory[i].replies.GetElementNumber () / 2)
                g_replyFactory[i].usedReplies.RemoveAll ();
@@ -375,7 +375,7 @@ bool CheckKeywords (char *tempMessage, char *reply)
             // don't say this twice
             ITERATE_ARRAY (g_replyFactory[i].usedReplies, k)
             {
-               if (strstr (g_replyFactory[i].usedReplies[k], generatedReply) != NULL)
+               if (strstr (g_replyFactory[i].usedReplies[k], generatedReply) != null)
                   replyUsed = true;
             }
 
@@ -409,7 +409,7 @@ bool Bot::ParseChat (char *reply)
 
    // text to uppercase for keyword parsing
    for (int i = 0; i < static_cast <int> (strlen (tempMessage)); i++)
-      tempMessage[i] = toupper (tempMessage[i]);
+      tempMessage[i] = static_cast <char> (toupper (tempMessage[i]));
 
    return CheckKeywords (tempMessage, reply);
 }
@@ -469,7 +469,7 @@ void Bot::SayText (const char *text)
 
       if ((g_clients[i].flags & CFLAG_ALIVE && isAlive) || (!(g_clients[i].flags & CFLAG_ALIVE) && isAlive) || (!(g_clients[i].flags & CFLAG_ALIVE) && !isAlive))
       {
-         MESSAGE_BEGIN (MSG_ONE, g_netMsg->GetId (NETMSG_SAYTEXT), NULL, g_clients[i].ent);
+         MESSAGE_BEGIN (MSG_ONE, g_netMsg->GetId (NETMSG_SAYTEXT), null, g_clients[i].ent);
             WRITE_BYTE (GetIndex ());
             WRITE_STRING (tempMessage);
          MESSAGE_END ();
@@ -510,7 +510,7 @@ void Bot::TeamSayText (const char *text)
 
       if ((g_clients[i].flags & CFLAG_ALIVE && isAlive) || (!(g_clients[i].flags & CFLAG_ALIVE) && isAlive) || (!(g_clients[i].flags & CFLAG_ALIVE) && !isAlive))
       {
-         MESSAGE_BEGIN (MSG_ONE, g_netMsg->GetId (NETMSG_SAYTEXT), NULL, g_clients[i].ent);
+         MESSAGE_BEGIN (MSG_ONE, g_netMsg->GetId (NETMSG_SAYTEXT), null, g_clients[i].ent);
              WRITE_BYTE (GetIndex ());
              WRITE_STRING (tempMessage);
          MESSAGE_END ();

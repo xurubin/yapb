@@ -263,6 +263,18 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\source\callbacks.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="2"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="..\source\chatlib.cpp"
 				>
 				<FileConfiguration
@@ -399,6 +411,10 @@
 			Name="include"
 			>
 			<File
+				RelativePath="..\include\callbacks.h"
+				>
+			</File>
+			<File
 				RelativePath="..\include\compress.h"
 				>
 			</File>
@@ -415,7 +431,15 @@
 				>
 			</File>
 			<File
+				RelativePath="..\include\platform.h"
+				>
+			</File>
+			<File
 				RelativePath="..\include\resource.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\runtime.h"
 				>
 			</File>
 			<File

@@ -19,7 +19,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //
-// $Id: precomp.cpp 1 2008-08-05 21:43:21Z jeefo $
+// $Id:$
 //
 
 #include <core.h>

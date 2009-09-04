@@ -19,7 +19,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //
-// $Id: interface.cpp 23 2009-06-16 21:59:33Z jeefo $
+// $Id:$
 //
 
 #include <core.h>
@@ -122,7 +122,7 @@ int BotCommandHandler_O (edict_t *ent, const String &arg0, const String &arg1, c
          // loop through all players
          for (int i = 0; i < engine->GetMaxClients (); i++)
          {
-            if (g_botManager->GetBot (i) != NULL)
+            if (g_botManager->GetBot (i) != null)
                g_botManager->GetBot (i)->m_voteMap = nominatedMap;
          }
          ClientPrint (ent, print_withtag, "All dead bots will vote for map #%d", nominatedMap);
@@ -149,7 +149,7 @@ int BotCommandHandler_O (edict_t *ent, const String &arg0, const String &arg1, c
    // display current time on the server
    else if (stricmp (arg0, "ctime") == 0 || stricmp (arg0, "time") == 0)
    {
-      time_t tickTime = time (NULL);
+      time_t tickTime = time (null);
       tm *localTime = localtime (&tickTime);
 
       char date[32];
@@ -174,7 +174,7 @@ int BotCommandHandler_O (edict_t *ent, const String &arg0, const String &arg1, c
          " Website: " PRODUCT_URL "\n"
          "+---------------------------------------------------------------------------------+\n";
 
-      HudMessage (ent, true, Vector (engine->RandomInt (33, 255), engine->RandomInt (33, 255), engine->RandomInt (33, 255)), aboutData);
+      HudMessage (ent, true, Color (engine->RandomInt (33, 255), engine->RandomInt (33, 255), engine->RandomInt (33, 255)), aboutData);
    }
 
    // displays version information
@@ -259,8 +259,8 @@ int BotCommandHandler_O (edict_t *ent, const String &arg0, const String &arg1, c
 
          for (int i = 0; i < engine->GetMaxClients (); i++)
          {
-            if (g_botManager->GetBot (i) != NULL)
-               g_botManager->GetBot (i)->pev->health = fabsf (atof (arg1));
+            if (g_botManager->GetBot (i) != null)
+               g_botManager->GetBot (i)->pev->health = fabsf (static_cast <float> (atof (arg1)));
          }
       }
    }
@@ -276,12 +276,12 @@ int BotCommandHandler_O (edict_t *ent, const String &arg0, const String &arg1, c
          DisplayMenuToClient (ent, &g_menus[18]);
       else
       {
-         DisplayMenuToClient (ent, NULL); // reset menu display
+         DisplayMenuToClient (ent, null); // reset menu display
          CenterPrint ("You're dead, and have no access to this menu");
       }
    }
 
-#if 0 // !!!! TODO !!!!
+#if 0 // @TODO@
    // sets public server bot cvar
    else if (stricmp (arg0, "setcvar") == 0 || stricmp (arg0, "set") == 0)
    {
@@ -353,7 +353,7 @@ int BotCommandHandler_O (edict_t *ent, const String &arg0, const String &arg1, c
       // toggles displaying player models on spawn spots
       else if (stricmp (arg1, "mdl") == 0 || stricmp (arg1, "models") == 0)
       {
-         edict_t *spawnEntity = NULL;
+         edict_t *spawnEntity = null;
 
          if (stricmp (arg2, "on") == 0)
          {
@@ -691,7 +691,7 @@ void InitConfig (void)
             break;
 
          case 3:
-            if (strstr (line, "@KEY") != NULL)
+            if (strstr (line, "@KEY") != null)
             {
                if (!replyKey.keywords.IsEmpty () && !replyKey.replies.IsEmpty ())
                {
@@ -925,48 +925,48 @@ void InitConfig (void)
             PARSE_VOICE_EVENT (Radio_EnemyDown, FLT_MAX);
 
             // voice system
-            PARSE_VOICE_EVENT (Chatter_SpotTheBomber, 4.3);
-            PARSE_VOICE_EVENT (Chatter_VIPSpotted, 5.3);
-            PARSE_VOICE_EVENT (Chatter_FriendlyFire, 2.1);
+            PARSE_VOICE_EVENT (Chatter_SpotTheBomber, 4.3f);
+            PARSE_VOICE_EVENT (Chatter_VIPSpotted, 5.3f);
+            PARSE_VOICE_EVENT (Chatter_FriendlyFire, 2.1f);
             PARSE_VOICE_EVENT (Chatter_DiePain, FLT_MAX);
-            PARSE_VOICE_EVENT (Chatter_GotBlinded, 5.0);
+            PARSE_VOICE_EVENT (Chatter_GotBlinded, 5.0f);
             PARSE_VOICE_EVENT (Chatter_GoingToPlantBomb, FLT_MAX);
             PARSE_VOICE_EVENT (Chatter_GoingToGuardVIPSafety, FLT_MAX);
             PARSE_VOICE_EVENT (Chatter_RescuingHostages, FLT_MAX);
             PARSE_VOICE_EVENT (Chatter_GoingToCamp, FLT_MAX);
             PARSE_VOICE_EVENT (Chatter_TeamKill, FLT_MAX);
             PARSE_VOICE_EVENT (Chatter_ReportingIn, FLT_MAX);
-            PARSE_VOICE_EVENT (Chatter_GuardDroppedC4, 3.0);
+            PARSE_VOICE_EVENT (Chatter_GuardDroppedC4, 3.0f);
             PARSE_VOICE_EVENT (Chatter_Camp, FLT_MAX);
             PARSE_VOICE_EVENT (Chatter_GuardingVipSafety, FLT_MAX);
             PARSE_VOICE_EVENT (Chatter_PlantingC4, FLT_MAX);
-            PARSE_VOICE_EVENT (Chatter_DefusingC4, 3.0);
+            PARSE_VOICE_EVENT (Chatter_DefusingC4, 3.0f);
             PARSE_VOICE_EVENT (Chatter_InCombat, FLT_MAX);
             PARSE_VOICE_EVENT (Chatter_SeeksEnemy, FLT_MAX);
             PARSE_VOICE_EVENT (Chatter_Nothing, FLT_MAX);
             PARSE_VOICE_EVENT (Chatter_EnemyDown, FLT_MAX);
             PARSE_VOICE_EVENT (Chatter_UseHostage, FLT_MAX);
-            PARSE_VOICE_EVENT (Chatter_FoundC4, 5.5);
+            PARSE_VOICE_EVENT (Chatter_FoundC4, 5.5f);
             PARSE_VOICE_EVENT (Chatter_WonTheRound, FLT_MAX);
-            PARSE_VOICE_EVENT (Chatter_ScaredEmotion, 6.1);
-            PARSE_VOICE_EVENT (Chatter_HeardEnemy, 12.2);
-            PARSE_VOICE_EVENT (Chatter_SniperWarning, 4.3);
-            PARSE_VOICE_EVENT (Chatter_SniperKilled, 2.1);
+            PARSE_VOICE_EVENT (Chatter_ScaredEmotion, 6.1f);
+            PARSE_VOICE_EVENT (Chatter_HeardEnemy, 12.2f);
+            PARSE_VOICE_EVENT (Chatter_SniperWarning, 4.3f);
+            PARSE_VOICE_EVENT (Chatter_SniperKilled, 2.1f);
             PARSE_VOICE_EVENT (Chatter_QuicklyWonTheRound, FLT_MAX);
-            PARSE_VOICE_EVENT (Chatter_OneEnemyLeft, 2.5);
-            PARSE_VOICE_EVENT (Chatter_TwoEnemiesLeft, 2.5);
-            PARSE_VOICE_EVENT (Chatter_ThreeEnemiesLeft, 2.5);
+            PARSE_VOICE_EVENT (Chatter_OneEnemyLeft, 2.5f);
+            PARSE_VOICE_EVENT (Chatter_TwoEnemiesLeft, 2.5f);
+            PARSE_VOICE_EVENT (Chatter_ThreeEnemiesLeft, 2.5f);
             PARSE_VOICE_EVENT (Chatter_NoEnemiesLeft, FLT_MAX);
             PARSE_VOICE_EVENT (Chatter_FoundBombPlace, FLT_MAX);
             PARSE_VOICE_EVENT (Chatter_WhereIsTheBomb, FLT_MAX);
             PARSE_VOICE_EVENT (Chatter_DefendingBombSite, FLT_MAX);
             PARSE_VOICE_EVENT (Chatter_BarelyDefused, FLT_MAX);
             PARSE_VOICE_EVENT (Chatter_NiceshotCommander, FLT_MAX);
-            PARSE_VOICE_EVENT (Chatter_NiceshotPall, 2.0);
-            PARSE_VOICE_EVENT (Chatter_GoingToGuardHostages, 3.0);
-            PARSE_VOICE_EVENT (Chatter_GoingToGuardDoppedBomb, 3.0);
-            PARSE_VOICE_EVENT (Chatter_OnMyWay, 1.5);
-            PARSE_VOICE_EVENT (Chatter_LeadOnSir, 5.0);
+            PARSE_VOICE_EVENT (Chatter_NiceshotPall, 2.0f);
+            PARSE_VOICE_EVENT (Chatter_GoingToGuardHostages, 3.0f);
+            PARSE_VOICE_EVENT (Chatter_GoingToGuardDoppedBomb, 3.0f);
+            PARSE_VOICE_EVENT (Chatter_OnMyWay, 1.5f);
+            PARSE_VOICE_EVENT (Chatter_LeadOnSir, 5.0f);
          }
       }
       fp.Close ();
@@ -1105,7 +1105,7 @@ int Spawn (edict_t *ent)
 
       RoundInit ();
 
-      g_mapType = NULL; // reset map type as worldspawn is the first entity spawned
+      g_mapType = null; // reset map type as worldspawn is the first entity spawned
       g_worldEdict = ent; // save the world entity for future use
    }
    else if (strcmp (STRING (ent->v.classname), "player_weaponstrip") == 0 && (STRING (ent->v.target))[0] == '0')
@@ -1257,7 +1257,7 @@ void ClientDisconnect (edict_t *ent)
    InternalAssert (i >= 0 && i < 32);
 
    // check if its a bot
-   if (g_botManager->GetBot (i) != NULL)
+   if (g_botManager->GetBot (i) != null)
    {
       if (g_botManager->GetBot (i)->pev == &ent->v)
          g_botManager->Free (i);
@@ -1346,14 +1346,14 @@ void ClientCommand (edict_t *ent)
 
          return;
       }
-      else if (stricmp (command, "menuselect") == 0 && !IsNullString (arg1) && g_clients[ENTINDEX (ent) - 1].menu != NULL)
+      else if (stricmp (command, "menuselect") == 0 && !IsNullString (arg1) && g_clients[ENTINDEX (ent) - 1].menu != null)
       {
          Client_old *client = &g_clients[ENTINDEX (ent) - 1];
          int selection = atoi (arg1);
 
          if (client->menu == &g_menus[12])
          {
-            DisplayMenuToClient (ent, NULL); // reset menu display
+            DisplayMenuToClient (ent, null); // reset menu display
 
             switch (selection)
             {
@@ -1376,7 +1376,7 @@ void ClientCommand (edict_t *ent)
                break;
 
             case 10:
-               DisplayMenuToClient (ent, NULL);
+               DisplayMenuToClient (ent, null);
                break;
             }
             if (g_isMetamod)
@@ -1386,7 +1386,7 @@ void ClientCommand (edict_t *ent)
          }
          else if (client->menu == &g_menus[13])
          {
-            DisplayMenuToClient (ent, NULL); // reset menu display
+            DisplayMenuToClient (ent, null); // reset menu display
 
             switch (selection)
             {
@@ -1417,7 +1417,7 @@ void ClientCommand (edict_t *ent)
          }
          else if (client->menu == &g_menus[9])
          {
-            DisplayMenuToClient (ent, NULL); // reset menu display
+            DisplayMenuToClient (ent, null); // reset menu display
 
             switch (selection)
             {
@@ -1468,7 +1468,7 @@ void ClientCommand (edict_t *ent)
                break;
 
             case 10:
-               DisplayMenuToClient (ent, NULL);
+               DisplayMenuToClient (ent, null);
                break;
             }
             if (g_isMetamod)
@@ -1478,7 +1478,7 @@ void ClientCommand (edict_t *ent)
          }
          else if (client->menu == &g_menus[10])
          {
-            DisplayMenuToClient (ent, NULL); // reset menu display
+            DisplayMenuToClient (ent, null); // reset menu display
 
             switch (selection)
             {
@@ -1572,7 +1572,7 @@ void ClientCommand (edict_t *ent)
          }
          else if (client->menu == &g_menus[11])
          {
-            DisplayMenuToClient (ent, NULL); // reset menu display
+            DisplayMenuToClient (ent, null); // reset menu display
 
             g_waypointOn = true;  // turn waypoints on in case
 
@@ -1588,7 +1588,7 @@ void ClientCommand (edict_t *ent)
          }
          else if (client->menu == &g_menus[0])
          {
-            DisplayMenuToClient (ent, NULL); // reset menu display
+            DisplayMenuToClient (ent, null); // reset menu display
 
             switch (selection)
             {
@@ -1611,7 +1611,7 @@ void ClientCommand (edict_t *ent)
                break;
 
             case 10:
-               DisplayMenuToClient (ent, NULL);
+               DisplayMenuToClient (ent, null);
                break;
 
             }
@@ -1622,7 +1622,7 @@ void ClientCommand (edict_t *ent)
          }
          else if (client->menu == &g_menus[2])
          {
-            DisplayMenuToClient (ent, NULL); // reset menu display
+            DisplayMenuToClient (ent, null); // reset menu display
 
             switch (selection)
             {
@@ -1647,7 +1647,7 @@ void ClientCommand (edict_t *ent)
                break;
 
             case 10:
-               DisplayMenuToClient (ent, NULL);
+               DisplayMenuToClient (ent, null);
                break;
             }
             if (g_isMetamod)
@@ -1657,7 +1657,7 @@ void ClientCommand (edict_t *ent)
          }
          else if (client->menu == &g_menus[1])
          {
-            DisplayMenuToClient (ent, NULL); // reset menu display
+            DisplayMenuToClient (ent, null); // reset menu display
             
             extern ConVar yb_debug;
 
@@ -1684,13 +1684,13 @@ void ClientCommand (edict_t *ent)
                   DisplayMenuToClient (ent, &g_menus[18]);
                else
                {
-                  DisplayMenuToClient (ent, NULL); // reset menu display
+                  DisplayMenuToClient (ent, null); // reset menu display
                   CenterPrint ("You're dead, and have no access to this menu");
                }
                break;
 
             case 10:
-               DisplayMenuToClient (ent, NULL);
+               DisplayMenuToClient (ent, null);
                break;
             }
             if (g_isMetamod)
@@ -1700,8 +1700,8 @@ void ClientCommand (edict_t *ent)
          }
          else if (client->menu == &g_menus[18])
          {
-            DisplayMenuToClient (ent, NULL); // reset menu display
-            Bot *bot = NULL;
+            DisplayMenuToClient (ent, null); // reset menu display
+            Bot *bot = null;
 
             switch (selection)
             {
@@ -1718,7 +1718,7 @@ void ClientCommand (edict_t *ent)
                         bot->m_doubleJumpOrigin = client->ent->v.origin;
                         bot->m_doubleJumpEntity = client->ent;
 
-                        bot->StartTask (TASK_DOUBLEJUMP, TASKPRI_DOUBLEJUMP, -1, engine->GetTime (), true);
+                        bot->PushTask (TASK_DOUBLEJUMP, TASKPRI_DOUBLEJUMP, -1, engine->GetTime (), true);
                         bot->TeamSayText (FormatBuffer ("Ok %s, i will help you!", STRING (ent->v.netname)));
                      }
                      else if (selection == 2)
@@ -1735,7 +1735,7 @@ void ClientCommand (edict_t *ent)
                break;
 
             case 10:
-               DisplayMenuToClient (ent, NULL);
+               DisplayMenuToClient (ent, null);
                break;
             }
 
@@ -1746,9 +1746,9 @@ void ClientCommand (edict_t *ent)
          }
          else if (client->menu == &g_menus[19])
          {
-            DisplayMenuToClient (ent, NULL); // reset menu display
+            DisplayMenuToClient (ent, null); // reset menu display
 
-            const int autoDistanceValue[] = {0, 100, 130, 160, 190, 220, 250};
+            const float autoDistanceValue[] = {0.0f, 100.0f, 130.0f, 160.0f, 190.0f, 220.0f, 250.0f};
 
             if (selection >= 1 && selection <= 7)
                g_autoPathDistance = autoDistanceValue[selection - 1];
@@ -1765,7 +1765,7 @@ void ClientCommand (edict_t *ent)
          }
          else if (client->menu == &g_menus[20])
          {
-            DisplayMenuToClient (ent, NULL); // reset menu display
+            DisplayMenuToClient (ent, null); // reset menu display
 
             switch (selection)
             {
@@ -1782,7 +1782,7 @@ void ClientCommand (edict_t *ent)
                break;
 
             case 10:
-               DisplayMenuToClient (ent, NULL);
+               DisplayMenuToClient (ent, null);
                break;
             }
 
@@ -1793,7 +1793,7 @@ void ClientCommand (edict_t *ent)
          }
          else if (client->menu == &g_menus[5])
          {
-            DisplayMenuToClient (ent, NULL); // reset menu display
+            DisplayMenuToClient (ent, null); // reset menu display
 
             client->menu = &g_menus[4];
 
@@ -1824,7 +1824,7 @@ void ClientCommand (edict_t *ent)
                break;
 
             case 10:
-               DisplayMenuToClient (ent, NULL);
+               DisplayMenuToClient (ent, null);
                break;
             }
 
@@ -1838,7 +1838,7 @@ void ClientCommand (edict_t *ent)
          }
          else if (client->menu == &g_menus[6] && fillCommand)
          {
-            DisplayMenuToClient (ent, NULL); // reset menu display
+            DisplayMenuToClient (ent, null); // reset menu display
 
             switch (selection)
             {
@@ -1854,7 +1854,7 @@ void ClientCommand (edict_t *ent)
                break;
 
             case 10:
-               DisplayMenuToClient (ent, NULL);
+               DisplayMenuToClient (ent, null);
                break;
             }
             if (g_isMetamod)
@@ -1864,7 +1864,7 @@ void ClientCommand (edict_t *ent)
          }
          else if (client->menu == &g_menus[4] && fillCommand)
          {
-            DisplayMenuToClient (ent, NULL); // reset menu display
+            DisplayMenuToClient (ent, null); // reset menu display
 
             switch (selection)
             {
@@ -1875,7 +1875,7 @@ void ClientCommand (edict_t *ent)
                g_botManager->FillServer (fillServerTeam, selection - 2, g_storeAddbotVars[0]);
 
             case 10:
-               DisplayMenuToClient (ent, NULL);
+               DisplayMenuToClient (ent, null);
                break;
             }
             if (g_isMetamod)
@@ -1885,7 +1885,7 @@ void ClientCommand (edict_t *ent)
          }
          else if (client->menu == &g_menus[6])
          {
-            DisplayMenuToClient (ent, NULL); // reset menu display
+            DisplayMenuToClient (ent, null); // reset menu display
 
             switch (selection)
             {
@@ -1908,7 +1908,7 @@ void ClientCommand (edict_t *ent)
                break;
 
             case 10:
-               DisplayMenuToClient (ent, NULL);
+               DisplayMenuToClient (ent, null);
                break;
             }
             if (g_isMetamod)
@@ -1918,7 +1918,7 @@ void ClientCommand (edict_t *ent)
          }
          else if (client->menu == &g_menus[4])
          {
-            DisplayMenuToClient (ent, NULL); // reset menu display
+            DisplayMenuToClient (ent, null); // reset menu display
 
             switch (selection)
             {
@@ -1931,7 +1931,7 @@ void ClientCommand (edict_t *ent)
                break;
 
             case 10:
-               DisplayMenuToClient (ent, NULL);
+               DisplayMenuToClient (ent, null);
                break;
             }
             if (g_isMetamod)
@@ -1941,7 +1941,7 @@ void ClientCommand (edict_t *ent)
          }
          else if (client->menu == &g_menus[7] || client->menu == &g_menus[8])
          {
-            DisplayMenuToClient (ent, NULL); // reset menu display
+            DisplayMenuToClient (ent, null); // reset menu display
 
             switch (selection)
             {
@@ -1955,7 +1955,7 @@ void ClientCommand (edict_t *ent)
                break;
 
             case 10:
-               DisplayMenuToClient (ent, NULL);
+               DisplayMenuToClient (ent, null);
                break;
             }
             if (g_isMetamod)
@@ -1965,7 +1965,7 @@ void ClientCommand (edict_t *ent)
          }
          else if (client->menu == &g_menus[3])
          {
-            DisplayMenuToClient (ent, NULL); // reset menu display
+            DisplayMenuToClient (ent, null); // reset menu display
 
             switch (selection)
             {
@@ -1980,7 +1980,7 @@ void ClientCommand (edict_t *ent)
                break;
 
             case 10:
-               DisplayMenuToClient (ent, NULL);
+               DisplayMenuToClient (ent, null);
                break;
             }
             if (g_isMetamod)
@@ -1990,7 +1990,7 @@ void ClientCommand (edict_t *ent)
          }
          else if (client->menu == &g_menus[14])
          {
-            DisplayMenuToClient (ent, NULL); // reset menu display
+            DisplayMenuToClient (ent, null); // reset menu display
 
             switch (selection)
             {
@@ -2020,7 +2020,7 @@ void ClientCommand (edict_t *ent)
          }
          else if (client->menu == &g_menus[15])
          {
-            DisplayMenuToClient (ent, NULL); // reset menu display
+            DisplayMenuToClient (ent, null); // reset menu display
 
             switch (selection)
             {
@@ -2050,7 +2050,7 @@ void ClientCommand (edict_t *ent)
          }
          else if (client->menu == &g_menus[16])
          {
-            DisplayMenuToClient (ent, NULL); // reset menu display
+            DisplayMenuToClient (ent, null); // reset menu display
 
             switch (selection)
             {
@@ -2080,7 +2080,7 @@ void ClientCommand (edict_t *ent)
          }
          else if (client->menu == &g_menus[17])
          {
-            DisplayMenuToClient (ent, NULL); // reset menu display
+            DisplayMenuToClient (ent, null); // reset menu display
 
             switch (selection)
             {
@@ -2109,7 +2109,7 @@ void ClientCommand (edict_t *ent)
 
    if (!g_isFakeCommand && (stricmp (command, "say") == 0 || stricmp (command, "say_team") == 0))
    {
-      Bot *bot = NULL;
+      Bot *bot = null;
 
       if (FStrEq (arg1, "dropme") || FStrEq (arg1, "dropc4"))
       {
@@ -2132,7 +2132,7 @@ void ClientCommand (edict_t *ent)
 
          Bot *iter = g_botManager->GetBot (i);
 
-         if (iter != NULL)
+         if (iter != null)
          {
             iter->m_sayTextBuffer.entityIndex = ENTINDEX (ent);
 
@@ -2162,7 +2162,7 @@ void ClientCommand (edict_t *ent)
                Bot *bot = g_botManager->GetBot (i);
 
                // validate bot
-               if (bot != NULL && GetTeam (bot->GetEntity ()) == g_clients[clientIndex].team && VARS (ent) != bot->pev && bot->m_radioOrder == 0)
+               if (bot != null && GetTeam (bot->GetEntity ()) == g_clients[clientIndex].team && VARS (ent) != bot->pev && bot->m_radioOrder == 0)
                {
                   bot->m_radioOrder = radioCommand;
                   bot->m_radioEntity = ent;
@@ -2296,10 +2296,10 @@ void StartFrame (void)
       else
       {
          g_clients[i].flags &= ~(CFLAG_USED | CFLAG_ALIVE);
-         g_clients[i].ent = NULL;
+         g_clients[i].ent = null;
       }
    }
-   static float secondTimer = 0.0;
+   static float secondTimer = 0.0f;
 
    // **** AI EXECUTION STARTS ****
    g_botManager->Think ();
@@ -2348,10 +2348,10 @@ void StartFrame (void)
 
       extern ConVar yb_dangerfactor;
 
-      if (yb_dangerfactor.GetFloat () >= 4096)
-         yb_dangerfactor.SetFloat (4096.0);
+      if (yb_dangerfactor.GetFloat () >= 4096.0f)
+         yb_dangerfactor.SetFloat (4096.0f);
 
-      secondTimer = engine->GetTime () + 1.5;
+      secondTimer = engine->GetTime () + 1.5f;
 
       if (g_bombPlanted)
          g_waypoint->SetBombPosition ();
@@ -2381,7 +2381,7 @@ int Spawn_Post (edict_t *ent)
    RETURN_META_VALUE (MRES_IGNORED, 0);
 }
 
-void ServerActivate_Post (edict_t *pentEdictList, int edictCount, int clientMax)
+void ServerActivate_Post (edict_t * /*pentEdictList*/, int /*edictCount*/, int /*clientMax*/)
 {
    // this function is called when the server has fully loaded and is about to manifest itself
    // on the network as such. Since a mapchange is actually a server shutdown followed by a
@@ -2448,8 +2448,8 @@ void pfnEmitSound (edict_t *entity, int channel, const char *sample, float volum
 {
    // this function tells the engine that the entity pointed to by "entity", is emitting a sound
    // which fileName is "sample", at level "channel" (CHAN_VOICE, etc...), with "volume" as
-   // loudness multiplicator (normal volume VOL_NORM is 1.0), with a pitch of "pitch" (normal
-   // pitch PITCH_NORM is 100.0), and that this sound has to be attenuated by distance in air
+   // loudness multiplicator (normal volume VOL_NORM is 1.0f), with a pitch of "pitch" (normal
+   // pitch PITCH_NORM is 100.0f), and that this sound has to be attenuated by distance in air
    // according to the value of "attenuation" (normal attenuation ATTN_NORM is 0.8 ; ATTN_NONE
    // means no attenuation with distance). Optionally flags "fFlags" can be passed, which I don't
    // know the heck of the purpose. After we tell the engine to emit the sound, we have to call
@@ -2510,27 +2510,27 @@ void pfnMessageBegin (int msgDest, int msgType, const float *origin, edict_t *ed
    // store the message type in our own variables, since the GET_USER_MSG_ID () will just do a lot of strcmp()'s...
    if (g_isMetamod && g_netMsg->GetId (NETMSG_MONEY) == -1)
    {
-      g_netMsg->SetId (NETMSG_VGUI, GET_USER_MSG_ID (PLID, "VGUIMenu", NULL));
-      g_netMsg->SetId (NETMSG_SHOWMENU, GET_USER_MSG_ID (PLID, "ShowMenu", NULL));
-      g_netMsg->SetId (NETMSG_WLIST, GET_USER_MSG_ID (PLID, "WeaponList", NULL));
-      g_netMsg->SetId (NETMSG_CURWEAPON, GET_USER_MSG_ID (PLID, "CurWeapon", NULL));
-      g_netMsg->SetId (NETMSG_AMMOX, GET_USER_MSG_ID (PLID, "AmmoX", NULL));
-      g_netMsg->SetId (NETMSG_AMMOPICK, GET_USER_MSG_ID (PLID, "AmmoPickup", NULL));
-      g_netMsg->SetId (NETMSG_DAMAGE, GET_USER_MSG_ID (PLID, "Damage", NULL));
-      g_netMsg->SetId (NETMSG_MONEY, GET_USER_MSG_ID (PLID, "Money", NULL));
-      g_netMsg->SetId (NETMSG_STATUSICON, GET_USER_MSG_ID (PLID, "StatusIcon", NULL));
-      g_netMsg->SetId (NETMSG_DEATH, GET_USER_MSG_ID (PLID, "DeathMsg", NULL));
-      g_netMsg->SetId (NETMSG_SCREENFADE, GET_USER_MSG_ID (PLID, "ScreenFade", NULL));
-      g_netMsg->SetId (NETMSG_HLTV, GET_USER_MSG_ID (PLID, "HLTV", NULL));
-      g_netMsg->SetId (NETMSG_TEXTMSG, GET_USER_MSG_ID (PLID, "TextMsg", NULL));
-      g_netMsg->SetId (NETMSG_SCOREINFO, GET_USER_MSG_ID (PLID, "ScoreInfo", NULL));
-      g_netMsg->SetId (NETMSG_BARTIME, GET_USER_MSG_ID (PLID, "BarTime", NULL));
-      g_netMsg->SetId (NETMSG_SENDAUDIO, GET_USER_MSG_ID (PLID, "SendAudio", NULL));
-      g_netMsg->SetId (NETMSG_SAYTEXT, GET_USER_MSG_ID (PLID, "SayText", NULL));
-      g_netMsg->SetId (NETMSG_RESETHUD, GET_USER_MSG_ID (PLID, "ResetHUD", NULL));
+      g_netMsg->SetId (NETMSG_VGUI, GET_USER_MSG_ID (PLID, "VGUIMenu", null));
+      g_netMsg->SetId (NETMSG_SHOWMENU, GET_USER_MSG_ID (PLID, "ShowMenu", null));
+      g_netMsg->SetId (NETMSG_WLIST, GET_USER_MSG_ID (PLID, "WeaponList", null));
+      g_netMsg->SetId (NETMSG_CURWEAPON, GET_USER_MSG_ID (PLID, "CurWeapon", null));
+      g_netMsg->SetId (NETMSG_AMMOX, GET_USER_MSG_ID (PLID, "AmmoX", null));
+      g_netMsg->SetId (NETMSG_AMMOPICK, GET_USER_MSG_ID (PLID, "AmmoPickup", null));
+      g_netMsg->SetId (NETMSG_DAMAGE, GET_USER_MSG_ID (PLID, "Damage", null));
+      g_netMsg->SetId (NETMSG_MONEY, GET_USER_MSG_ID (PLID, "Money", null));
+      g_netMsg->SetId (NETMSG_STATUSICON, GET_USER_MSG_ID (PLID, "StatusIcon", null));
+      g_netMsg->SetId (NETMSG_DEATH, GET_USER_MSG_ID (PLID, "DeathMsg", null));
+      g_netMsg->SetId (NETMSG_SCREENFADE, GET_USER_MSG_ID (PLID, "ScreenFade", null));
+      g_netMsg->SetId (NETMSG_HLTV, GET_USER_MSG_ID (PLID, "HLTV", null));
+      g_netMsg->SetId (NETMSG_TEXTMSG, GET_USER_MSG_ID (PLID, "TextMsg", null));
+      g_netMsg->SetId (NETMSG_SCOREINFO, GET_USER_MSG_ID (PLID, "ScoreInfo", null));
+      g_netMsg->SetId (NETMSG_BARTIME, GET_USER_MSG_ID (PLID, "BarTime", null));
+      g_netMsg->SetId (NETMSG_SENDAUDIO, GET_USER_MSG_ID (PLID, "SendAudio", null));
+      g_netMsg->SetId (NETMSG_SAYTEXT, GET_USER_MSG_ID (PLID, "SayText", null));
+      g_netMsg->SetId (NETMSG_RESETHUD, GET_USER_MSG_ID (PLID, "ResetHUD", null));
 
       if (g_gameVersion != CSVER_VERYOLD)
-         g_netMsg->SetId (NETMSG_BOTVOICE, GET_USER_MSG_ID (PLID, "BotVoice", NULL));
+         g_netMsg->SetId (NETMSG_BOTVOICE, GET_USER_MSG_ID (PLID, "BotVoice", null));
    }
    g_netMsg->Reset ();
 
@@ -2578,7 +2578,7 @@ void pfnMessageBegin (int msgDest, int msgType, const float *origin, edict_t *ed
          {
             Bot *bot = g_botManager->GetBot (i);
 
-            if (bot != NULL)
+            if (bot != null)
                bot->m_notKilled = false;
          }
       }
@@ -2670,7 +2670,7 @@ void pfnWriteString (const char *sz)
 {
    Bot *bot = g_botManager->FindOneValidAliveBot ();
 
-   if (bot != NULL && IsAlive (bot->GetEntity ()))
+   if (bot != null && IsAlive (bot->GetEntity ()))
       bot->HandleChatterMessage (sz);
 
    // if this message is for a bot, call the client message function...
@@ -2752,7 +2752,7 @@ const char *pfnCmd_Args (void)
    }
 
    if (g_isMetamod)
-      RETURN_META_VALUE (MRES_IGNORED, NULL);
+      RETURN_META_VALUE (MRES_IGNORED, null);
 
    return CMD_ARGS (); // ask the client command string to the engine
 }
@@ -2775,7 +2775,7 @@ const char *pfnCmd_Argv (int argc)
       return GetField (g_fakeArgv, argc); // if so, then return the wanted argument we know
    }
    if (g_isMetamod)
-      RETURN_META_VALUE (MRES_IGNORED, NULL);
+      RETURN_META_VALUE (MRES_IGNORED, null);
 
    return CMD_ARGV (argc); // ask the argument number "argc" to the engine
 }
@@ -2807,7 +2807,7 @@ void pfnSetClientMaxspeed (const edict_t *ent, float newMaxspeed)
    Bot *bot = g_botManager->GetBot (const_cast <edict_t *> (ent));
 
    // check wether it's not a bot
-   if (bot != NULL)
+   if (bot != null)
       bot->pev->maxspeed = newMaxspeed;
 
    if (g_isMetamod)
@@ -2884,14 +2884,14 @@ void pfnAlertMessage (ALERT_TYPE alertType, char *format, ...)
    vsprintf (buffer, format, ap);
    va_end (ap);
 
-   if (strstr (buffer, "_Defuse_") != NULL)
+   if (strstr (buffer, "_Defuse_") != null)
    {
       // notify all terrorists that CT is starting bomb defusing
       for (int i = 0; i < engine->GetMaxClients (); i++)
       {
          Bot *bot = g_botManager->GetBot (i);
 
-         if (bot != NULL && GetTeam (bot->GetEntity ()) == TEAM_TERRORIST && IsAlive (bot->GetEntity ()))
+         if (bot != null && GetTeam (bot->GetEntity ()) == TEAM_TERRORIST && IsAlive (bot->GetEntity ()))
          {
             bot->ResetTasks ();
             bot->MoveToVector (g_waypoint->GetBombPosition ());
@@ -2939,7 +2939,7 @@ unsigned int pfnGetPlayerWONId (edict_t *e)
 
 gamedll_funcs_t gameDLLFunc;
 
-export int GetEntityAPI2 (DLL_FUNCTIONS *functionTable, int *interfaceVersion)
+export int GetEntityAPI2 (DLL_FUNCTIONS *functionTable, int * /*interfaceVersion*/)
 {
    // this function is called right after FuncPointers_t() by the engine in the game DLL (or
    // what it BELIEVES to be the game DLL), in order to copy the list of MOD functions that can
@@ -2984,7 +2984,7 @@ export int GetEntityAPI2 (DLL_FUNCTIONS *functionTable, int *interfaceVersion)
    return true;
 }
 
-export int GetEntityAPI2_Post (DLL_FUNCTIONS *functionTable, int *interfaceVersion)
+export int GetEntityAPI2_Post (DLL_FUNCTIONS *functionTable, int * /*interfaceVersion*/)
 {
    // this function is called right after FuncPointers_t() by the engine in the game DLL (or
    // what it BELIEVES to be the game DLL), in order to copy the list of MOD functions that can
@@ -3013,7 +3013,7 @@ export int GetNewDLLFunctions (NEW_DLL_FUNCTIONS *functionTable, int *interfaceV
    // pass them too, else the DLL interfacing wouldn't be complete and the game possibly wouldn't
    // run properly.
 
-   if (g_getNewEntityAPI == NULL)
+   if (g_getNewEntityAPI == null)
       return false;
 
    if (!(*g_getNewEntityAPI) (functionTable, interfaceVersion))
@@ -3026,7 +3026,7 @@ export int GetNewDLLFunctions (NEW_DLL_FUNCTIONS *functionTable, int *interfaceV
    return true;
 }
 
-export int GetEngineFunctions (enginefuncs_t *functionTable, int *interfaceVersion)
+export int GetEngineFunctions (enginefuncs_t *functionTable, int * /*interfaceVersion*/)
 {
    if (g_isMetamod)
       memset (functionTable, 0, sizeof (enginefuncs_t));
@@ -3064,7 +3064,7 @@ export int Server_GetBlendingInterface (int version, void **ppinterface, void *p
    // of the body move, which bones, which hitboxes and how) between the server and the game DLL.
    // some MODs can be using a different hitbox scheme than the standard one.
 
-   if (g_serverBlendingAPI == NULL)
+   if (g_serverBlendingAPI == null)
       return false;
 
    return (*g_serverBlendingAPI) (version, ppinterface, pstudio, rotationmatrix, bonetransform);
@@ -3199,7 +3199,7 @@ DLL_GIVEFNPTRSTODLL GiveFnptrsToDll (enginefuncs_t *functionTable, globalvars_t 
    g_pGlobals = pGlobals;
 
 
-   ModSupport_t *knownMod = NULL;
+   ModSupport_t *knownMod = null;
    char gameDLLName[256];
 
    for (int i = 0; s_supportedMods[i].name; i++)
@@ -3213,7 +3213,7 @@ DLL_GIVEFNPTRSTODLL GiveFnptrsToDll (enginefuncs_t *functionTable, globalvars_t 
       }
    }
 
-   if (knownMod != NULL)
+   if (knownMod != null)
    {
       g_gameVersion = knownMod->modType;
 
@@ -3223,7 +3223,7 @@ DLL_GIVEFNPTRSTODLL GiveFnptrsToDll (enginefuncs_t *functionTable, globalvars_t 
       sprintf (gameDLLName, "%s/dlls/%s", knownMod->name, !IsLinux () ? knownMod->winLib : knownMod->linuxLib);
       g_gameLib = new Library (gameDLLName);
 
-      if (g_gameLib == NULL || (g_gameLib && !g_gameLib->IsLoaded()))
+      if (g_gameLib == null || (g_gameLib && !g_gameLib->IsLoaded()))
       {
          // try to extract the game dll out of the steam cache
          AddLogEntry (true, LOG_WARNING | LOG_IGNORE, "Trying to extract dll '%s' out of the steam cache", gameDLLName);
@@ -3258,7 +3258,7 @@ DLL_GIVEFNPTRSTODLL GiveFnptrsToDll (enginefuncs_t *functionTable, globalvars_t 
    if (!g_funcPointers || !g_entityAPI || !g_getNewEntityAPI || !g_serverBlendingAPI)
       TerminateOnMalloc ();
 
-   GetEngineFunctions (functionTable, NULL);
+   GetEngineFunctions (functionTable, null);
 
    // give the engine functions to the other DLL...
    (*g_funcPointers) (functionTable, pGlobals);
@@ -3275,7 +3275,7 @@ DLL_ENTRYPOINT
    {
       FreeLibraryMemory (); // free everything that's freeable
 
-      if (g_gameLib != NULL)
+      if (g_gameLib != null)
          delete g_gameLib; // if dynamic link library of mod is load, free it
    }
    DLL_RETENTRY; // the return data type is OS specific too
@@ -3286,12 +3286,12 @@ export void entityFunction (entvars_t *pev); \
 \
 void entityFunction (entvars_t *pev) \
 { \
-   static EntityPtr_t funcPtr = NULL; \
+   static EntityPtr_t funcPtr = null; \
    \
-   if (funcPtr == NULL) \
+   if (funcPtr == null) \
       funcPtr = (EntityPtr_t) g_gameLib->GetFunctionAddr (#entityFunction); \
    \
-   if (funcPtr == NULL) \
+   if (funcPtr == null) \
       return; \
    \
    (*funcPtr) (pev); \

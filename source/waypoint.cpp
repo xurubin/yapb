@@ -19,7 +19,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //
-// $Id: waypoint.cpp 23 2009-06-16 21:59:33Z jeefo $
+// $Id:$
 //
 
 #include <core.h>
@@ -36,14 +36,14 @@ void Waypoint::Initialize (void)
       for (int i = 0; i < g_numWaypoints; i++)
       {
          delete m_paths[i];
-         m_paths[i] = NULL;
+         m_paths[i] = null;
       }
    }
    g_numWaypoints = 0;
-   m_lastWaypoint = Vector::GetNull ();
+   m_lastWaypoint = nullvec;
 }
 
-void Waypoint::AddPath (short int addIndex, short int pathIndex, float distance)
+void Waypoint::AddPath (int addIndex, int pathIndex, float distance)
 {
    if (addIndex < 0 || addIndex >= g_numWaypoints || pathIndex < 0 || pathIndex >= g_numWaypoints || addIndex == pathIndex)
       return;
@@ -65,7 +65,7 @@ void Waypoint::AddPath (short int addIndex, short int pathIndex, float distance)
    {
       if (path->index[i] == -1)
       {
-         path->index[i] = pathIndex;
+         path->index[i] = static_cast <int16> (pathIndex);
          path->distances[i] = abs (static_cast <int> (distance));
 
          AddLogEntry (true, LOG_DEFAULT, "Path added from %d to %d", addIndex, pathIndex);
@@ -90,7 +90,7 @@ void Waypoint::AddPath (short int addIndex, short int pathIndex, float distance)
    {
       AddLogEntry (true, LOG_DEFAULT, "Path added from %d to %d", addIndex, pathIndex);
 
-      path->index[slotID] = pathIndex;
+      path->index[slotID] = static_cast <int16> (pathIndex);
       path->distances[slotID] = abs (static_cast <int> (distance));
    }
 }
@@ -174,13 +174,13 @@ void Waypoint::Add (int flags, Vector waypointOrigin)
    int index = -1, i;
    float distance;
 
-   Vector forward = Vector::GetNull ();
-   Path *path = NULL;
+   Vector forward = nullvec;
+   Path *path = null;
 
    bool placeNew = true;
    Vector newOrigin = waypointOrigin;
 
-   if (waypointOrigin == Vector::GetNull ())
+   if (waypointOrigin == nullvec)
       newOrigin = g_hostEntity->v.origin;
 
    if (g_botManager->GetBotsNum () > 0)
@@ -191,7 +191,7 @@ void Waypoint::Add (int flags, Vector waypointOrigin)
    switch (flags)
    {
    case 6:
-      index = FindNearest (g_hostEntity->v.origin, 50.0);
+      index = FindNearest (g_hostEntity->v.origin, 50.0f);
 
       if (index != -1)
       {
@@ -215,7 +215,7 @@ void Waypoint::Add (int flags, Vector waypointOrigin)
       return;
 
    case 9:
-      index = FindNearest (g_hostEntity->v.origin, 50.0);
+      index = FindNearest (g_hostEntity->v.origin, 50.0f);
 
       if (index != -1)
       {
@@ -235,7 +235,7 @@ void Waypoint::Add (int flags, Vector waypointOrigin)
       break;
 
    case 10:
-      index = FindNearest (g_hostEntity->v.origin, 50.0);
+      index = FindNearest (g_hostEntity->v.origin, 50.0f);
 
       if (index != -1)
       {
@@ -267,7 +267,7 @@ void Waypoint::Add (int flags, Vector waypointOrigin)
 
       m_paths[index] = new Path;
 
-      if (m_paths[index] == NULL)
+      if (m_paths[index] == null)
          TerminateOnMalloc ();
 
       path = m_paths[index];
@@ -291,7 +291,7 @@ void Waypoint::Add (int flags, Vector waypointOrigin)
          path->distances[i] = 0;
 
          path->connectionFlags[i] = 0;
-         path->connectionVelocity[i] = Vector::GetNull ();
+         path->connectionVelocity[i] = nullvec;
       }
 
       // store the last used waypoint for the auto waypoint code...
@@ -376,7 +376,7 @@ void Waypoint::Add (int flags, Vector waypointOrigin)
    // Ladder waypoints need careful connections
    if (path->flags & WAYPOINT_LADDER)
    {
-      float minDistance = 9999.0;
+      float minDistance = 9999.0f;
       int destIndex = -1;
 
       TraceResult tr;
@@ -393,7 +393,7 @@ void Waypoint::Add (int flags, Vector waypointOrigin)
             // check if the waypoint is reachable from the new one
             TraceLine (newOrigin, m_paths[i]->origin, true, g_hostEntity, &tr);
 
-            if (tr.flFraction == 1.0 && fabs (newOrigin.x - m_paths[i]->origin.x) < 64 && fabs (newOrigin.y - m_paths[i]->origin.y) < 64 && fabs (newOrigin.z - m_paths[i]->origin.z) < g_autoPathDistance)
+            if (tr.flFraction == 1.0f && fabs (newOrigin.x - m_paths[i]->origin.x) < 64 && fabs (newOrigin.y - m_paths[i]->origin.y) < 64 && fabs (newOrigin.z - m_paths[i]->origin.z) < g_autoPathDistance)
             {
                distance = (m_paths[i]->origin - newOrigin).GetLength ();
 
@@ -471,13 +471,13 @@ void Waypoint::Delete (void)
    if (g_botManager->GetBotsNum () > 0)
       g_botManager->RemoveAll ();
 
-   int index = FindNearest (g_hostEntity->v.origin, 50.0);
+   int index = FindNearest (g_hostEntity->v.origin, 50.0f);
 
    if (index == -1)
       return;
 
-   Path *path = NULL;
-   InternalAssert (m_paths[index] != NULL);
+   Path *path = null;
+   InternalAssert (m_paths[index] != null);
 
    int i, j;
 
@@ -492,7 +492,7 @@ void Waypoint::Delete (void)
             path->index[j] = -1;  // unassign this path
             path->connectionFlags[j] = 0;
             path->distances[j] = 0;
-            path->connectionVelocity[j] = Vector::GetNull ();
+            path->connectionVelocity[j] = nullvec;
          }
       }
    }
@@ -513,7 +513,7 @@ void Waypoint::Delete (void)
 
    // free deleted node
    delete m_paths[index];
-   m_paths[index] = NULL;
+   m_paths[index] = null;
 
    // Rotate Path Array down
    for (i = index; i < g_numWaypoints - 1; i++)
@@ -529,7 +529,7 @@ void Waypoint::ToggleFlags (int toggleFlag)
 {
    // this function allow manually changing flags
 
-   int index = FindNearest (g_hostEntity->v.origin, 50.0);
+   int index = FindNearest (g_hostEntity->v.origin, 50.0f);
 
    if (index != -1)
    {
@@ -555,7 +555,7 @@ void Waypoint::SetRadius (int radius)
 {
    // this function allow manually setting the zone radius
 
-   int index = FindNearest (g_hostEntity->v.origin, 50.0);
+   int index = FindNearest (g_hostEntity->v.origin, 50.0f);
 
    if (index != -1)
    {
@@ -593,17 +593,17 @@ int Waypoint::GetFacingIndex (void)
 
       // get the current view cone
       viewCone[0] = GetShootingConeDeviation (g_hostEntity, &m_paths[i]->origin);
-      Vector bound = m_paths[i]->origin - Vector (0, 0, m_paths[i]->flags & WAYPOINT_CROUCH ? 8 : 15);
+      Vector bound = m_paths[i]->origin - Vector (0.0f, 0.0f, m_paths[i]->flags & WAYPOINT_CROUCH ? 8.0f : 15.0f);
 
       // get the current view cone
       viewCone[1] = GetShootingConeDeviation (g_hostEntity, &bound);
-      bound = m_paths[i]->origin + Vector (0, 0, m_paths[i]->flags & WAYPOINT_CROUCH ? 8 : 15);
+      bound = m_paths[i]->origin + Vector (0.0f, 0.0f, m_paths[i]->flags & WAYPOINT_CROUCH ? 8.0f : 15.0f);
 
       // get the current view cone
       viewCone[2] = GetShootingConeDeviation (g_hostEntity, &bound);
 
       // check if we can see it
-      if (viewCone[0] < 0.998 && viewCone[1] < 0.997 && viewCone[2] < 0.997)
+      if (viewCone[0] < 0.998f && viewCone[1] < 0.997f && viewCone[2] < 0.997f)
          continue;
 
       pointedIndex = i;
@@ -615,7 +615,7 @@ void Waypoint::CreatePath (char dir)
 {
    // this function allow player to manually create a path from one waypoint to another
 
-   int nodeFrom = FindNearest (g_hostEntity->v.origin, 50.0);
+   int nodeFrom = FindNearest (g_hostEntity->v.origin, 50.0f);
 
    if (nodeFrom == -1)
    {
@@ -662,7 +662,7 @@ void Waypoint::DeletePath (void)
 {
    // this function allow player to manually remove a path from one waypoint to another
 
-   int nodeFrom = FindNearest (g_hostEntity->v.origin, 50.0);
+   int nodeFrom = FindNearest (g_hostEntity->v.origin, 50.0f);
    int index = 0;
 
    if (nodeFrom == -1)
@@ -691,7 +691,7 @@ void Waypoint::DeletePath (void)
 
          m_paths[nodeFrom]->index[index] = -1; // unassign this path
          m_paths[nodeFrom]->connectionFlags[index] = 0;
-         m_paths[nodeFrom]->connectionVelocity[index] = Vector::GetNull ();
+         m_paths[nodeFrom]->connectionVelocity[index] = nullvec;
          m_paths[nodeFrom]->distances[index] = 0;
 
          PlaySound (g_hostEntity, "weapons/mine_activate.wav");
@@ -712,7 +712,7 @@ void Waypoint::DeletePath (void)
 
          m_paths[nodeFrom]->index[index] = -1; // unassign this path
          m_paths[nodeFrom]->connectionFlags[index] = 0;
-         m_paths[nodeFrom]->connectionVelocity[index] = Vector::GetNull ();
+         m_paths[nodeFrom]->connectionVelocity[index] = nullvec;
          m_paths[nodeFrom]->distances[index] = 0;
 
          PlaySound (g_hostEntity, "weapons/mine_activate.wav");
@@ -724,7 +724,7 @@ void Waypoint::DeletePath (void)
 
 void Waypoint::CacheWaypoint (void)
 {
-   int node = FindNearest (g_hostEntity->v.origin, 50.0);
+   int node = FindNearest (g_hostEntity->v.origin, 50.0f);
 
    if (node == -1)
    {
@@ -762,28 +762,28 @@ void Waypoint::CalculateWayzone (int index)
       }
    }
 
-   for (int scanDistance = 16; scanDistance < 128; scanDistance += 16)
+   for (float scanDistance = 16.0f; scanDistance < 128.0f; scanDistance += 16.0f)
    {
       start = path->origin;
-      MakeVectors (Vector::GetNull ());
+      MakeVectors (nullvec);
 
       direction = g_pGlobals->v_forward * scanDistance;
       direction = direction.ToAngles ();
 
       path->radius = scanDistance;
 
-      for (float circleRadius = 0.0; circleRadius < 180.0; circleRadius += 5)
+      for (float circleRadius = 0.0f; circleRadius < 180.0f; circleRadius += 5)
       {
          MakeVectors (direction);
 
          Vector radiusStart = start - g_pGlobals->v_forward * scanDistance;
          Vector radiusEnd = start + g_pGlobals->v_forward * scanDistance;
 
-         TraceHull (radiusStart, radiusEnd, true, head_hull, NULL, &tr);
+         TraceHull (radiusStart, radiusEnd, true, head_hull, null, &tr);
 
-         if (tr.flFraction < 1.0)
+         if (tr.flFraction < 1.0f)
          {
-            TraceLine (radiusStart, radiusEnd, true, NULL, &tr);
+            TraceLine (radiusStart, radiusEnd, true, null, &tr);
 
             if (FClassnameIs (tr.pHit, "func_door") || FClassnameIs (tr.pHit, "func_door_rotating"))
             {
@@ -802,9 +802,9 @@ void Waypoint::CalculateWayzone (int index)
          Vector dropStart = start + (g_pGlobals->v_forward * scanDistance);
          Vector dropEnd = dropStart - Vector (0, 0, scanDistance + 60);
 
-         TraceHull (dropStart, dropEnd, true, head_hull, NULL, &tr);
+         TraceHull (dropStart, dropEnd, true, head_hull, null, &tr);
 
-         if (tr.flFraction >= 1.0)
+         if (tr.flFraction >= 1.0f)
          {
             wayBlocked = true;
             path->radius -= 16;
@@ -814,9 +814,9 @@ void Waypoint::CalculateWayzone (int index)
          dropStart = start - (g_pGlobals->v_forward * scanDistance);
          dropEnd = dropStart - Vector (0, 0, scanDistance + 60);
 
-         TraceHull (dropStart, dropEnd, true, head_hull, NULL, &tr);
+         TraceHull (dropStart, dropEnd, true, head_hull, null, &tr);
 
-         if (tr.flFraction >= 1.0)
+         if (tr.flFraction >= 1.0f)
          {
             wayBlocked = true;
             path->radius -= 16;
@@ -824,9 +824,9 @@ void Waypoint::CalculateWayzone (int index)
          }
 
          radiusEnd.z += 34;
-         TraceHull (radiusStart, radiusEnd, true, head_hull, NULL, &tr);
+         TraceHull (radiusStart, radiusEnd, true, head_hull, null, &tr);
 
-         if (tr.flFraction < 1.0)
+         if (tr.flFraction < 1.0f)
          {
             wayBlocked = true;
             path->radius -= 16;
@@ -859,17 +859,17 @@ void Waypoint::SaveExperienceTab (void)
 
    ExperienceSaver *experienceSave = new ExperienceSaver[g_numWaypoints * g_numWaypoints];
 
-   if (experienceSave == NULL)
+   if (experienceSave == null)
       TerminateOnMalloc ();
 
    for (int i = 0; i < g_numWaypoints; i++)
    {
       for (int j = 0; j < g_numWaypoints; j++)
       {
-         (experienceSave + (i * g_numWaypoints) + j)->team0Damage = (g_experienceData + (i * g_numWaypoints) + j)->team0Damage >> 3;
-         (experienceSave + (i * g_numWaypoints) + j)->team1Damage = (g_experienceData + (i * g_numWaypoints) + j)->team1Damage >> 3;
-         (experienceSave + (i * g_numWaypoints) + j)->team0Value = (g_experienceData + (i * g_numWaypoints) + j)->team0Value / 8;
-         (experienceSave + (i * g_numWaypoints) + j)->team1Value = (g_experienceData + (i * g_numWaypoints) + j)->team1Value / 8;
+         (experienceSave + (i * g_numWaypoints) + j)->team0Damage = static_cast <uint8_t> ((g_experienceData + (i * g_numWaypoints) + j)->team0Damage >> 3);
+         (experienceSave + (i * g_numWaypoints) + j)->team1Damage = static_cast <uint8_t> ((g_experienceData + (i * g_numWaypoints) + j)->team1Damage >> 3);
+         (experienceSave + (i * g_numWaypoints) + j)->team0Value = static_cast <signed char> ((g_experienceData + (i * g_numWaypoints) + j)->team0Value / 8);
+         (experienceSave + (i * g_numWaypoints) + j)->team1Value = static_cast <signed char> ((g_experienceData + (i * g_numWaypoints) + j)->team1Value / 8);
       }
    }
 
@@ -892,14 +892,14 @@ void Waypoint::InitExperienceTab (void)
    if (g_experienceData)
       delete [] g_experienceData;
 
-   g_experienceData = NULL;
+   g_experienceData = null;
 
    if (g_numWaypoints < 1)
       return;
 
    g_experienceData = new Experience[g_numWaypoints * g_numWaypoints];
 
-   if (g_experienceData == NULL)
+   if (g_experienceData == null)
       TerminateOnMalloc ();
 
    // initialize table by hand to correct values, and NOT zero it out
@@ -929,13 +929,13 @@ void Waypoint::InitExperienceTab (void)
          {
             ExperienceSaver *experienceLoad = new ExperienceSaver[g_numWaypoints * g_numWaypoints];
 
-            if (experienceLoad == NULL)
+            if (experienceLoad == null)
             {
                AddLogEntry (true, LOG_ERROR, "Couldn't allocate memory for experience data");
                return;
             }
 
-            Compressor::Uncompress (FormatBuffer ("%sdata/%s.exp", GetWaypointDir (), GetMapName ()), sizeof (ExtensionHeader), (uint8_t *)experienceLoad, g_numWaypoints * g_numWaypoints * sizeof (ExperienceSaver));
+            Compressor::Uncompress (FormatBuffer ("%sdata/%s.exp", GetWaypointDir (), GetMapName ()), sizeof (ExtensionHeader), (uint8_t *) experienceLoad, g_numWaypoints * g_numWaypoints * sizeof (ExperienceSaver));
 
             for (i = 0; i < g_numWaypoints; i++)
             {
@@ -969,7 +969,7 @@ void Waypoint::SaveVisibilityTab (void)
    if (g_numWaypoints == 0)
       return;
 
-   if (m_visLUT == NULL)
+   if (m_visLUT == null)
       AddLogEntry (true, LOG_FATAL, "Can't save visiblity tab. Bad data.");
 
    ExtensionHeader header;
@@ -990,7 +990,7 @@ void Waypoint::SaveVisibilityTab (void)
    }
    fp.Close ();
 
-   Compressor::Compress (FormatBuffer ("%sdata/%s.vis", GetWaypointDir (), GetMapName ()), (uint8_t *) &header, sizeof (ExtensionHeader), (uint8_t *) m_visLUT, Const_MaxWaypoints * (Const_MaxWaypoints / 4) * sizeof (byte));
+   Compressor::Compress (FormatBuffer ("%sdata/%s.vis", GetWaypointDir (), GetMapName ()), (uint8_t *) &header, sizeof (ExtensionHeader), (uint8_t *) m_visLUT, Const_MaxWaypoints * (Const_MaxWaypoints / 4) * sizeof (uint8_t));
 }
 
 void Waypoint::InitVisibilityTab (void)
@@ -1025,7 +1025,7 @@ void Waypoint::InitVisibilityTab (void)
 
       return;
    }
-   int result = Compressor::Uncompress (FormatBuffer ("%sdata/%s.vis", GetWaypointDir (), GetMapName ()), sizeof (ExtensionHeader), (uint8_t *) m_visLUT, Const_MaxWaypoints * (Const_MaxWaypoints / 4) * sizeof (byte));
+   int result = Compressor::Uncompress (FormatBuffer ("%sdata/%s.vis", GetWaypointDir (), GetMapName ()), sizeof (ExtensionHeader), (uint8_t *) m_visLUT, Const_MaxWaypoints * (Const_MaxWaypoints / 4) * sizeof (uint8_t));
 
    if (result == -1)
    {
@@ -1103,7 +1103,7 @@ bool Waypoint::Load (void)
             {
                m_paths[i] = new Path;
 
-               if (m_paths[i] == NULL)
+               if (m_paths[i] == null)
                   TerminateOnMalloc ();
 
                fp.Read (m_paths[i], sizeof (Path));
@@ -1135,7 +1135,7 @@ bool Waypoint::Load (void)
       sprintf (m_infoBuffer, "Using Waypoint File By: %s", header.author);
 
    for (int i = 0; i < g_numWaypoints; i++)
-      m_waypointDisplayTime[i] = 0.0;
+      m_waypointDisplayTime[i] = 0.0f;
 
    InitPathMatrix ();
    InitTypes ();
@@ -1143,8 +1143,8 @@ bool Waypoint::Load (void)
    g_waypointsChanged = false;
    g_killHistory = 0;
 
-   m_pathDisplayTime = 0.0;
-   m_arrowDisplayTime = 0.0;
+   m_pathDisplayTime = 0.0f;
+   m_arrowDisplayTime = 0.0f;
 
    InitVisibilityTab ();
    InitExperienceTab ();
@@ -1291,7 +1291,7 @@ bool Waypoint::Reachable (Bot *bot, int index)
    if (bot->pev->waterlevel == 2 || bot->pev->waterlevel == 3)
    {
       // is destination waypoint higher that source (45 is max jump height), or destination waypoint higher that source
-      if ((dest.z > src.z + 40.0 || dest.z < src.z - 75.0) && (!(GetPath (index)->flags & WAYPOINT_LADDER) || distance2D >= 16.0))
+      if ((dest.z > src.z + 40.0f || dest.z < src.z - 75.0f) && (!(GetPath (index)->flags & WAYPOINT_LADDER) || distance2D >= 16.0f))
          return false; // unable to reach this one
    }
 
@@ -1299,7 +1299,7 @@ bool Waypoint::Reachable (Bot *bot, int index)
    TraceLine (src, dest, true, bot->GetEntity (), &tr);
 
    // if waypoint is visible from current position (even behind head)...
-   if (tr.flFraction >= 1.0)
+   if (tr.flFraction >= 1.0f)
       return true;
 
    return false;
@@ -1326,14 +1326,14 @@ bool Waypoint::IsNodeReachable (Vector src, Vector destination)
    TraceLine (src, destination, ignore_monsters, g_hostEntity, &tr);
 
    // if waypoint is visible from current position (even behind head)...
-   if (tr.flFraction >= 1.0 || strncmp ("func_door", STRING (tr.pHit->v.classname), 9) == 0)
+   if (tr.flFraction >= 1.0f || strncmp ("func_door", STRING (tr.pHit->v.classname), 9) == 0)
    {
       // if it's a door check if nothing blocks behind
       if (strncmp ("func_door", STRING (tr.pHit->v.classname), 9) == 0)
       {
          TraceLine (tr.vecEndPos, destination, ignore_monsters, tr.pHit, &tr);
 
-         if (tr.flFraction < 1.0)
+         if (tr.flFraction < 1.0f)
             return false;
       }
 
@@ -1342,7 +1342,7 @@ bool Waypoint::IsNodeReachable (Vector src, Vector destination)
           return true; // then they're reachable each other
 
       // is dest waypoint higher than src? (45 is max jump height)
-      if (destination.z > src.z + 45.0)
+      if (destination.z > src.z + 45.0f)
       {
          Vector sourceNew = destination;
          Vector destinationNew = destination;
@@ -1351,7 +1351,7 @@ bool Waypoint::IsNodeReachable (Vector src, Vector destination)
          TraceLine (sourceNew, destinationNew, ignore_monsters, g_hostEntity, &tr);
 
          // check if we didn't hit anything, if not then it's in mid-air
-         if (tr.flFraction >= 1.0)
+         if (tr.flFraction >= 1.0f)
             return false; // can't reach this one
       }
 
@@ -1359,27 +1359,27 @@ bool Waypoint::IsNodeReachable (Vector src, Vector destination)
       Vector direction = (destination - src).Normalize(); // 1 unit long
       Vector check = src, down = src;
 
-      down.z = down.z - 1000.0; // straight down 1000 units
+      down.z = down.z - 1000.0f; // straight down 1000 units
 
       TraceLine (check, down, ignore_monsters, g_hostEntity, &tr);
 
-      lastHeight = tr.flFraction * 1000.0; // height from ground
+      lastHeight = tr.flFraction * 1000.0f; // height from ground
       distance = (destination - check).GetLength (); // distance from goal
 
-      while (distance > 10.0)
+      while (distance > 10.0f)
       {
          // move 10 units closer to the goal...
-         check = check + (direction * 10.0);
+         check = check + (direction * 10.0f);
 
          down = check;
-         down.z = down.z - 1000.0; // straight down 1000 units
+         down.z = down.z - 1000.0f; // straight down 1000 units
 
          TraceLine (check, down, ignore_monsters, g_hostEntity, &tr);
 
-         height = tr.flFraction * 1000.0; // height from ground
+         height = tr.flFraction * 1000.0f; // height from ground
 
          // is the current height greater than the step height?
-         if (height < lastHeight - 18.0)
+         if (height < lastHeight - 18.0f)
             return false; // can't get there without jumping...
 
          lastHeight = height;
@@ -1396,7 +1396,7 @@ void Waypoint::InitializeVisibility (void)
       return;
 
    TraceResult tr;
-   byte res, shift;
+   uint8_t res, shift;
 
    for (m_visibilityIndex = 0; m_visibilityIndex < g_numWaypoints; m_visibilityIndex++)
    {
@@ -1405,13 +1405,13 @@ void Waypoint::InitializeVisibility (void)
 
       if (m_paths[m_visibilityIndex]->flags & WAYPOINT_CROUCH)
       {
-         sourceDuck.z += 12.0;
-         sourceStand.z += 18.0 + 28.0;
+         sourceDuck.z += 12.0f;
+         sourceStand.z += 18.0f + 28.0f;
       }
       else
       {
-         sourceDuck.z += -18.0 + 12.0;
-         sourceStand.z += 28.0;
+         sourceDuck.z += -18.0f + 12.0f;
+         sourceStand.z += 28.0f;
       }
       uint16 standCount = 0, crouchCount = 0;
 
@@ -1420,20 +1420,20 @@ void Waypoint::InitializeVisibility (void)
          // first check ducked visibility
          Vector dest = m_paths[i]->origin;
 
-         TraceLine (sourceDuck, dest, true, NULL, &tr);
+         TraceLine (sourceDuck, dest, true, null, &tr);
 
          // check if line of sight to object is not blocked (i.e. visible)
-         if ((tr.flFraction != 1.0) || tr.fStartSolid)
+         if ((tr.flFraction != 1.0f) || tr.fStartSolid)
             res = 1;
          else
             res = 0;
 
          res <<= 1;
 
-         TraceLine (sourceStand, dest, true, NULL, &tr);
+         TraceLine (sourceStand, dest, true, null, &tr);
 
          // check if line of sight to object is not blocked (i.e. visible)
-         if ((tr.flFraction != 1.0) || tr.fStartSolid)
+         if ((tr.flFraction != 1.0f) || tr.fStartSolid)
             res |= 1;
 
          shift = (i % 4) << 1;
@@ -1483,7 +1483,7 @@ char *Waypoint::GetWaypointInfo (int id)
    Path *path = GetPath (id);
 
    // if this path is null, return
-   if (path == NULL)
+   if (path == null)
       return "\0";
 
    bool jumpPoint = false;
@@ -1585,20 +1585,20 @@ void Waypoint::Think (void)
             nearestDistance = distance;
          }
 
-         if (m_waypointDisplayTime[i] + 1.0 < engine->GetTime ())
+         if (m_waypointDisplayTime[i] + 1.0f < engine->GetTime ())
          {
-            float nodeHeight = 0.0;
+            float nodeHeight = 0.0f;
 
             // check the node height
             if (m_paths[i]->flags & WAYPOINT_CROUCH)
-               nodeHeight = 36.0;
+               nodeHeight = 36.0f;
             else
-               nodeHeight = 72.0;
+               nodeHeight = 72.0f;
 
-            float nodeHalfHeight = nodeHeight * 0.5;
+            float nodeHalfHeight = nodeHeight * 0.5f;
 
             // all waypoints are by default are green
-            Vector nodeColor = Vector::GetNull ();
+            Vector nodeColor = nullvec;
 
             // colorize all other waypoints
             if (m_paths[i]->flags & WAYPOINT_CAMP)
@@ -1630,8 +1630,8 @@ void Waypoint::Think (void)
                DrawLine (g_hostEntity, m_paths[i]->origin - Vector (0, 0, nodeHalfHeight), m_paths[i]->origin + Vector (0, 0, nodeHalfHeight), 15, 0, static_cast <int> (nodeColor.x), static_cast <int> (nodeColor.y), static_cast <int> (nodeColor.z), 250, 0, 10);
             else // draw node with flags
             {
-               DrawLine (g_hostEntity, m_paths[i]->origin - Vector (0, 0, nodeHalfHeight), m_paths[i]->origin - Vector (0, 0, nodeHalfHeight - nodeHeight * 0.75), 14, 0, static_cast <int> (nodeColor.x), static_cast <int> (nodeColor.y), static_cast <int> (nodeColor.z), 250, 0, 10); // draw basic path
-               DrawLine (g_hostEntity, m_paths[i]->origin - Vector (0, 0, nodeHalfHeight - nodeHeight * 0.75), m_paths[i]->origin + Vector (0, 0, nodeHalfHeight), 14, 0, static_cast <int> (nodeFlagColor.x), static_cast <int> (nodeFlagColor.y), static_cast <int> (nodeFlagColor.z), 250, 0, 10); // draw additional path
+               DrawLine (g_hostEntity, m_paths[i]->origin - Vector (0.0f, 0.0f, nodeHalfHeight), m_paths[i]->origin - Vector (0.0f, 0.0f, nodeHalfHeight - nodeHeight * 0.75f), 14, 0, static_cast <int> (nodeColor.x), static_cast <int> (nodeColor.y), static_cast <int> (nodeColor.z), 250, 0, 10); // draw basic path
+               DrawLine (g_hostEntity, m_paths[i]->origin - Vector (0.0f, 0.0f, nodeHalfHeight - nodeHeight * 0.75f), m_paths[i]->origin + Vector (0.0f, 0.0f, nodeHalfHeight), 14, 0, static_cast <int> (nodeFlagColor.x), static_cast <int> (nodeFlagColor.y), static_cast <int> (nodeFlagColor.z), 250, 0, 10); // draw additional path
             }
             m_waypointDisplayTime[i] = engine->GetTime ();
          }
@@ -1669,7 +1669,7 @@ void Waypoint::Think (void)
    // draw a paths, camplines and danger directions for nearest waypoint
    if (nearestDistance < 4096 && m_pathDisplayTime <= engine->GetTime ())
    {
-      m_pathDisplayTime = engine->GetTime () + 1.0;
+      m_pathDisplayTime = engine->GetTime () + 1.0f;
 
       // draw the camplines
       if (path->flags & WAYPOINT_CAMP)
@@ -1714,25 +1714,25 @@ void Waypoint::Think (void)
       Vector origin = (path->flags & WAYPOINT_CROUCH) ? path->origin : path->origin - Vector (0, 0, 18);
 
       // if radius is nonzero, draw a full circle
-      if (path->radius > 0.0)
+      if (path->radius > 0.0f)
       {
-         float squareRoot = sqrtf ((path->radius * path->radius) * 0.5);
+         float squareRoot = sqrtf ((path->radius * path->radius) * 0.5f);
 
-         DrawLine (g_hostEntity, origin + Vector (path->radius, 0, 0), origin + Vector (squareRoot, -squareRoot, 0), 5, 0, 0, 0, 255, 200, 0, 10);
-         DrawLine (g_hostEntity, origin + Vector (squareRoot, -squareRoot, 0), origin + Vector (0, -path->radius, 0), 5, 0, 0, 0, 255, 200, 0, 10);
+         DrawLine (g_hostEntity, origin + Vector (path->radius, 0.0f, 0.0f), origin + Vector (squareRoot, -squareRoot, 0), 5, 0, 0, 0, 255, 200, 0, 10);
+         DrawLine (g_hostEntity, origin + Vector (squareRoot, -squareRoot, 0.0f), origin + Vector (0, -path->radius, 0), 5, 0, 0, 0, 255, 200, 0, 10);
 
-         DrawLine (g_hostEntity, origin + Vector (0, -path->radius, 0), origin + Vector (-squareRoot, -squareRoot, 0), 5, 0, 0, 0, 255, 200, 0, 10);
-         DrawLine (g_hostEntity, origin + Vector (-squareRoot, -squareRoot, 0), origin + Vector (-path->radius, 0, 0), 5, 0, 0, 0, 255, 200, 0, 10);
+         DrawLine (g_hostEntity, origin + Vector (0.0f, -path->radius, 0.0f), origin + Vector (-squareRoot, -squareRoot, 0), 5, 0, 0, 0, 255, 200, 0, 10);
+         DrawLine (g_hostEntity, origin + Vector (-squareRoot, -squareRoot, 0.0f), origin + Vector (-path->radius, 0, 0), 5, 0, 0, 0, 255, 200, 0, 10);
 
-         DrawLine (g_hostEntity, origin + Vector (-path->radius, 0, 0), origin + Vector (-squareRoot, squareRoot, 0), 5, 0, 0, 0, 255, 200, 0, 10);
-         DrawLine (g_hostEntity, origin + Vector (-squareRoot, squareRoot, 0), origin + Vector (0, path->radius, 0), 5, 0, 0, 0, 255, 200, 0, 10);
+         DrawLine (g_hostEntity, origin + Vector (-path->radius, 0.0f, 0.0f), origin + Vector (-squareRoot, squareRoot, 0), 5, 0, 0, 0, 255, 200, 0, 10);
+         DrawLine (g_hostEntity, origin + Vector (-squareRoot, squareRoot, 0.0f), origin + Vector (0, path->radius, 0), 5, 0, 0, 0, 255, 200, 0, 10);
 
-         DrawLine (g_hostEntity, origin + Vector (0, path->radius, 0), origin + Vector (squareRoot, squareRoot, 0), 5, 0, 0, 0, 255, 200, 0, 10);
-         DrawLine (g_hostEntity, origin + Vector (squareRoot, squareRoot, 0), origin + Vector (path->radius, 0, 0), 5, 0, 0, 0, 255, 200, 0, 10);
+         DrawLine (g_hostEntity, origin + Vector (0.0f, path->radius, 0.0f), origin + Vector (squareRoot, squareRoot, 0), 5, 0, 0, 0, 255, 200, 0, 10);
+         DrawLine (g_hostEntity, origin + Vector (squareRoot, squareRoot, 0.0f), origin + Vector (path->radius, 0, 0), 5, 0, 0, 0, 255, 200, 0, 10);
       }
       else
       {
-         float squareRoot = sqrtf (32.0);
+         float squareRoot = sqrtf (32.0f);
 
          DrawLine (g_hostEntity, origin + Vector (squareRoot, -squareRoot, 0), origin + Vector (-squareRoot, squareRoot, 0), 5, 0, 255, 0, 0, 200, 0, 10);
          DrawLine (g_hostEntity, origin + Vector (-squareRoot, -squareRoot, 0), origin + Vector (squareRoot, squareRoot, 0), 5, 0, 255, 0, 0, 200, 0, 10);
@@ -1786,7 +1786,7 @@ void Waypoint::Think (void)
       }
 
       // draw entire message
-      MESSAGE_BEGIN (MSG_ONE_UNRELIABLE, SVC_TEMPENTITY, NULL, g_hostEntity);
+      MESSAGE_BEGIN (MSG_ONE_UNRELIABLE, SVC_TEMPENTITY, null, g_hostEntity);
          WRITE_BYTE (TE_TEXTMESSAGE);
          WRITE_BYTE (4); // channel
          WRITE_SHORT (FixedSigned16 (0, 1 << 13)); // x
@@ -1802,7 +1802,7 @@ void Waypoint::Think (void)
          WRITE_BYTE (255); // a2
          WRITE_SHORT (0); // fadeintime
          WRITE_SHORT (0); // fadeouttime
-         WRITE_SHORT (FixedUnsigned16 (1.1, 1 << 8)); // holdtime
+         WRITE_SHORT (FixedUnsigned16 (1.1f, 1 << 8)); // holdtime
          WRITE_STRING (tempMessage);
       MESSAGE_END ();
    }
@@ -1936,7 +1936,7 @@ bool Waypoint::NodesValid (void)
    }
 
    // perform DFS instead of floyd-warshall, this shit speedup this process in a bit
-   PathNode *stack = NULL;
+   PathNode *stack = null;
    bool visited[Const_MaxWaypoints];
 
    // first check incoming connectivity, initialize the "visited" table
@@ -1945,10 +1945,10 @@ bool Waypoint::NodesValid (void)
 
    // check from waypoint nr. 0
    stack = new PathNode;
-   stack->next = NULL;
+   stack->next = null;
    stack->index = 0;
 
-   while (stack != NULL)
+   while (stack != null)
    {
       // pop a node from the stack
       PathNode *current = stack;
@@ -2008,10 +2008,10 @@ bool Waypoint::NodesValid (void)
    // check from waypoint number 0
    stack = new PathNode;
 
-   stack->next = NULL;
+   stack->next = null;
    stack->index = 0;
 
-   while (stack != NULL)
+   while (stack != null)
    {
       // pop a node from the stack
       PathNode *current = stack;
@@ -2053,19 +2053,19 @@ void Waypoint::InitPathMatrix (void)
 {
    int i, j, k;
 
-   if (m_distMatrix != NULL)
+   if (m_distMatrix != null)
       delete [] (m_distMatrix);
 
-   if (m_pathMatrix != NULL)
+   if (m_pathMatrix != null)
       delete [] m_pathMatrix;
 
-   m_distMatrix = NULL;
-   m_pathMatrix = NULL;
+   m_distMatrix = null;
+   m_pathMatrix = null;
 
    m_distMatrix = new int [g_numWaypoints * g_numWaypoints];
    m_pathMatrix = new int [g_numWaypoints * g_numWaypoints];
 
-   if (m_distMatrix == NULL || m_pathMatrix == NULL)
+   if (m_distMatrix == null || m_pathMatrix == null)
       TerminateOnMalloc ();
 
    if (LoadPathMatrix ())
@@ -2175,6 +2175,11 @@ int Waypoint::GetPathDistance (int srcIndex, int destIndex)
    return *(m_distMatrix + (srcIndex * g_numWaypoints) + destIndex);
 }
 
+float Waypoint::GetPathDistanceFloat (int srcIndex, int destIndex)
+{
+   return static_cast <float> (GetPathDistance (srcIndex, destIndex));
+}
+
 void Waypoint::SetGoalVisited (int index)
 {
    if (index < 0 || index >= g_numWaypoints)
@@ -2217,7 +2222,7 @@ void Waypoint::CreateBasic (void)
 {
    // this function creates basic waypoint types on map
 
-   edict_t *ent = NULL;
+   edict_t *ent = null;
 
    // first of all, if map contains ladder points, create it
    while (!FNullEnt (ent = FIND_ENTITY_BY_CLASSNAME (ent, "func_ladder")))
@@ -2229,7 +2234,7 @@ void Waypoint::CreateBasic (void)
       TraceResult tr;
       Vector up, down, front, back;
 
-      Vector diff = ((ladderLeft - ladderRight) ^ Vector (0, 0, 0)).Normalize () * 15.0;
+      Vector diff = ((ladderLeft - ladderRight) ^ Vector (0, 0, 0)).Normalize () * 15.0f;
       front = back = GetEntityOrigin (ent);
 
       front = front + diff; // front
@@ -2238,15 +2243,15 @@ void Waypoint::CreateBasic (void)
       up = down = front;
       down.z = ent->v.absmax.z;
 
-      TraceHull (down, up, true, point_hull, NULL, &tr);
+      TraceHull (down, up, true, point_hull, null, &tr);
 
-      if (POINT_CONTENTS (up) == CONTENTS_SOLID || tr.flFraction != 1.0)
+      if (POINT_CONTENTS (up) == CONTENTS_SOLID || tr.flFraction != 1.0f)
       {
          up = down = back;
          down.z = ent->v.absmax.z;
       }
 
-      TraceHull (down, up - Vector (0, 0, 1000), true, point_hull, NULL, &tr);
+      TraceHull (down, up - Vector (0, 0, 1000), true, point_hull, null, &tr);
       up = tr.vecEndPos;
 
       Vector pointOrigin = up + Vector (0, 0, 39);
@@ -2254,7 +2259,7 @@ void Waypoint::CreateBasic (void)
 
       do
       {
-         if (FindNearest (pointOrigin, 50.0) == -1)
+         if (FindNearest (pointOrigin, 50.0f) == -1)
             Add (3, pointOrigin);
 
          pointOrigin.z += 160;
@@ -2262,7 +2267,7 @@ void Waypoint::CreateBasic (void)
 
       pointOrigin = down + Vector (0, 0, 38);
 
-      if (FindNearest (pointOrigin, 50.0) == -1)
+      if (FindNearest (pointOrigin, 50.0f) == -1)
          Add (3, pointOrigin);
 
       m_isOnLadder = false;
@@ -2376,8 +2381,8 @@ Path *Waypoint::GetPath (int id)
 {
    Path *path = m_paths[id];
 
-   if (path == NULL)
-      return NULL;
+   if (path == null)
+      return null;
 
    return path;
 }
@@ -2414,13 +2419,13 @@ void Waypoint::SetBombPosition (bool shouldReset)
 
    if (shouldReset)
    {
-      m_foundBombOrigin = Vector::GetNull ();
+      m_foundBombOrigin = nullvec;
       g_bombPlanted = false;
 
       return;
    }
 
-   edict_t *ent = NULL;
+   edict_t *ent = null;
 
    while (!FNullEnt (ent = FIND_ENTITY_BY_CLASSNAME (ent, "grenade")))
    {
@@ -2451,12 +2456,12 @@ int Waypoint::AddGoalScore (int index, int other[4])
 {
    Array <int> left;
 
-   if (m_goalsScore[index] < 1024.0)
+   if (m_goalsScore[index] < 1024.0f)
       left.Push (index);
 
    for (int i = 0; i < 3; i++)
    {
-      if (m_goalsScore[other[i]] < 1024.0)
+      if (m_goalsScore[other[i]] < 1024.0f)
          left.Push (other[i]);
    }
 
@@ -2466,11 +2471,11 @@ int Waypoint::AddGoalScore (int index, int other[4])
       index = left.GetRandomElement ();
 
    if (m_paths[index]->flags & WAYPOINT_GOAL)
-      m_goalsScore[index] += 384.0;
+      m_goalsScore[index] += 384.0f;
    else if (m_paths[index]->flags & (WAYPOINT_COUNTER | WAYPOINT_TERRORIST))
-      m_goalsScore[index] += 768.0;
+      m_goalsScore[index] += 768.0f;
    else if (m_paths[index]->flags & WAYPOINT_CAMP)
-      m_goalsScore[index] += 1024.0;
+      m_goalsScore[index] += 1024.0f;
 
    return index;
 }
@@ -2479,7 +2484,7 @@ void Waypoint::ClearGoalScore (void)
 {
    // iterate though all waypoints
    for (int i = 0; i < Const_MaxWaypoints; i++)
-      m_goalsScore[i] = 0.0;
+      m_goalsScore[i] = 0.0f;
 }
 
 Waypoint::Waypoint (void)
@@ -2488,20 +2493,20 @@ Waypoint::Waypoint (void)
    m_endJumpPoint = false;
    m_redoneVisibility = false;
    m_learnJumpWaypoint = false;
-   m_timeJumpStarted = 0.0;
+   m_timeJumpStarted = 0.0f;
 
-   m_learnVelocity = Vector::GetNull ();
-   m_learnPosition = Vector::GetNull ();
+   m_learnVelocity = nullvec;
+   m_learnPosition = nullvec;
    m_lastJumpWaypoint = -1;
    m_cacheWaypointIndex = -1;
    m_findWPIndex = -1;
    m_visibilityIndex = 0;
 
-   m_lastWaypoint = Vector::GetNull ();
+   m_lastWaypoint = nullvec;
    m_isOnLadder = false;
 
-   m_pathDisplayTime = 0.0;
-   m_arrowDisplayTime = 0.0;
+   m_pathDisplayTime = 0.0f;
+   m_arrowDisplayTime = 0.0f;
 
    m_terrorPoints.RemoveAll ();
    m_ctPoints.RemoveAll ();
@@ -2510,18 +2515,18 @@ Waypoint::Waypoint (void)
    m_rescuePoints.RemoveAll ();
    m_sniperPoints.RemoveAll ();
 
-   m_distMatrix = NULL;
-   m_pathMatrix = NULL;
+   m_distMatrix = null;
+   m_pathMatrix = null;
 }
 
 Waypoint::~Waypoint (void)
 {
-   if (m_distMatrix != NULL)
+   if (m_distMatrix != null)
       delete [] m_distMatrix;
 
-   if (m_pathMatrix != NULL)
+   if (m_pathMatrix != null)
       delete [] m_pathMatrix;
 
-   m_distMatrix = NULL;
-   m_pathMatrix = NULL;
+   m_distMatrix = null;
+   m_pathMatrix = null;
 }

@@ -19,7 +19,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //
-// $Id: globals.h 19 2009-06-16 16:32:17Z jeefo $
+// $Id:$
 //
 
 #ifndef GLOBALS_INCLUDED
@@ -54,7 +54,7 @@ extern int g_mapType;
 extern int g_numWaypoints;
 extern int g_gameVersion;
 extern int g_fakeArgc;
-extern int g_killHistory;
+extern unsigned short g_killHistory;
 
 extern int g_normalWeaponPrefs[Const_NumWeapons];
 extern int g_rusherWeaponPrefs[Const_NumWeapons];
@@ -66,8 +66,8 @@ extern int g_lastRadio[2];
 extern int g_storeAddbotVars[4];
 extern int *g_weaponPrefs[];
 
-extern short g_modelIndexLaser;
-extern short g_modelIndexArrow;
+extern int g_modelIndexLaser;
+extern int g_modelIndexArrow;
 extern char g_fakeArgv[256];
 
 extern Array <Array <String> > g_chatFactory;

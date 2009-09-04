@@ -19,7 +19,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //
-// $Id: resource.h 23 2009-06-16 21:59:33Z jeefo $
+// $Id:$
 //
 
 #ifndef RESOURCE_INCLUDED
@@ -39,7 +39,7 @@
 #define PRODUCT_ORIGINAL_NAME "yapb.dll"
 #define PRODUCT_INTERNAL_NAME "podbot"
 #define PRODUCT_VERSION_DWORD 0,0,0 // major version, minor version, WIP (or Update) version, BUILD number (generated with RES file)
-#define PRODUCT_SUPPORT_VERSION "1.0 - CZ"
+#define PRODUCT_SUPPORT_VERSION "1.0f - CZ"
 #define PRODUCT_DATE __DATE__
 
 // product optimization type (we're not using crt builds anymore)

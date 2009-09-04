@@ -19,7 +19,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //
-// $Id: control.cpp 23 2009-06-16 21:59:33Z jeefo $
+// $Id:$
 //
 
 #include <core.h>
@@ -56,7 +56,7 @@ BotControl::~BotControl (void)
       if (m_bots[i])
       {
          delete m_bots[i];
-         m_bots[i] = NULL;
+         m_bots[i] = null;
       }
    }
 }
@@ -71,12 +71,12 @@ void BotControl::CallGameEntity (entvars_t *vars)
       return;
    }
 
-   static EntityPtr_t playerFunction = NULL;
+   static EntityPtr_t playerFunction = null;
 
-   if (playerFunction == NULL)
+   if (playerFunction == null)
       playerFunction = (EntityPtr_t) g_gameLib->GetFunctionAddr ("player");
 
-   if (playerFunction != NULL)
+   if (playerFunction != null)
       (*playerFunction) (vars);
 }
 
@@ -85,7 +85,7 @@ int BotControl::CreateBot (String name, int skill, int personality, int team, in
    // this function completely prepares bot entity (edict) for creation, creates team, skill, sets name etc, and
    // then sends result to bot constructor
 
-   edict_t *bot = NULL;
+   edict_t *bot = null;
    char outputName[33];
 
    if (g_numWaypoints < 1) // don't allow creating bots with no waypoints loaded
@@ -175,11 +175,11 @@ int BotControl::CreateBot (String name, int skill, int personality, int team, in
    int index = ENTINDEX (bot) - 1;
 
    InternalAssert (index >= 0 && index <= 32); // check index
-   InternalAssert (m_bots[index] == NULL); // check bot slot
+   InternalAssert (m_bots[index] == null); // check bot slot
 
    m_bots[index] = new Bot (bot, skill, personality, team, member);
  
-   if (m_bots == NULL)
+   if (m_bots == null)
       TerminateOnMalloc ();
 
    if (engine->GetDeveloperLevel () > 0)
@@ -202,7 +202,7 @@ int BotControl::GetIndex (edict_t *ent)
    if (index < 0 || index >= 32)
       return -1;
 
-   if (m_bots[index] != NULL)
+   if (m_bots[index] != null)
       return index;
 
    return -1; // if no edict, return -1;
@@ -213,12 +213,12 @@ Bot *BotControl::GetBot (int index)
    // this function finds a bot specified by index, and then returns pointer to it (using own bot array)
 
    if (index < 0 || index >= 32)
-      return NULL;
+      return null;
 
-   if (m_bots[index] != NULL)
+   if (m_bots[index] != null)
       return m_bots[index];
 
-   return NULL; // no bot
+   return null; // no bot
 }
 
 Bot *BotControl::GetBot (edict_t *ent)
@@ -236,14 +236,14 @@ Bot *BotControl::FindOneValidAliveBot (void)
 
    for (int i = 0; i < engine->GetMaxClients (); i++)
    {
-      if (m_bots[i] != NULL && IsAlive (m_bots[i]->GetEntity ()))
+      if (m_bots[i] != null && IsAlive (m_bots[i]->GetEntity ()))
          foundBots.Push (i);
    }
 
    if (!foundBots.IsEmpty ())
       return m_bots[foundBots.GetRandomElement ()];
 
-   return NULL;
+   return null;
 }
 
 void BotControl::Think (void)
@@ -251,19 +251,21 @@ void BotControl::Think (void)
    // this function calls think () function for all available at call moment bots, and
    // try to catch internal error if such shit occurs
 
-   int thinkFps = yb_thinkfps.GetInt ();
+   float thinkFps = yb_thinkfps.GetFloat ();
 
    // check ranges
-   if (thinkFps <= 0 || thinkFps > 50)
+   if (thinkFps <= 0.0f || thinkFps > 40.0f)
    {
-      AddLogEntry (true, LOG_ERROR, "Value of yb_thinkfps should be greater than zero and lower than 50.");
-      yb_thinkfps.SetInt (thinkFps = 22);
+      thinkFps = 22.0f;
+
+      AddLogEntry (true, LOG_ERROR, "Value of yb_thinkfps should be greater than zero and lower than 40.");
+      yb_thinkfps.SetFloat (thinkFps);
    }
-   thinkFps = (1 / thinkFps) * 0.88;
+   thinkFps = (1.0f / thinkFps) * 0.88f;
 
    for (int i = 0; i < engine->GetMaxClients (); i++)
    {
-      if (m_bots[i] != NULL)
+      if (m_bots[i] != null)
       {
          if (m_bots[i]->m_thinkTimer <= engine->GetTime ())
          {
@@ -283,7 +285,7 @@ void BotControl::Think (void)
 #else
             m_bots[i]->Think ();
 #endif
-            m_bots[i]->m_thinkTimer = engine->GetTime () + thinkFps * 0.88;
+            m_bots[i]->m_thinkTimer = engine->GetTime () + thinkFps;
          }
       }
    }
@@ -330,7 +332,7 @@ void BotControl::AddBot (const String &name, const String &skill, const String &
       yb_quota.SetInt (GetBotsNum () + 1);
 }
 
-void BotControl::CheckAutoVacate (edict_t *ent)
+void BotControl::CheckAutoVacate (edict_t * /*ent*/)
 {
    // this function sets timer to kick one bot off.
 
@@ -351,7 +353,7 @@ void BotControl::MaintainBotQuota (void)
       // check the result of creation
       if (resultOfCall == 0)
       {
-         m_creationTab.RemoveAll (); // something worng with waypoints, reset tab of creation
+         m_creationTab.RemoveAll (); // something wrong with waypoints, reset tab of creation
          yb_quota.SetInt (0); // reset quota
       }
       else if (resultOfCall == 2)
@@ -359,7 +361,7 @@ void BotControl::MaintainBotQuota (void)
          m_creationTab.RemoveAll (); // maximum players reached, so set quota to maximum players
          yb_quota.SetInt (GetBotsNum ());
       }
-      m_maintainTime = engine->GetTime () + 0.2;
+      m_maintainTime = engine->GetTime () + 0.2f;
    }
 
    // now keep bot number up to date
@@ -394,13 +396,13 @@ void BotControl::MaintainBotQuota (void)
       else if (yb_quota.GetInt () < 0)
          yb_quota.SetInt (0);
 
-      m_maintainTime = engine->GetTime () + 0.25;
+      m_maintainTime = engine->GetTime () + 0.25f;
    }
 }
 
 void BotControl::InitQuota (void)
 {
-   m_maintainTime = engine->GetTime () + 2.0;
+   m_maintainTime = engine->GetTime () + 2.0f;
    m_creationTab.RemoveAll ();
 }
 
@@ -465,7 +467,7 @@ void BotControl::RemoveAll (void)
 
    for (int i = 0; i < engine->GetMaxClients (); i++)
    {
-      if (m_bots[i] != NULL)  // is this slot used?
+      if (m_bots[i] != null)  // is this slot used?
          m_bots[i]->Kick ();
    }
    m_creationTab.RemoveAll ();
@@ -481,7 +483,7 @@ void BotControl::RemoveFromTeam (Team team, bool removeAll)
 
    for (int i = 0; i < engine->GetMaxClients (); i++)
    {
-      if (m_bots[i] != NULL && team == GetTeam (m_bots[i]->GetEntity ()))
+      if (m_bots[i] != null && team == GetTeam (m_bots[i]->GetEntity ()))
       {
          m_bots[i]->Kick ();
 
@@ -507,7 +509,7 @@ void BotControl::RemoveMenu (edict_t *ent, int selection)
 
    for (int i = (selection - 1 * 8); i < selection * 8; i++)
    {
-      if ((m_bots[i] != NULL) && !FNullEnt (m_bots[i]->GetEntity ()))
+      if ((m_bots[i] != null) && !FNullEnt (m_bots[i]->GetEntity ()))
       {
          validSlots |= 1 << (i - ((selection - 1) * 8));
          sprintf (buffer, "%s %1.1d. %s%s\n", buffer, i - ((selection - 1) * 8) + 1, STRING (m_bots[i]->pev->netname), GetTeam (m_bots[i]->GetEntity ()) == TEAM_COUNTER ? " \\y(CT)\\w" : " \\r(T)\\w");
@@ -556,7 +558,7 @@ void BotControl::KillAll (int team)
 
    for (int i = 0; i < engine->GetMaxClients (); i++)
    {
-      if (m_bots[i] != NULL)
+      if (m_bots[i] != null)
       {
          if (team != -1 && team != GetTeam (m_bots[i]->GetEntity ()))
             continue;
@@ -573,7 +575,7 @@ void BotControl::RemoveRandom (void)
 
    for (int i = 0; i < engine->GetMaxClients (); i++)
    {
-      if (m_bots[i] != NULL)  // is this slot used?
+      if (m_bots[i] != null)  // is this slot used?
       {
          m_bots[i]->Kick ();
          break;
@@ -644,7 +646,7 @@ void BotControl::ListBots (void)
       edict_t *player = INDEXENT (i);
 
       // is this player slot valid
-      if (IsValidBot (player) != NULL && GetBot (player) != NULL)
+      if (IsValidBot (player) != null && GetBot (player) != null)
          ServerPrintNoTag ("[%-3.1d] %-9.13s %-17.18s %-3.4s %-3.1d %-3.1d", i, STRING (player->v.netname), GetBot (player)->m_personality == PERSONALITY_RUSHER ? "rusher" : GetBot (player)->m_personality == PERSONALITY_NORMAL ? "normal" : "careful", GetTeam (player) != 0 ? "CT" : "T", GetBot (player)->m_skill, static_cast <int> (player->v.frags));
    }
 }
@@ -657,7 +659,7 @@ int BotControl::GetBotsNum (void)
 
    for (int i = 0; i < engine->GetMaxClients (); i++)
    {
-      if (m_bots[i] != NULL)
+      if (m_bots[i] != null)
          count++;
    }
    return count;
@@ -671,7 +673,7 @@ int BotControl::GetHumansNum (void)
 
    for (int i = 0; i < engine->GetMaxClients (); i++)
    {
-      if ((g_clients[i].flags & CFLAG_USED) && m_bots[i] == NULL)
+      if ((g_clients[i].flags & CFLAG_USED) && m_bots[i] == null)
          count++;
    }
    return count;
@@ -680,7 +682,7 @@ int BotControl::GetHumansNum (void)
 
 Bot *BotControl::GetHighestFragsBot (int team)
 {
-   Bot *highFragBot = NULL;
+   Bot *highFragBot = null;
 
    int bestIndex = 0;
    float bestScore = -1;
@@ -690,7 +692,7 @@ Bot *BotControl::GetHighestFragsBot (int team)
    {
       highFragBot = g_botManager->GetBot (i);
 
-      if (highFragBot != NULL && IsAlive (highFragBot->GetEntity ()) && GetTeam (highFragBot->GetEntity ()) == team)
+      if (highFragBot != null && IsAlive (highFragBot->GetEntity ()) && GetTeam (highFragBot->GetEntity ()) == team)
       {
          if (highFragBot->pev->frags > bestScore)
          {
@@ -722,7 +724,7 @@ void BotControl::CheckTeamEconomics (int team)
    // start calculating
    for (int i = 0; i < engine->GetMaxClients (); i++)
    {
-      if (m_bots[i] != NULL && GetTeam (m_bots[i]->GetEntity ()) == team)
+      if (m_bots[i] != null && GetTeam (m_bots[i]->GetEntity ()) == team)
       {
          if (m_bots[i]->m_moneyAmount <= g_botBuyEconomyTable[0])
             numPoorPlayers++;
@@ -750,10 +752,10 @@ void BotControl::Free (void)
 
    for (int i = 0; i < 32; i++)
    {
-      if (m_bots[i] != NULL)
+      if (m_bots[i] != null)
       {
          delete m_bots[i];
-         m_bots[i] = NULL;
+         m_bots[i] = null;
       }
    }
 }
@@ -763,7 +765,7 @@ void BotControl::Free (int index)
    // this function frees one bot selected by index (used on bot disconnect)
 
    delete m_bots[index];
-   m_bots[index] = NULL;
+   m_bots[index] = null;
 }
 
 Bot::Bot (edict_t *bot, int skill, int personality, int team, int member)
@@ -778,10 +780,10 @@ Bot::Bot (edict_t *bot, int skill, int personality, int team, int member)
 
    pev = VARS (bot);
 
-   if (bot->pvPrivateData != NULL)
+   if (bot->pvPrivateData != null)
       FREE_PRIVATE (bot);
 
-   bot->pvPrivateData = NULL;
+   bot->pvPrivateData = null;
    bot->v.frags = 0;
 
    // create the player entity by calling MOD's player function
@@ -844,13 +846,13 @@ Bot::Bot (edict_t *bot, int skill, int personality, int team, int member)
 
 
    // initialize msec value
-   m_msecNum = m_msecDel = 0.0;
+   m_msecNum = m_msecDel = 0.0f;
    m_msecInterval = engine->GetTime ();
-   m_msecVal = static_cast <byte> (g_pGlobals->frametime * 1000.0);
+   m_msecVal = static_cast <uint8_t> (g_pGlobals->frametime * 1000.0f);
    m_msecBuiltin = engine->RandomInt (1, 4);
 
    // assign how talkative this bot will be
-   m_sayTextBuffer.chatDelay = engine->RandomFloat (3.8, 10.0);
+   m_sayTextBuffer.chatDelay = engine->RandomFloat (3.8f, 10.0f);
    m_sayTextBuffer.chatProbability = engine->RandomInt (1, 100);
 
    m_notKilled = false;
@@ -870,20 +872,20 @@ Bot::Bot (edict_t *bot, int skill, int personality, int team, int member)
    {
    case 1:
       m_personality = PERSONALITY_RUSHER;
-      m_baseAgressionLevel = engine->RandomFloat (0.7, 1.0);
-      m_baseFearLevel = engine->RandomFloat (0.0, 0.4);
+      m_baseAgressionLevel = engine->RandomFloat (0.7f, 1.0f);
+      m_baseFearLevel = engine->RandomFloat (0.0f, 0.4f);
       break;
 
    case 2:
       m_personality = PERSONALITY_CAREFUL;
-      m_baseAgressionLevel = engine->RandomFloat (0.0, 0.4);
-      m_baseFearLevel = engine->RandomFloat (0.7, 1.0);
+      m_baseAgressionLevel = engine->RandomFloat (0.0f, 0.4f);
+      m_baseFearLevel = engine->RandomFloat (0.7f, 1.0f);
       break;
 
    default:
       m_personality = PERSONALITY_NORMAL;
-      m_baseAgressionLevel = engine->RandomFloat (0.4, 0.7);
-      m_baseFearLevel = engine->RandomFloat (0.4, 0.7);
+      m_baseAgressionLevel = engine->RandomFloat (0.4f, 0.7f);
+      m_baseFearLevel = engine->RandomFloat (0.4f, 0.7f);
       break;
    }
 
@@ -896,7 +898,7 @@ Bot::Bot (edict_t *bot, int skill, int personality, int team, int member)
    // copy them over to the temp level variables
    m_agressionLevel = m_baseAgressionLevel;
    m_fearLevel = m_baseFearLevel;
-   m_nextEmotionUpdate = engine->GetTime () + 0.5;
+   m_nextEmotionUpdate = engine->GetTime () + 0.5f;
 
    // just to be sure
    m_actMessageIndex = 0;
@@ -937,18 +939,18 @@ void Bot::NewRound (void)
    // delete all allocated path nodes
    DeleteSearchNodes ();
 
-   m_waypointOrigin = Vector::GetNull ();
-   m_destOrigin = Vector::GetNull ();
+   m_waypointOrigin = nullvec;
+   m_destOrigin = nullvec;
    m_currentWaypointIndex = -1;
    m_currentTravelFlags = 0;
-   m_desiredVelocity = Vector::GetNull ();
+   m_desiredVelocity = nullvec;
    m_prevGoalIndex = -1;
    m_chosenGoalIndex = -1;
    m_loosedBombWptIndex = -1;
 
    m_moveToC4 = false;
    m_duckDefuse = false;
-   m_duckDefuseCheckTime = 0.0;
+   m_duckDefuseCheckTime = 0.0f;
 
    m_prevWptIndex[0] = -1;
    m_prevWptIndex[1] = -1;
@@ -982,42 +984,42 @@ void Bot::NewRound (void)
    m_hasProgressBar = false;
    m_canChooseAimDirection = true;
 
-   m_timeTeamOrder = 0.0;
-   m_askCheckTime = 0.0;
-   m_minSpeed = 260.0;
-   m_prevSpeed = 0.0;
-   m_prevOrigin = Vector (9999.0, 9999.0, 9999.0);
+   m_timeTeamOrder = 0.0f;
+   m_askCheckTime = 0.0f;
+   m_minSpeed = 260.0f;
+   m_prevSpeed = 0.0f;
+   m_prevOrigin = Vector (9999.0, 9999.0, 9999.0f);
    m_prevTime = engine->GetTime ();
    m_blindRecognizeTime = engine->GetTime ();
 
-   m_viewDistance = 4096.0;
-   m_maxViewDistance = 4096.0;
+   m_viewDistance = 4096.0f;
+   m_maxViewDistance = 4096.0f;
 
-   m_pickupItem = NULL;
-   m_itemIgnore = NULL;
-   m_itemCheckTime = 0.0;
+   m_pickupItem = null;
+   m_itemIgnore = null;
+   m_itemCheckTime = 0.0f;
 
-   m_breakableEntity = NULL;
-   m_breakable = Vector::GetNull ();
-   m_timeDoorOpen = 0.0;
+   m_breakableEntity = null;
+   m_breakable = nullvec;
+   m_timeDoorOpen = 0.0f;
 
    ResetCollideState ();
    ResetDoubleJumpState ();
 
-   m_enemy = NULL;
-   m_lastVictim = NULL;
-   m_lastEnemy = NULL;
-   m_lastEnemyOrigin = Vector::GetNull ();
-   m_trackingEdict = NULL;
-   m_timeNextTracking = 0.0;
+   m_enemy = null;
+   m_lastVictim = null;
+   m_lastEnemy = null;
+   m_lastEnemyOrigin = nullvec;
+   m_trackingEdict = null;
+   m_timeNextTracking = 0.0f;
 
-   m_buttonPushTime = 0.0;
-   m_enemyUpdateTime = 0.0;
-   m_seeEnemyTime = 0.0;
-   m_shootAtDeadTime = 0.0;
-   m_oldCombatDesire = 0.0;
+   m_buttonPushTime = 0.0f;
+   m_enemyUpdateTime = 0.0f;
+   m_seeEnemyTime = 0.0f;
+   m_shootAtDeadTime = 0.0f;
+   m_oldCombatDesire = 0.0f;
 
-   m_avoidGrenade = NULL;
+   m_avoidGrenade = null;
    m_needAvoidGrenade = 0;
 
    m_lastDamageType = -1;
@@ -1028,36 +1030,36 @@ void Bot::NewRound (void)
    m_aimFlags = 0;
    m_burstShotsFired = 0;
 
-   m_position = Vector::GetNull ();
+   m_position = nullvec;
 
    m_idealReactionTime = g_skillTab[m_skill / 20].minSurpriseTime;
    m_actualReactionTime = g_skillTab[m_skill / 20].minSurpriseTime;
 
-   m_targetEntity = NULL;
-   m_followWaitTime = 0.0;
+   m_targetEntity = null;
+   m_followWaitTime = 0.0f;
 
    for (i = 0; i < Const_MaxHostages; i++)
-      m_hostages[i] = NULL;
+      m_hostages[i] = null;
 
    for (i = 0; i < Chatter_Total; i++)
-      m_voiceTimers[i] = -1.0;
+      m_voiceTimers[i] = -1.0f;
 
    m_isReloading = false;
    m_reloadState = RSTATE_NONE;
 
-   m_reloadCheckTime = 0.0;
+   m_reloadCheckTime = 0.0f;
    m_shootTime = engine->GetTime ();
    m_playerTargetTime = engine->GetTime ();
-   m_firePause = 0.0;
-   m_timeLastFired = 0.0;
+   m_firePause = 0.0f;
+   m_timeLastFired = 0.0f;
 
-   m_grenadeCheckTime = 0.0;
+   m_grenadeCheckTime = 0.0f;
    m_isUsingGrenade = false;
 
-   m_skillOffset = static_cast <int> ((100 - m_skill) / 100.0);
+   m_skillOffset = (100 - m_skill) / 100.0f;
    m_blindButton = 0;
-   m_blindTime = 0.0;
-   m_jumpTime = 0.0;
+   m_blindTime = 0.0f;
+   m_jumpTime = 0.0f;
    m_jumpFinished = false;
    m_isStuck = false;
 
@@ -1075,28 +1077,28 @@ void Bot::NewRound (void)
       m_currentWeapon = 0;
    }
 
-   m_knifeAttackTime = engine->GetTime () + engine->RandomFloat (1.3, 2.6);
-   m_nextBuyTime = engine->GetTime () + engine->RandomFloat (0.6, 1.2);
+   m_knifeAttackTime = engine->GetTime () + engine->RandomFloat (1.3f, 2.6f);
+   m_nextBuyTime = engine->GetTime () + engine->RandomFloat (0.6f, 1.2f);
 
    m_buyPending = false;
    m_inBombZone = false;
 
-   m_shieldCheckTime = 0.0;
-   m_zoomCheckTime = 0.0;
-   m_strafeSetTime = 0.0;
+   m_shieldCheckTime = 0.0f;
+   m_zoomCheckTime = 0.0f;
+   m_strafeSetTime = 0.0f;
    m_combatStrafeDir = 0;
    m_fightStyle = 0;
-   m_lastFightStyleCheck = 0.0;
+   m_lastFightStyleCheck = 0.0f;
 
    m_checkWeaponSwitch = true;
    m_checkKnifeSwitch = true;
    m_buyingFinished = false;
 
-   m_radioEntity = NULL;
+   m_radioEntity = null;
    m_radioOrder = 0;
    m_defendedBomb = false;
 
-   m_timeLogoSpray = engine->GetTime () + engine->RandomFloat (0.5, 2.0);
+   m_timeLogoSpray = engine->GetTime () + engine->RandomFloat (0.5, 2.0f);
    m_spawnTime = engine->GetTime ();
    m_lastChatTime = engine->GetTime ();
    pev->v_angle.y = pev->ideal_yaw;
@@ -1106,7 +1108,7 @@ void Bot::NewRound (void)
    m_nextCampDirTime = 0;
    m_campButtons = 0;
 
-   m_soundUpdateTime = 0.0;
+   m_soundUpdateTime = 0.0f;
    m_heardSoundTime = engine->GetTime ();
 
    // clear its message queue
@@ -1118,7 +1120,7 @@ void Bot::NewRound (void)
 
    // and put buying into its message queue
    PushMessageQueue (CMENU_BUY);
-   StartTask (TASK_NORMAL, TASKPRI_NORMAL, -1, 0.0, true);
+   PushTask (TASK_NORMAL, TASKPRI_NORMAL, -1, 0.0, true);
 }
 
 void Bot::Kill (void)
@@ -1133,9 +1135,9 @@ void Bot::Kill (void)
 
    hurtEntity->v.classname = MAKE_STRING (g_weaponDefs[m_currentWeapon].className);
    hurtEntity->v.dmg_inflictor = GetEntity ();
-   hurtEntity->v.dmg = 9999.0;
-   hurtEntity->v.dmg_take = 1.0;
-   hurtEntity->v.dmgtime = 2.0;
+   hurtEntity->v.dmg = 9999.0f;
+   hurtEntity->v.dmg_take = 1.0f;
+   hurtEntity->v.dmgtime = 2.0f;
    hurtEntity->v.effects |= EF_NODRAW;
 
    (*g_engfuncs.pfnSetOrigin) (hurtEntity, Vector (-4000, -4000, -4000));

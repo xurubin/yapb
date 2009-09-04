@@ -19,7 +19,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //
-// $Id: engine.cpp 23 2009-06-16 21:59:33Z jeefo $
+// $Id: engine.cpp 35 2009-06-24 16:43:26Z jeefo $
 //
 
 #include <core.h>
@@ -108,7 +108,7 @@ void Engine::PushRegisteredConVarsToEngine (void)
    {
       VarPair *ptr = &m_regVars[i];
 
-      if (ptr == NULL)
+      if (ptr == null)
          break;
 
       g_engfuncs.pfnCVarRegister (&ptr->reg);
@@ -128,7 +128,7 @@ void Engine::GetGameConVarsPointers (void)
    m_gameVars[GVAR_DEVELOPER] = g_engfuncs.pfnCVarGetPointer ("developer");
 
    // if buytime is null, just set it to round time
-   if (m_gameVars[GVAR_BUYTIME] == NULL)
+   if (m_gameVars[GVAR_BUYTIME] == null)
       m_gameVars[GVAR_BUYTIME] = m_gameVars[3];
 }
 
@@ -145,7 +145,7 @@ const Vector &Engine::GetGlobalVector (GlobalVector id)
    case GLOBALVECTOR_UP:
       return g_pGlobals->v_up;
    }
-   return Vector::GetNull ();
+   return nullvec;
 }
 
 void Engine::SetGlobalVector (GlobalVector id, const Vector &newVector)
@@ -164,7 +164,6 @@ void Engine::SetGlobalVector (GlobalVector id, const Vector &newVector)
       g_pGlobals->v_up = newVector;
       break;
    }
-   InternalAssert (0);
 }
 
 void Engine::BuildGlobalVectors (const Vector &on)
@@ -221,7 +220,8 @@ void Engine::PrintServer (const char *format, ...)
    vsprintf (buffer, format, ap);
    va_end (ap);
 
-   buffer[strlen (buffer) - 1] = '\n';
+   strcat (buffer, "\n");
+
    g_engfuncs.pfnServerPrint (buffer);
 }
 
@@ -235,29 +235,110 @@ float Engine::GetTime (void)
    return g_pGlobals->time;
 }
 
+void Engine::PrintAllClients (PrintType printType, const char *format, ...)
+{
+   char buffer[1024];
+   va_list ap;
+
+   va_start (ap, format);
+   vsprintf (buffer, format, ap);
+   va_end (ap);
+
+   if (printType == PRINT_CONSOLE)
+   {
+      for (int i = 0; i < GetMaxClients (); i++)
+      {
+         const Client &client = GetClientByIndex (i);
+
+         if (client.IsPlayer ())
+            client.Print (PRINT_CONSOLE, buffer);
+      }
+   }
+   else
+   {
+      strcat (buffer, "\n");
+
+      g_engfuncs.pfnMessageBegin (MSG_BROADCAST, g_netMsg->GetId (NETMSG_TEXTMSG), null, null);
+      g_engfuncs.pfnWriteByte (printType == PRINT_CENTER ? 4 : 3);
+      g_engfuncs.pfnWriteString (buffer);
+      g_engfuncs.pfnMessageEnd ();
+   }
+}
+
+#pragma warning (disable : 4172)
+
+// it's not temporary! engine holds own list of entites and returns pointer to the list using this func
+
+const Entity &Engine::GetEntityByIndex (int index)
+{
+   return g_engfuncs.pfnPEntityOfEntIndex (index);
+}
+#pragma warning (default : 4172)
+
+const Client &Engine::GetClientByIndex (int index)
+{
+   return m_clients[index];
+}
+
+void Engine::MaintainClients (void)
+{
+   for (int i = 0; i < GetMaxClients (); i++)
+      m_clients[i].Maintain (g_engfuncs.pfnPEntityOfEntIndex (i));
+}
+
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 // CLIENT
 //////////////////////////////////////////////////////////////////////////
-float Client::GetShootingConeDeviation (const Vector &pos)
+float Client::GetShootingConeDeviation (const Vector &pos) const
 {
    engine->BuildGlobalVectors (GetViewAngles ());
 
    return g_pGlobals->v_forward | (pos - GetHeadOrigin ()).Normalize ();
 }
 
-bool Client::IsInViewCone (const Vector &pos)
+bool Client::IsInViewCone (const Vector &pos) const
 {
    engine->BuildGlobalVectors (GetViewAngles ());
 
-   return ((pos - GetHeadOrigin ()).Normalize () | g_pGlobals->v_forward) >= cosf (Math::DegreeToRadian ((GetFOV () > 0.0 ? GetFOV () : 90.0) * 0.5));
+   return ((pos - GetHeadOrigin ()).Normalize () | g_pGlobals->v_forward) >= cosf (Math::DegreeToRadian ((GetFOV () > 0.0f ? GetFOV () : 90.0f) * 0.5f));
 }
 
-bool Client::IsVisible (const Vector &pos)
+bool Client::IsVisible (const Vector &pos) const
 {
-   TraceResult tr;
-   TraceLine (GetHeadOrigin (), pos, true, true, m_ent, &tr);
+   Tracer trace (GetHeadOrigin (), pos, NO_BOTH, m_ent);
 
-   return ! tr.flFraction != 1.0;
+   return ! (trace.Fire () != 1.0);
+}
+
+bool Client::HasFlag (int clientFlags)
+{
+   return (m_flags & clientFlags) == clientFlags;
+}
+
+Vector Client::GetOrigin (void) const
+{
+   return m_safeOrigin;
+}
+
+bool Client::IsAlive (void) const
+{
+   return !! (m_flags & CLIENT_ALIVE | CLIENT_VALID);
+}
+
+void Client::Maintain (const Entity &ent)
+{
+   if (ent.IsPlayer ())
+   {
+      m_ent = ent;
+
+      m_safeOrigin = ent.GetOrigin ();
+      m_flags |= ent.IsAlive () ? CLIENT_VALID | CLIENT_ALIVE : CLIENT_VALID;
+   }
+   else
+   {
+      m_safeOrigin = nullvec;
+      m_flags = ~(CLIENT_VALID | CLIENT_ALIVE);
+   }
 }
