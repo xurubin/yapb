@@ -644,8 +644,8 @@ void Bot::FindItem (void)
                   {
                      int index = FindDefendWaypoint (entityOrigin);
 
-                     PushTask (TASK_CAMP, TASKPRI_CAMP, -1, engine->GetTime () + engine->RandomFloat (60.0, 120.0f), true); // push camp task on to stack
-                     PushTask (TASK_MOVETOPOSITION, TASKPRI_MOVETOPOSITION, index, engine->GetTime () + engine->RandomFloat (3.0, 6.0f), true); // push move command
+                     PushTask (TASK_CAMP, TASKPRI_CAMP, -1, engine->GetTime () + engine->RandomFloat (60.0f, 120.0f), true); // push camp task on to stack
+                     PushTask (TASK_MOVETOPOSITION, TASKPRI_MOVETOPOSITION, index, engine->GetTime () + engine->RandomFloat (3.0f, 6.0f), true); // push move command
 
                      if (g_waypoint->GetPath (index)->vis.crouch <= g_waypoint->GetPath (index)->vis.stand)
                         m_campButtons |= IN_DUCK;
@@ -4024,7 +4024,7 @@ void Bot::RunTask (void)
       m_moveToGoal = false;
 
       // if bomb is planted and no one is defusing it kill the task
-      if (g_bombPlanted && m_defendedBomb && !IsBombDefusing (g_waypoint->GetBombPosition ()) && !OutOfBombTimer ())
+      if (g_bombPlanted && m_defendedBomb && !IsBombDefusing (g_waypoint->GetBombPosition ()) && !OutOfBombTimer () && team == TEAM_COUNTER)
       {
          m_defendedBomb = false;
          TaskComplete ();
@@ -5844,13 +5844,13 @@ void Bot::BotAI (void)
             // blue = ideal angles
             // red = view angles
 
-            DrawArrow (g_hostEntity, EyePosition (), m_destOrigin, 10, 0, 0, 255, 0, 250, 5, 1);
+            engine->drawLine (g_hostEntity, EyePosition (), m_destOrigin, Color (0, 255, 0, 250), 10, 0, 5, 1, LINE_ARROW);
 
             MakeVectors (m_idealAngles);
-            DrawArrow (g_hostEntity, EyePosition (), EyePosition () + (g_pGlobals->v_forward * 300), 10, 0, 0, 0, 255, 250, 5, 1);
+            engine->drawLine (g_hostEntity, EyePosition (), EyePosition () + g_pGlobals->v_forward * 300.0f, Color (0, 0, 255, 250), 10, 0, 5, 1, LINE_ARROW);
 
             MakeVectors (pev->v_angle);
-            DrawArrow (g_hostEntity, EyePosition (), EyePosition () + (g_pGlobals->v_forward * 300), 10, 0, 255, 0, 0, 250, 5, 1);
+            engine->drawLine (g_hostEntity, EyePosition (), EyePosition () + g_pGlobals->v_forward * 300.0f, Color (255, 0, 0, 250), 10, 0, 5, 1, LINE_ARROW);
 
             // now draw line from source to destination
             PathNode *node = &m_navNode[0];
@@ -5861,7 +5861,7 @@ void Bot::BotAI (void)
                node = node->next;
 
                if (node != null)
-                  DrawArrow (g_hostEntity, src, g_waypoint->GetPath (node->index)->origin, 15, 0, 255, 100, 55, 200, 5, 1);
+                  engine->drawLine (g_hostEntity, EyePosition (), g_waypoint->GetPath (node->index)->origin, Color (255, 100, 55, 200), 15, 0, 5, 1, LINE_ARROW);
             }
          }
       }
@@ -6478,14 +6478,7 @@ void Bot::RunPlayerMovement (void)
    else if (m_msecVal < 5)
       m_msecVal = 5;
 
-   (*g_engfuncs.pfnRunPlayerMove) (GetEntity (), 
-	   m_moveAngles, 
-	   m_moveSpeed, 
-	   m_strafeSpeed, 
-	   0.0, 
-	   static_cast <unsigned short> (pev->button), 
-	   static_cast <uint8_t> (pev->impulse), 
-	   m_msecVal);
+   (*g_engfuncs.pfnRunPlayerMove) (GetEntity (), m_moveAngles, m_moveSpeed, m_strafeSpeed, 0.0, static_cast <unsigned short> (pev->button), static_cast <uint8_t> (pev->impulse), m_msecVal);
 }
 
 void Bot::CheckBurstMode (float distance)

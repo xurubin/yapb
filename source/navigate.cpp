@@ -1709,7 +1709,7 @@ bool Bot::HeadTowardWaypoint (void)
       TraceLine (Vector (pev->origin.x, pev->origin.y, pev->absmin.z), m_waypointOrigin, true, true, GetEntity (), &tr);
 
       if (tr.flFraction < 1.0f)
-         m_waypointOrigin = m_waypointOrigin + (pev->origin - m_waypointOrigin) * 0.5 + Vector (0, 0, 32);
+         m_waypointOrigin = m_waypointOrigin + (pev->origin - m_waypointOrigin) * 0.5f + Vector (0, 0, 32);
    }
    m_navTimeset = engine->GetTime ();
 

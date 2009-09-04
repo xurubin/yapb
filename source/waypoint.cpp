@@ -866,8 +866,9 @@ void Waypoint::SaveExperienceTab (void)
    {
       for (int j = 0; j < g_numWaypoints; j++)
       {
-         (experienceSave + (i * g_numWaypoints) + j)->team0Damage = static_cast <uint8_t> ((g_experienceData + (i * g_numWaypoints) + j)->team0Damage >> 3);
-         (experienceSave + (i * g_numWaypoints) + j)->team1Damage = static_cast <uint8_t> ((g_experienceData + (i * g_numWaypoints) + j)->team1Damage >> 3);
+         (experienceSave + (i * g_numWaypoints) + j)->team0Damage = (g_experienceData + (i * g_numWaypoints) + j)->team0Damage >> 3;
+         (experienceSave + (i * g_numWaypoints) + j)->team1Damage = (g_experienceData + (i * g_numWaypoints) + j)->team1Damage >> 3;
+
          (experienceSave + (i * g_numWaypoints) + j)->team0Value = static_cast <signed char> ((g_experienceData + (i * g_numWaypoints) + j)->team0Value / 8);
          (experienceSave + (i * g_numWaypoints) + j)->team1Value = static_cast <signed char> ((g_experienceData + (i * g_numWaypoints) + j)->team1Value / 8);
       }
@@ -935,7 +936,7 @@ void Waypoint::InitExperienceTab (void)
                return;
             }
 
-            Compressor::Uncompress (FormatBuffer ("%sdata/%s.exp", GetWaypointDir (), GetMapName ()), sizeof (ExtensionHeader), (uint8_t *) experienceLoad, g_numWaypoints * g_numWaypoints * sizeof (ExperienceSaver));
+            Compressor::Uncompress (FormatBuffer ("%sdata/%s.exp", GetWaypointDir (), GetMapName ()), sizeof (ExtensionHeader), (uint8_t *)experienceLoad, g_numWaypoints * g_numWaypoints * sizeof (ExperienceSaver));
 
             for (i = 0; i < g_numWaypoints; i++)
             {
@@ -1587,51 +1588,45 @@ void Waypoint::Think (void)
 
          if (m_waypointDisplayTime[i] + 1.0f < engine->GetTime ())
          {
-            float nodeHeight = 0.0f;
-
-            // check the node height
-            if (m_paths[i]->flags & WAYPOINT_CROUCH)
-               nodeHeight = 36.0f;
-            else
-               nodeHeight = 72.0f;
-
+            float nodeHeight = (m_paths[i]->flags & WAYPOINT_CROUCH) ? 36.0f : 72.0f; // check the node height
             float nodeHalfHeight = nodeHeight * 0.5f;
 
             // all waypoints are by default are green
-            Vector nodeColor = nullvec;
+            Color nodeColor = Color (0, 255, 0);
 
             // colorize all other waypoints
             if (m_paths[i]->flags & WAYPOINT_CAMP)
-               nodeColor = Vector (0, 255, 255);
+               nodeColor = Color (0, 255, 255);
             else if (m_paths[i]->flags & WAYPOINT_GOAL)
-               nodeColor = Vector (128, 0, 255);
+               nodeColor = Color (128, 0, 255);
             else if (m_paths[i]->flags & WAYPOINT_LADDER)
-               nodeColor = Vector (128, 64, 0);
+               nodeColor = Color (128, 64, 0);
             else if (m_paths[i]->flags & WAYPOINT_RESCUE)
-               nodeColor = Vector (255, 255, 255);
-            else
-               nodeColor = Vector (0, 255, 0);
+               nodeColor = Color (255, 255, 255);
 
             // colorize additional flags
-            Vector nodeFlagColor = Vector (-1, -1, -1);
+            Color nodeFlagColor = Color (-1, -1, -1);
 
             // check the colors
             if (m_paths[i]->flags & WAYPOINT_SNIPER)
-               nodeFlagColor = Vector (130, 87, 0);
+               nodeFlagColor = Color (130, 87, 0);
             else if (m_paths[i]->flags & WAYPOINT_NOHOSTAGE)
-               nodeFlagColor = Vector (255, 255, 255);
+               nodeFlagColor = Color (255, 255, 255);
             else if (m_paths[i]->flags & WAYPOINT_TERRORIST)
-               nodeFlagColor = Vector (255, 0, 0);
+               nodeFlagColor = Color (255, 0, 0);
             else if (m_paths[i]->flags & WAYPOINT_COUNTER)
-               nodeFlagColor = Vector (0, 0, 255);
+               nodeFlagColor = Color (0, 0, 255);
+
+            nodeColor.alpha = 250;
+            nodeFlagColor.alpha = 250;
 
             // draw node without additional flags
-            if (nodeFlagColor.x == -1)
-               DrawLine (g_hostEntity, m_paths[i]->origin - Vector (0, 0, nodeHalfHeight), m_paths[i]->origin + Vector (0, 0, nodeHalfHeight), 15, 0, static_cast <int> (nodeColor.x), static_cast <int> (nodeColor.y), static_cast <int> (nodeColor.z), 250, 0, 10);
+            if (nodeFlagColor.red == -1)
+               engine->drawLine (g_hostEntity, m_paths[i]->origin - Vector (0, 0, nodeHalfHeight), m_paths[i]->origin + Vector (0, 0, nodeHalfHeight), nodeColor, 15, 0, 0, 10);
             else // draw node with flags
             {
-               DrawLine (g_hostEntity, m_paths[i]->origin - Vector (0.0f, 0.0f, nodeHalfHeight), m_paths[i]->origin - Vector (0.0f, 0.0f, nodeHalfHeight - nodeHeight * 0.75f), 14, 0, static_cast <int> (nodeColor.x), static_cast <int> (nodeColor.y), static_cast <int> (nodeColor.z), 250, 0, 10); // draw basic path
-               DrawLine (g_hostEntity, m_paths[i]->origin - Vector (0.0f, 0.0f, nodeHalfHeight - nodeHeight * 0.75f), m_paths[i]->origin + Vector (0.0f, 0.0f, nodeHalfHeight), 14, 0, static_cast <int> (nodeFlagColor.x), static_cast <int> (nodeFlagColor.y), static_cast <int> (nodeFlagColor.z), 250, 0, 10); // draw additional path
+               engine->drawLine (g_hostEntity, m_paths[i]->origin - Vector (0.0f, 0.0f, nodeHalfHeight), m_paths[i]->origin - Vector (0.0f, 0.0f, nodeHalfHeight - nodeHeight * 0.75f), nodeColor, 14, 0, 0, 10); // draw basic path
+               engine->drawLine (g_hostEntity, m_paths[i]->origin - Vector (0.0f, 0.0f, nodeHalfHeight - nodeHeight * 0.75f), m_paths[i]->origin + Vector (0.0f, 0.0f, nodeHalfHeight), nodeFlagColor, 14, 0, 0, 10); // draw additional path
             }
             m_waypointDisplayTime[i] = engine->GetTime ();
          }
@@ -1649,15 +1644,15 @@ void Waypoint::Think (void)
       {
          // finding waypoint - pink arrow
          if (m_findWPIndex != -1)
-            DrawArrow (g_hostEntity, g_hostEntity->v.origin, m_paths[m_findWPIndex]->origin, 10, 0, 128, 0, 128, 200, 0, 5);
+            engine->drawLine (g_hostEntity, g_hostEntity->v.origin, m_paths[m_findWPIndex]->origin, Color (128, 0, 128, 200), 10, 0, 0, 5, LINE_ARROW);
 
          // cached waypoint - yellow arrow
          if (m_cacheWaypointIndex != -1)
-            DrawArrow (g_hostEntity, g_hostEntity->v.origin, m_paths[m_cacheWaypointIndex]->origin, 10, 0, 255, 255, 0, 200, 0, 5);
+            engine->drawLine (g_hostEntity, g_hostEntity->v.origin, m_paths[m_cacheWaypointIndex]->origin, Color (255, 255, 0, 200), 10, 0, 0, 5, LINE_ARROW);
 
          // waypoint user facing at - white arrow
          if (m_facingAtIndex != -1)
-            DrawArrow (g_hostEntity, g_hostEntity->v.origin, m_paths[m_facingAtIndex]->origin, 10, 0, 255, 255, 255, 200, 0, 5);
+            engine->drawLine (g_hostEntity, g_hostEntity->v.origin, m_paths[m_facingAtIndex]->origin, Color (255, 255, 255, 200), 10, 0, 0, 5, LINE_ARROW);
 
          m_arrowDisplayTime = engine->GetTime ();
       }
@@ -1674,18 +1669,11 @@ void Waypoint::Think (void)
       // draw the camplines
       if (path->flags & WAYPOINT_CAMP)
       {
-         Vector campSourceOrigin = campSourceOrigin = path->origin + Vector (0, 0, 36);
-
-         // check if it's a source
-         if (path->flags & WAYPOINT_CROUCH)
-            campSourceOrigin = path->origin + Vector (0, 0, 18);
-
-         Vector campStartOrigin = Vector (path->campStartX, path->campStartY, campSourceOrigin.z); // camp start
-         Vector campEndOrigin =  Vector (path->campEndX, path->campEndY, campSourceOrigin.z); // camp end
+         const Vector &src = path->origin + Vector (0, 0, (path->flags & WAYPOINT_CROUCH) ? 18.0f : 36.0f); // check if it's a source
 
          // draw it now
-         DrawLine (g_hostEntity, campSourceOrigin, campStartOrigin, 10, 0, 255, 0, 0, 200, 0, 10);
-         DrawLine (g_hostEntity, campSourceOrigin, campEndOrigin, 10, 0, 255, 0, 0, 200, 0, 10);
+         engine->drawLine (g_hostEntity, src, Vector (path->campStartX, path->campStartY, src.z), Color (255, 0, 0, 200), 10, 0, 0, 10);
+         engine->drawLine (g_hostEntity, src, Vector (path->campEndX, path->campEndY, src.z), Color (255, 0, 0, 200), 10, 0, 0, 10);
       }
 
       // draw the connections
@@ -1696,18 +1684,18 @@ void Waypoint::Think (void)
 
          // jump connection
          if (path->connectionFlags[i] & PATHFLAG_JUMP)
-            DrawLine (g_hostEntity, path->origin, m_paths[path->index[i]]->origin, 5, 0, 255, 0, 128, 200, 0, 10);
+            engine->drawLine (g_hostEntity, path->origin, m_paths[path->index[i]]->origin, Color (255, 0, 128, 200), 5, 0, 0, 10);
          else if (IsConnected (path->index[i], nearestIndex)) // twoway connection
-            DrawLine (g_hostEntity, path->origin, m_paths[path->index[i]]->origin, 5, 0, 255, 255, 0, 200, 0, 10);
+            engine->drawLine (g_hostEntity, path->origin, m_paths[path->index[i]]->origin, Color (255, 255, 0, 200), 5, 0, 0, 10);
          else // oneway connection
-            DrawLine (g_hostEntity, path->origin, m_paths[path->index[i]]->origin, 5, 0, 250, 250, 250, 200, 0, 10);
+            engine->drawLine (g_hostEntity, path->origin, m_paths[path->index[i]]->origin, Color (250, 250, 250, 200), 5, 0, 0, 10);
       }
 
       // now look for oneway incoming connections
       for (int i = 0; i < g_numWaypoints; i++)
       {
          if (IsConnected (m_paths[i]->pathNumber, path->pathNumber) && !IsConnected (path->pathNumber, m_paths[i]->pathNumber))
-            DrawLine (g_hostEntity, path->origin, m_paths[i]->origin, 5, 0, 0, 192, 96, 200, 0, 10);
+            engine->drawLine (g_hostEntity, path->origin, m_paths[i]->origin, Color (0, 192, 96, 200), 5, 0, 0, 10);
       }
 
       // draw the radius circle
@@ -1716,36 +1704,38 @@ void Waypoint::Think (void)
       // if radius is nonzero, draw a full circle
       if (path->radius > 0.0f)
       {
-         float squareRoot = sqrtf ((path->radius * path->radius) * 0.5f);
+         const float root = sqrtf (path->radius * path->radius * 0.5f);
+         const Color &def = Color (0, 0, 255, 200);
 
-         DrawLine (g_hostEntity, origin + Vector (path->radius, 0.0f, 0.0f), origin + Vector (squareRoot, -squareRoot, 0), 5, 0, 0, 0, 255, 200, 0, 10);
-         DrawLine (g_hostEntity, origin + Vector (squareRoot, -squareRoot, 0.0f), origin + Vector (0, -path->radius, 0), 5, 0, 0, 0, 255, 200, 0, 10);
+         engine->drawLine (g_hostEntity, origin + Vector (path->radius, 0.0f, 0.0f), origin + Vector (root, -root, 0), def, 5, 0, 0, 10);
+         engine->drawLine (g_hostEntity, origin + Vector (root, -root, 0.0f), origin + Vector (0, -path->radius, 0), def, 5, 0, 0, 10);
 
-         DrawLine (g_hostEntity, origin + Vector (0.0f, -path->radius, 0.0f), origin + Vector (-squareRoot, -squareRoot, 0), 5, 0, 0, 0, 255, 200, 0, 10);
-         DrawLine (g_hostEntity, origin + Vector (-squareRoot, -squareRoot, 0.0f), origin + Vector (-path->radius, 0, 0), 5, 0, 0, 0, 255, 200, 0, 10);
+         engine->drawLine (g_hostEntity, origin + Vector (0.0f, -path->radius, 0.0f), origin + Vector (-root, -root, 0), def, 5, 0, 0, 10);
+         engine->drawLine (g_hostEntity, origin + Vector (-root, -root, 0.0f), origin + Vector (-path->radius, 0, 0), def, 5, 0, 0, 10);
 
-         DrawLine (g_hostEntity, origin + Vector (-path->radius, 0.0f, 0.0f), origin + Vector (-squareRoot, squareRoot, 0), 5, 0, 0, 0, 255, 200, 0, 10);
-         DrawLine (g_hostEntity, origin + Vector (-squareRoot, squareRoot, 0.0f), origin + Vector (0, path->radius, 0), 5, 0, 0, 0, 255, 200, 0, 10);
+         engine->drawLine (g_hostEntity, origin + Vector (-path->radius, 0.0f, 0.0f), origin + Vector (-root, root, 0), def, 5, 0, 0, 10);
+         engine->drawLine (g_hostEntity, origin + Vector (-root, root, 0.0f), origin + Vector (0, path->radius, 0), def, 5, 0, 0, 10);
 
-         DrawLine (g_hostEntity, origin + Vector (0.0f, path->radius, 0.0f), origin + Vector (squareRoot, squareRoot, 0), 5, 0, 0, 0, 255, 200, 0, 10);
-         DrawLine (g_hostEntity, origin + Vector (squareRoot, squareRoot, 0.0f), origin + Vector (path->radius, 0, 0), 5, 0, 0, 0, 255, 200, 0, 10);
+         engine->drawLine (g_hostEntity, origin + Vector (0.0f, path->radius, 0.0f), origin + Vector (root, root, 0), def, 5, 0, 0, 10);
+         engine->drawLine (g_hostEntity, origin + Vector (root, root, 0.0f), origin + Vector (path->radius, 0, 0), def, 5, 0, 0, 10);
       }
       else
       {
-         float squareRoot = sqrtf (32.0f);
+         const float root = sqrtf (32.0f);
+         const Color &def = Color (255, 0, 0, 200);
 
-         DrawLine (g_hostEntity, origin + Vector (squareRoot, -squareRoot, 0), origin + Vector (-squareRoot, squareRoot, 0), 5, 0, 255, 0, 0, 200, 0, 10);
-         DrawLine (g_hostEntity, origin + Vector (-squareRoot, -squareRoot, 0), origin + Vector (squareRoot, squareRoot, 0), 5, 0, 255, 0, 0, 200, 0, 10);
+         engine->drawLine (g_hostEntity, origin + Vector (root, -root, 0), origin + Vector (-root, root, 0), def, 5, 0, 0, 10);
+         engine->drawLine (g_hostEntity, origin + Vector (-root, -root, 0), origin + Vector (root, root, 0), def, 5, 0, 0, 10);
       }
 
       // draw the danger directions
       if (!g_waypointsChanged)
       {
          if ((g_experienceData + (nearestIndex * g_numWaypoints) + nearestIndex)->team0DangerIndex != -1 && GetTeam (g_hostEntity) == TEAM_TERRORIST)
-            DrawArrow (g_hostEntity, path->origin, m_paths[(g_experienceData + (nearestIndex * g_numWaypoints) + nearestIndex)->team0DangerIndex]->origin, 15, 0, 255, 0, 0, 200, 0, 10); // draw a red arrow to this index's danger point
+            engine->drawLine (g_hostEntity, path->origin, m_paths[(g_experienceData + (nearestIndex * g_numWaypoints) + nearestIndex)->team0DangerIndex]->origin, Color (255, 0, 0, 200), 15, 0, 0, 10, LINE_ARROW); // draw a red arrow to this index's danger point
 
          if ((g_experienceData + (nearestIndex * g_numWaypoints) + nearestIndex)->team1DangerIndex != -1 && GetTeam (g_hostEntity) == TEAM_COUNTER)
-            DrawArrow (g_hostEntity, path->origin, m_paths[(g_experienceData + (nearestIndex * g_numWaypoints) + nearestIndex)->team1DangerIndex]->origin, 15, 0, 0, 0, 255, 200, 0, 10); // draw a blue arrow to this index's danger point
+            engine->drawLine (g_hostEntity, path->origin, m_paths[(g_experienceData + (nearestIndex * g_numWaypoints) + nearestIndex)->team1DangerIndex]->origin, Color (0, 0, 255, 200), 15, 0, 0, 10, LINE_ARROW); // draw a blue arrow to this index's danger point
       }
 
       // display some information

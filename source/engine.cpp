@@ -286,6 +286,50 @@ void Engine::MaintainClients (void)
       m_clients[i].Maintain (g_engfuncs.pfnPEntityOfEntIndex (i));
 }
 
+void Engine::drawLine (const Client &client, const Vector &start, const Vector &end, const Color &color, int width, int noise, int speed, int life, int lineType)
+{
+   if (!client.IsValid ())
+      return;
+
+   g_engfuncs.pfnMessageBegin (MSG_ONE_UNRELIABLE, SVC_TEMPENTITY, null, client);
+   g_engfuncs.pfnWriteByte (TE_BEAMPOINTS);
+
+   g_engfuncs.pfnWriteCoord (start.x);
+   g_engfuncs.pfnWriteCoord (start.y);
+   g_engfuncs.pfnWriteCoord (start.z);
+
+   g_engfuncs.pfnWriteCoord (end.x);
+   g_engfuncs.pfnWriteCoord (end.y);
+   g_engfuncs.pfnWriteCoord (end.z);
+
+   switch (lineType)
+   {
+   case LINE_SIMPLE:
+      g_engfuncs.pfnWriteShort (g_modelIndexLaser);
+      break;
+
+   case LINE_ARROW:
+      g_engfuncs.pfnWriteShort (g_modelIndexArrow);
+      break;
+   }
+
+   g_engfuncs.pfnWriteByte (0);
+   g_engfuncs.pfnWriteByte (10);
+
+   g_engfuncs.pfnWriteByte (life);
+   g_engfuncs.pfnWriteByte (width);
+   g_engfuncs.pfnWriteByte (noise);
+
+   g_engfuncs.pfnWriteByte (color.red);
+   g_engfuncs.pfnWriteByte (color.green);
+   g_engfuncs.pfnWriteByte (color.blue);
+
+   g_engfuncs.pfnWriteByte (color.alpha); // alpha as brightness here
+   g_engfuncs.pfnWriteByte (speed);
+
+   g_engfuncs.pfnMessageEnd ();
+}
+
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////

@@ -32,7 +32,8 @@ ConVar yb_minskill ("yb_minskill", "60");
 ConVar yb_maxskill ("yb_maxskill", "100");
 
 ConVar yb_skilltags ("yb_skilltags", "0");
-ConVar yb_thinkfps ("yb_thinkfps", "20");
+ConVar yb_thinkfps ("yb_thinkfps", "22");
+ConVar yb_tagbots ("yb_tagbots", "0");
 
 BotControl::BotControl (void)
 {
@@ -802,11 +803,14 @@ Bot::Bot (edict_t *bot, int skill, int personality, int team, int member)
    SET_CLIENT_KEYVALUE (clientIndex, buffer, "friends", "0");
    SET_CLIENT_KEYVALUE (clientIndex, buffer, "dm", "0");
    SET_CLIENT_KEYVALUE (clientIndex, buffer, "_ah", "0");
-   // SET_CLIENT_KEYVALUE (clientIndex, staticBuffer, "*bot", "1");
+
+   if (yb_tagbots.GetBool ())
+      SET_CLIENT_KEYVALUE (clientIndex, buffer, "*bot", "1");
+
    SET_CLIENT_KEYVALUE (clientIndex, buffer, "_vgui_menus", "0");
 
    memset (rejectReason, 0, sizeof (rejectReason)); // reset the reject reason template string
-   MDLL_ClientConnect (bot, "fakeclient", FormatBuffer ("192.168.1.0.%d", ENTINDEX (bot) + 100), rejectReason);
+   MDLL_ClientConnect (bot, "fakeclient", FormatBuffer ("192.168.1.%d", ENTINDEX (bot) + 100), rejectReason);
 
    if (!IsNullString (rejectReason))
    {

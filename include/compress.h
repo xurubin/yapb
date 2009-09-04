@@ -19,7 +19,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //
-// $Id:$
+// $Id$
 //
 
 #ifndef COMPRESS_INCLUDED
@@ -95,7 +95,7 @@ private:
          if (i > m_matchLength)
          {
             m_matchPosition = temp;
-            
+
             if ((m_matchLength = i) >= F)
                break;
          }
@@ -136,7 +136,7 @@ private:
          if (m_right[temp] != NIL)
          {
             do
-               temp = m_right[temp];
+            temp = m_right[temp];
             while (m_right[temp] != NIL);
 
             m_right[m_parent[temp]] = m_left[temp];
@@ -276,9 +276,10 @@ public:
    int InternalDecode (char *fileName, int headerSize, uint8_t *buffer, int bufferSize)
    {
       int i, j, k, node;
-      unsigned int flags;
+      uint32_t flags;
       int bufferPtr = 0;
-	  uint8_t bit;
+
+      uint8_t bit;
 
       File fp (fileName, "rb");
 
@@ -297,15 +298,17 @@ public:
       {
          if (((flags >>= 1) & 256) == 0)
          {
-            if ((bit = fp.GetCharacter ()) == EOF)
+            if ((bit = static_cast <uint8_t> (fp.GetCharacter ())) == EOF)
                break;
+
             flags = bit | 0xff00;
          } 
 
          if (flags & 1)
          {
-            if ((bit = fp.GetCharacter ()) == EOF)
+            if ((bit = static_cast <uint8_t> (fp.GetCharacter ())) == EOF)
                break;
+
             buffer[bufferPtr++] = bit;
 
             if (bufferPtr > bufferSize)

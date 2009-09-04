@@ -606,8 +606,8 @@ struct Experience
 // experience data when saving/loading
 struct ExperienceSaver
 {
-   uint8_t team0Damage;
-   uint8_t team1Damage;
+   unsigned short team0Damage;
+   unsigned short team1Damage;
    signed char team0Value;
    signed char team1Value;
 };
@@ -1372,8 +1372,6 @@ extern void ClientPrint (edict_t *ent, int dest, const char *format, ...);
 extern void HudMessage (edict_t *ent, bool toCenter, const Color &rgb, char *format, ...);
 
 extern void AddLogEntry (bool outputToConsole, int logLevel, const char *format, ...);
-extern void DrawLine (edict_t *ent, Vector start, Vector end, int width, int noise, int red, int green, int blue, int brightness, int speed, int life);
-extern void DrawArrow (edict_t *ent, Vector start, Vector end, int width, int noise, int red, int green, int blue, int brightness, int speed, int life);
 extern void DisplayMenuToClient (edict_t *ent, MenuText *menu);
 extern void DecalTrace (entvars_t *pev, TraceResult *trace, int logotypeIndex);
 extern void SoundAttachToThreat (edict_t *ent, const char *sample, float volume);

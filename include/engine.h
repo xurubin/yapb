@@ -2657,6 +2657,12 @@ enum TraceIgnore
    NO_BOTH = NO_MONSTERS | NO_GLASS
 };
 
+enum LineType
+{
+   LINE_SIMPLE,
+   LINE_ARROW
+};
+
 enum TraceTarget
 {
    HULL_HEAD = 3,
@@ -3228,6 +3234,9 @@ public:
    const Client &GetClientByIndex (int index);
 
    void MaintainClients (void);
+
+   void drawLine (const Client &client, const Vector &start, const Vector &end, const Color &color, int width, int noise, int speed, int life, int lineType = LINE_SIMPLE);
+ 
 };
 
 #define engine Engine::GetReference ()
