@@ -298,10 +298,6 @@ void FreeLibraryMemory (void)
 
    g_botManager->Free ();
    g_waypoint->Initialize (); // frees waypoint data
-
-   if (g_experienceData != null)
-      delete [] g_experienceData;
-   g_experienceData = null;
 }
 
 void FakeClientCommand (edict_t *fakeClient, const char *format, ...)
@@ -555,113 +551,6 @@ void CreatePath (char *path)
 #endif
 }
 
-void UpdateGlobalExperienceData (void)
-{
-   // this function called after each end of the round to update knowledge about most dangerous waypoints for each team.
-
-   // no waypoints, no experience used or waypoints edited or being edited?
-   if (g_numWaypoints < 1 || g_waypointsChanged)
-      return; // no action
-
-   unsigned short maxDamage; // maximum damage
-   unsigned short actDamage; // actual damage
-
-   int bestIndex; // best index to store
-   bool recalcKills = false;
-
-   // get the most dangerous waypoint for this position for terrorist team
-   for (int i = 0; i < g_numWaypoints; i++)
-   {
-      maxDamage = 0;
-      bestIndex = -1;
-
-      for (int j = 0; j < g_numWaypoints; j++)
-      {
-         if (i == j)
-            continue;
-
-         actDamage = (g_experienceData + (i * g_numWaypoints) + j)->team0Damage;
-
-         if (actDamage > maxDamage)
-         {
-            maxDamage = actDamage;
-            bestIndex = j;
-         }
-      }
-
-      if (maxDamage > Const_MaxDamageValue)
-         recalcKills = true;
-
-      (g_experienceData + (i * g_numWaypoints) + i)->team0DangerIndex = static_cast <short> (bestIndex);
-   }
-
-   // get the most dangerous waypoint for this position for counter-terrorist team
-   for (int i = 0; i < g_numWaypoints; i++)
-   {
-      maxDamage = 0;
-      bestIndex = -1;
-
-      for (int j = 0; j < g_numWaypoints; j++)
-      {
-         if (i == j)
-            continue;
-
-         actDamage = (g_experienceData + (i * g_numWaypoints) + j)->team1Damage;
-
-         if (actDamage > maxDamage)
-         {
-            maxDamage = actDamage;
-            bestIndex = j;
-         }
-      }
-
-      if (maxDamage > Const_MaxDamageValue)
-         recalcKills = true;
-
-     (g_experienceData + (i * g_numWaypoints) + i)->team1DangerIndex = static_cast <short> (bestIndex);
-   }
-
-   // adjust values if overflow is about to happen
-   if (recalcKills)
-   {
-      for (int i = 0; i < g_numWaypoints; i++)
-      {
-         for (int j = 0; j < g_numWaypoints; j++)
-         {
-            if (i == j)
-               continue;
-
-            int clip = (g_experienceData + (i * g_numWaypoints) + j)->team0Damage;
-            clip -= static_cast <int> (Const_MaxDamageValue * 0.5);
-
-            if (clip < 0)
-               clip = 0;
-
-            (g_experienceData + (i * g_numWaypoints) + j)->team0Damage = static_cast <unsigned short> (clip);
-
-            clip = (g_experienceData + (i * g_numWaypoints) + j)->team1Damage;
-            clip -= static_cast <int> (Const_MaxDamageValue * 0.5);
-
-            if (clip < 0)
-               clip = 0;
-
-            (g_experienceData + (i * g_numWaypoints) + j)->team1Damage = static_cast <unsigned short> (clip);
-         }
-      }
-   }
-   g_killHistory++;
-
-   if (g_killHistory == Const_MaxKillHistory)
-   {
-      for (int i = 0; i < g_numWaypoints; i++)
-      {
-         (g_experienceData + (i * g_numWaypoints) + i)->team0Damage /= static_cast <unsigned short> (engine->GetMaxClients () * 0.5);
-         (g_experienceData + (i * g_numWaypoints) + i)->team1Damage /= static_cast <unsigned short> (engine->GetMaxClients () * 0.5);
-      }
-      g_killHistory = 1;
-   }
-}
-
 void RoundInit (void)
 {
    // this is called at the start of each round
@@ -693,7 +582,7 @@ void RoundInit (void)
    g_lastRadioTime[1] = 0.0f;
    g_botsCanPause = false;
 
-   UpdateGlobalExperienceData (); // update experience data on round start
+   g_exp.UpdateGlobalKnowledge (); // update experience data on round start
 
    // calculate the round mid/end in world time
    g_timeRoundStart = engine->GetTime () + engine->GetFreezeTime ();

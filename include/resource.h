@@ -27,7 +27,7 @@
 
 // general product information
 #define PRODUCT_NAME "YaPB"
-#define PRODUCT_VERSION "2.6"
+#define PRODUCT_VERSION "Beta"
 #define PRODUCT_AUTHOR "YaPB Dev Team"
 #define PRODUCT_URL "http://yapb.jeefo.net/"
 #define PRODUCT_EMAIL "dmitry@jeefo.net"

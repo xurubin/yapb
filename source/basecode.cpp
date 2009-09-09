@@ -3292,29 +3292,15 @@ void Bot::ChooseAimDirection (void)
 
       if (canChooseAimDirection && m_currentWaypointIndex != -1 && !(g_waypoint->GetPath (m_currentWaypointIndex)->flags & WAYPOINT_LADDER))
       {
-         int index = m_currentWaypointIndex;
+         int dangerIndex  = g_exp.GetDangerIndex (m_currentWaypointIndex, m_currentWaypointIndex, GetTeam (GetEntity ()));
 
-         if (GetTeam (GetEntity ()) == TEAM_TERRORIST)
+         if (dangerIndex != -1)
          {
-            if ((g_experienceData + (index * g_numWaypoints) + index)->team0DangerIndex != -1)
-            {
-               Vector dest = g_waypoint->GetPath ((g_experienceData + (index * g_numWaypoints) + index)->team0DangerIndex)->origin;
-               TraceLine (pev->origin, dest, true, GetEntity (), &tr);
+            const Vector &to = g_waypoint->GetPath (dangerIndex)->origin;
+            TraceLine (pev->origin, to, true, GetEntity (), &tr);
 
-               if (tr.flFraction > 0.8 || tr.pHit != g_worldEdict)
-                  m_lookAt = dest;
-            }
-         }
-         else
-         {
-            if ((g_experienceData + (index * g_numWaypoints) + index)->team1DangerIndex != -1)
-            {
-               Vector dest = g_waypoint->GetPath ((g_experienceData + (index * g_numWaypoints) + index)->team1DangerIndex)->origin;
-               TraceLine (pev->origin, dest, true, GetEntity (), &tr);
-
-               if (tr.flFraction > 0.8 || tr.pHit != g_worldEdict)
-                  m_lookAt = dest;
-            }
+            if (tr.flFraction > 0.8f || tr.pHit != g_worldEdict)
+               m_lookAt = to;
          }
       }
 
@@ -5844,13 +5830,13 @@ void Bot::BotAI (void)
             // blue = ideal angles
             // red = view angles
 
-            engine->drawLine (g_hostEntity, EyePosition (), m_destOrigin, Color (0, 255, 0, 250), 10, 0, 5, 1, LINE_ARROW);
+            engine->DrawLine (g_hostEntity, EyePosition (), m_destOrigin, Color (0, 255, 0, 250), 10, 0, 5, 1, LINE_ARROW);
 
             MakeVectors (m_idealAngles);
-            engine->drawLine (g_hostEntity, EyePosition (), EyePosition () + g_pGlobals->v_forward * 300.0f, Color (0, 0, 255, 250), 10, 0, 5, 1, LINE_ARROW);
+            engine->DrawLine (g_hostEntity, EyePosition (), EyePosition () + g_pGlobals->v_forward * 300.0f, Color (0, 0, 255, 250), 10, 0, 5, 1, LINE_ARROW);
 
             MakeVectors (pev->v_angle);
-            engine->drawLine (g_hostEntity, EyePosition (), EyePosition () + g_pGlobals->v_forward * 300.0f, Color (255, 0, 0, 250), 10, 0, 5, 1, LINE_ARROW);
+            engine->DrawLine (g_hostEntity, EyePosition (), EyePosition () + g_pGlobals->v_forward * 300.0f, Color (255, 0, 0, 250), 10, 0, 5, 1, LINE_ARROW);
 
             // now draw line from source to destination
             PathNode *node = &m_navNode[0];
@@ -5861,7 +5847,7 @@ void Bot::BotAI (void)
                node = node->next;
 
                if (node != null)
-                  engine->drawLine (g_hostEntity, EyePosition (), g_waypoint->GetPath (node->index)->origin, Color (255, 100, 55, 200), 15, 0, 5, 1, LINE_ARROW);
+                  engine->DrawLine (g_hostEntity, EyePosition (), g_waypoint->GetPath (node->index)->origin, Color (255, 100, 55, 200), 15, 0, 5, 1, LINE_ARROW);
             }
          }
       }
@@ -5922,7 +5908,7 @@ void Bot::TakeDamage (edict_t *inflictor, int damage, int armor, int bits)
    m_lastDamageType = bits;
 
    int team = GetTeam (GetEntity ());
-   CollectGoalExperience (damage, team);
+   g_exp.CollectGoal (static_cast <int> (pev->health), damage, m_chosenGoalIndex, m_prevGoalIndex, team);
 
    if (IsValidPlayer (inflictor))
    {
@@ -5974,7 +5960,14 @@ void Bot::TakeDamage (edict_t *inflictor, int damage, int armor, int bits)
             // FIXME - Bot doesn't necessary sees this enemy
             m_seeEnemyTime = engine->GetTime ();
          }
-         CollectExperienceData (inflictor, armor + damage);
+
+         if (g_botManager->GetBot (m_enemy))
+            g_exp.CollectDamage (GetEntity (), inflictor, static_cast <int> (pev->health), armor + damage, m_goalValue, g_botManager->GetBot (m_enemy)->m_goalValue);
+         else
+         {
+            float side = 0;
+            g_exp.CollectDamage (GetEntity (), inflictor, static_cast <int> (pev->health), armor + damage, m_goalValue, side);
+         }
       }
    }
    else // hurt by unusual damage like drowning or gas
@@ -6028,111 +6021,6 @@ void Bot::TakeBlinded (Vector fade, int alpha)
       }
       else
          m_blindMoveSpeed = walkSpeed;
-   }
-}
-
-void Bot::CollectGoalExperience (int damage, int team)
-{
-   // gets called each time a bot gets damaged by some enemy. tries to achieve a statistic about most/less dangerous
-   // waypoints for a destination goal used for pathfinding
-
-   if ((g_numWaypoints < 1) || g_waypointsChanged || (m_chosenGoalIndex < 0) || (m_prevGoalIndex < 0))
-      return;
-
-   // only rate goal waypoint if bot died because of the damage
-   // FIXME: could be done a lot better, however this cares most about damage done by sniping or really deadly weapons
-   if (pev->health - damage <= 0)
-   {
-      if (team == TEAM_TERRORIST)
-      {
-         int value = (g_experienceData + (m_chosenGoalIndex * g_numWaypoints) + m_prevGoalIndex)->team0Value;
-         value -= static_cast <int> (pev->health / 20);
-
-         if (value < -Const_MaxGoalValue)
-            value = -Const_MaxGoalValue;
-
-         else if (value > Const_MaxGoalValue)
-            value = Const_MaxGoalValue;
-
-         (g_experienceData + (m_chosenGoalIndex * g_numWaypoints) + m_prevGoalIndex)->team0Value = static_cast <signed short> (value);
-      }
-      else
-      {
-         int value = (g_experienceData + (m_chosenGoalIndex * g_numWaypoints) + m_prevGoalIndex)->team1Value;
-         value -= static_cast <int> (pev->health / 20);
-
-         if (value < -Const_MaxGoalValue)
-            value = -Const_MaxGoalValue;
-
-         else if (value > Const_MaxGoalValue)
-            value = Const_MaxGoalValue;
-
-         (g_experienceData + (m_chosenGoalIndex * g_numWaypoints) + m_prevGoalIndex)->team1Value = static_cast <signed short> (value);
-      }
-   }
-}
-
-void Bot::CollectExperienceData (edict_t *attacker, int damage)
-{
-   // this function gets called each time a bot gets damaged by some enemy. sotores the damage (teamspecific) done by victim.
-
-   if (!IsValidPlayer (attacker))
-      return;
-
-   int attackerTeam = GetTeam (attacker);
-   int victimTeam = GetTeam (GetEntity ());
-
-   if (attackerTeam == victimTeam)
-      return;
-
-   // if these are bots also remember damage to rank destination of the bot
-   m_goalValue -= static_cast <float> (damage);
-
-   if (g_botManager->GetBot (attacker) != null)
-      g_botManager->GetBot (attacker)->m_goalValue += static_cast <float> (damage);
-
-   if (damage < 20)
-      return; // do not collect damage less than 20
-
-   int attackerIndex = g_waypoint->FindNearest (attacker->v.origin);
-   int victimIndex = g_waypoint->FindNearest (pev->origin);
-
-   if (pev->health > 20)
-   {
-      if (victimTeam == TEAM_TERRORIST)
-         (g_experienceData + (victimIndex * g_numWaypoints) + victimIndex)->team0Damage++;
-      else
-         (g_experienceData + (victimIndex * g_numWaypoints) + victimIndex)->team1Damage++;
-
-      if ((g_experienceData + (victimIndex * g_numWaypoints) + victimIndex)->team0Damage > Const_MaxDamageValue)
-         (g_experienceData + (victimIndex * g_numWaypoints) + victimIndex)->team0Damage = Const_MaxDamageValue;
-
-      if ((g_experienceData + (victimIndex * g_numWaypoints) + victimIndex)->team1Damage > Const_MaxDamageValue)
-         (g_experienceData + (victimIndex * g_numWaypoints) + victimIndex)->team1Damage = Const_MaxDamageValue;
-   }
-
-   float fUpdate = IsValidBot (attacker) ? 10.0f : 7.0f;
-
-   // store away the damage done
-   if (victimTeam == TEAM_TERRORIST)
-   {
-      int value = (g_experienceData + (victimIndex * g_numWaypoints) + attackerIndex)->team0Damage;
-      value += static_cast <int> (damage / fUpdate);
-
-      if (value > Const_MaxDamageValue)
-         value = Const_MaxDamageValue;
-
-      (g_experienceData + (victimIndex * g_numWaypoints) + attackerIndex)->team0Damage = static_cast <unsigned short> (value);
-   }
-   else
-   {
-      int value = (g_experienceData + (victimIndex * g_numWaypoints) + attackerIndex)->team1Damage;
-      value += static_cast <int> (damage / fUpdate);
-
-      if (value > Const_MaxDamageValue)
-         value = Const_MaxDamageValue;
-
-      (g_experienceData + (victimIndex * g_numWaypoints) + attackerIndex)->team1Damage = static_cast <unsigned short> (value);
    }
 }
 

@@ -286,7 +286,7 @@ void Engine::MaintainClients (void)
       m_clients[i].Maintain (g_engfuncs.pfnPEntityOfEntIndex (i));
 }
 
-void Engine::drawLine (const Client &client, const Vector &start, const Vector &end, const Color &color, int width, int noise, int speed, int life, int lineType)
+void Engine::DrawLine (const Client &client, const Vector &start, const Vector &end, const Color &color, int width, int noise, int speed, int life, int lineType)
 {
    if (!client.IsValid ())
       return;

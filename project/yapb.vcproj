@@ -123,7 +123,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy &quot;$(TargetPath)&quot; &quot;d:\game\cs16\cstrike\addons\yapb\dlls\&quot; /y&#x0D;&#x0A;"
+				CommandLine="copy &quot;$(TargetPath)&quot; &quot;d:\game\cs16\cstrike\addons\yapb\dlls\&quot; /y&#x0D;&#x0A;copy &quot;$(TargetPath)&quot; &quot;d:\game\steam\steamapps\dmitryzhukov\dedicated server\cstrike\addons\yapb\dlls\&quot; /y&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -240,7 +240,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy &quot;$(TargetPath)&quot; &quot;d:\game\steam\steamapps\dmitryzhukov\counter-strike\cstrike\addons\yapb\dlls\&quot; /y&#x0D;&#x0A;copy &quot;$(TargetPath)&quot; &quot;d:\game\steam\steamapps\dmitryzhukov\condition zero\czero\addons\yapb\dlls\&quot; /y&#x0D;&#x0A;"
+				CommandLine="copy &quot;$(TargetPath)&quot; &quot;d:\game\cs16\cstrike\addons\yapb\dlls\&quot; /y"
 			/>
 		</Configuration>
 	</Configurations>
@@ -313,6 +313,10 @@
 						UsePrecompiledHeader="2"
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\source\Experience.cpp"
+				>
 			</File>
 			<File
 				RelativePath="..\source\globals.cpp"
@@ -424,6 +428,10 @@
 			</File>
 			<File
 				RelativePath="..\include\engine.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\Experience.h"
 				>
 			</File>
 			<File

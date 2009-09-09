@@ -52,6 +52,18 @@ typedef unsigned long long uint64_t;
 typedef unsigned char uint8_t;
 
 //
+// Type: int16_t
+// Signed byte.
+//
+typedef signed short int16_t;
+
+//
+// Type: uint16_t
+// Unsigned shot.
+//
+typedef unsigned short uint16_t;
+
+//
 // Macro: null
 //
 // This macro is just a null.
@@ -70,7 +82,7 @@ typedef unsigned char uint8_t;
 //
 // Asserts expression.
 //
-#define Assert(expr) do {;} while (0);
+#define Assert(expr)
 
 //
 // Function: FormatBuffer

@@ -85,7 +85,6 @@ WeaponProperty g_weaponDefs[Const_MaxWeapons + 1];
 edict_t *g_worldEdict = null;
 edict_t *g_hostEntity = null;
 globalvars_t *g_pGlobals = null;
-Experience *g_experienceData = null;
 
 // default tables for personality weapon preferences, overridden by weapons.cfg
 int g_normalWeaponPrefs[Const_NumWeapons] =

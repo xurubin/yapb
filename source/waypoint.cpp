@@ -844,127 +844,6 @@ void Waypoint::CalculateWayzone (int index)
       path->radius = 0;
 }
 
-void Waypoint::SaveExperienceTab (void)
-{
-   ExtensionHeader header;
-
-   if (g_numWaypoints <= 0 || g_waypointsChanged)
-      return;
-
-   memset (header.header, 0, sizeof (header.header));
-   strcpy (header.header, FH_EXPERIENCE);
-
-   header.fileVersion = FV_EXPERIENCE;
-   header.pointNumber = g_numWaypoints;
-
-   ExperienceSaver *experienceSave = new ExperienceSaver[g_numWaypoints * g_numWaypoints];
-
-   if (experienceSave == null)
-      TerminateOnMalloc ();
-
-   for (int i = 0; i < g_numWaypoints; i++)
-   {
-      for (int j = 0; j < g_numWaypoints; j++)
-      {
-         (experienceSave + (i * g_numWaypoints) + j)->team0Damage = (g_experienceData + (i * g_numWaypoints) + j)->team0Damage >> 3;
-         (experienceSave + (i * g_numWaypoints) + j)->team1Damage = (g_experienceData + (i * g_numWaypoints) + j)->team1Damage >> 3;
-
-         (experienceSave + (i * g_numWaypoints) + j)->team0Value = static_cast <signed char> ((g_experienceData + (i * g_numWaypoints) + j)->team0Value / 8);
-         (experienceSave + (i * g_numWaypoints) + j)->team1Value = static_cast <signed char> ((g_experienceData + (i * g_numWaypoints) + j)->team1Value / 8);
-      }
-   }
-
-   int result = Compressor::Compress (FormatBuffer ("%sdata/%s.exp", GetWaypointDir (), GetMapName ()), (uint8_t *)&header, sizeof (ExtensionHeader), (uint8_t *)experienceSave, g_numWaypoints * g_numWaypoints * sizeof (ExperienceSaver));
-
-   delete [] experienceSave;
-
-   if (result == -1)
-   {
-      AddLogEntry (true, LOG_ERROR, "Couldn't save experience data");
-      return;
-   }
-}
-
-void Waypoint::InitExperienceTab (void)
-{
-   ExtensionHeader header;
-   int i, j;
-
-   if (g_experienceData)
-      delete [] g_experienceData;
-
-   g_experienceData = null;
-
-   if (g_numWaypoints < 1)
-      return;
-
-   g_experienceData = new Experience[g_numWaypoints * g_numWaypoints];
-
-   if (g_experienceData == null)
-      TerminateOnMalloc ();
-
-   // initialize table by hand to correct values, and NOT zero it out
-   for (i = 0; i < g_numWaypoints; i++)
-   {
-      for (j = 0; j < g_numWaypoints; j++)
-      {
-         (g_experienceData + (i * g_numWaypoints) + j)->team0DangerIndex = -1;
-         (g_experienceData + (i * g_numWaypoints) + j)->team1DangerIndex = -1;
-         (g_experienceData + (i * g_numWaypoints) + j)->team0Damage = 0;
-         (g_experienceData + (i * g_numWaypoints) + j)->team1Damage = 0;
-         (g_experienceData + (i * g_numWaypoints) + j)->team0Value = 0;
-         (g_experienceData + (i * g_numWaypoints) + j)->team1Value = 0;
-      }
-   }
-   File fp (FormatBuffer ("%sdata/%s.exp", GetWaypointDir (), GetMapName ()), "rb");
-
-   // if file exists, read the experience data from it
-   if (fp.IsValid ())
-   {
-      fp.Read (&header, sizeof (ExtensionHeader));
-      fp.Close ();
-
-      if (strncmp (header.header, FH_EXPERIENCE, strlen (FH_EXPERIENCE)) == 0)
-      {
-         if (header.fileVersion == FV_EXPERIENCE && header.pointNumber == g_numWaypoints)
-         {
-            ExperienceSaver *experienceLoad = new ExperienceSaver[g_numWaypoints * g_numWaypoints];
-
-            if (experienceLoad == null)
-            {
-               AddLogEntry (true, LOG_ERROR, "Couldn't allocate memory for experience data");
-               return;
-            }
-
-            Compressor::Uncompress (FormatBuffer ("%sdata/%s.exp", GetWaypointDir (), GetMapName ()), sizeof (ExtensionHeader), (uint8_t *)experienceLoad, g_numWaypoints * g_numWaypoints * sizeof (ExperienceSaver));
-
-            for (i = 0; i < g_numWaypoints; i++)
-            {
-               for (j = 0; j < g_numWaypoints; j++)
-               {
-                  if (i == j)
-                  {
-                     (g_experienceData + (i * g_numWaypoints) + j)->team0Damage = (unsigned short) ((experienceLoad + (i * g_numWaypoints) + j)->team0Damage);
-                     (g_experienceData + (i * g_numWaypoints) + j)->team1Damage = (unsigned short) ((experienceLoad + (i * g_numWaypoints) + j)->team1Damage);
-                  }
-                  else
-                  {
-                     (g_experienceData + (i * g_numWaypoints) + j)->team0Damage = (unsigned short) ((experienceLoad + (i * g_numWaypoints) + j)->team0Damage) << 3;
-                     (g_experienceData + (i * g_numWaypoints) + j)->team1Damage = (unsigned short) ((experienceLoad + (i * g_numWaypoints) + j)->team1Damage) << 3;
-                  }
-
-                  (g_experienceData + (i * g_numWaypoints) + j)->team0Value = (signed short) ((experienceLoad + i * (g_numWaypoints) + j)->team0Value) * 8;
-                  (g_experienceData + (i * g_numWaypoints) + j)->team1Value = (signed short) ((experienceLoad + i * (g_numWaypoints) + j)->team1Value) * 8;
-               }
-            }
-            delete [] experienceLoad;
-         }
-         else
-            AddLogEntry (true, LOG_ERROR, "Experience data damaged (wrong version, or not for this map)");
-      }
-   }
-}
-
 void Waypoint::SaveVisibilityTab (void)
 {
    if (g_numWaypoints == 0)
@@ -1148,7 +1027,8 @@ bool Waypoint::Load (void)
    m_arrowDisplayTime = 0.0f;
 
    InitVisibilityTab ();
-   InitExperienceTab ();
+
+   g_exp.Load ();
 
    g_botManager->InitQuota ();
 
@@ -1622,11 +1502,11 @@ void Waypoint::Think (void)
 
             // draw node without additional flags
             if (nodeFlagColor.red == -1)
-               engine->drawLine (g_hostEntity, m_paths[i]->origin - Vector (0, 0, nodeHalfHeight), m_paths[i]->origin + Vector (0, 0, nodeHalfHeight), nodeColor, 15, 0, 0, 10);
+               engine->DrawLine (g_hostEntity, m_paths[i]->origin - Vector (0, 0, nodeHalfHeight), m_paths[i]->origin + Vector (0, 0, nodeHalfHeight), nodeColor, 15, 0, 0, 10);
             else // draw node with flags
             {
-               engine->drawLine (g_hostEntity, m_paths[i]->origin - Vector (0.0f, 0.0f, nodeHalfHeight), m_paths[i]->origin - Vector (0.0f, 0.0f, nodeHalfHeight - nodeHeight * 0.75f), nodeColor, 14, 0, 0, 10); // draw basic path
-               engine->drawLine (g_hostEntity, m_paths[i]->origin - Vector (0.0f, 0.0f, nodeHalfHeight - nodeHeight * 0.75f), m_paths[i]->origin + Vector (0.0f, 0.0f, nodeHalfHeight), nodeFlagColor, 14, 0, 0, 10); // draw additional path
+               engine->DrawLine (g_hostEntity, m_paths[i]->origin - Vector (0.0f, 0.0f, nodeHalfHeight), m_paths[i]->origin - Vector (0.0f, 0.0f, nodeHalfHeight - nodeHeight * 0.75f), nodeColor, 14, 0, 0, 10); // draw basic path
+               engine->DrawLine (g_hostEntity, m_paths[i]->origin - Vector (0.0f, 0.0f, nodeHalfHeight - nodeHeight * 0.75f), m_paths[i]->origin + Vector (0.0f, 0.0f, nodeHalfHeight), nodeFlagColor, 14, 0, 0, 10); // draw additional path
             }
             m_waypointDisplayTime[i] = engine->GetTime ();
          }
@@ -1644,15 +1524,15 @@ void Waypoint::Think (void)
       {
          // finding waypoint - pink arrow
          if (m_findWPIndex != -1)
-            engine->drawLine (g_hostEntity, g_hostEntity->v.origin, m_paths[m_findWPIndex]->origin, Color (128, 0, 128, 200), 10, 0, 0, 5, LINE_ARROW);
+            engine->DrawLine (g_hostEntity, g_hostEntity->v.origin, m_paths[m_findWPIndex]->origin, Color (128, 0, 128, 200), 10, 0, 0, 5, LINE_ARROW);
 
          // cached waypoint - yellow arrow
          if (m_cacheWaypointIndex != -1)
-            engine->drawLine (g_hostEntity, g_hostEntity->v.origin, m_paths[m_cacheWaypointIndex]->origin, Color (255, 255, 0, 200), 10, 0, 0, 5, LINE_ARROW);
+            engine->DrawLine (g_hostEntity, g_hostEntity->v.origin, m_paths[m_cacheWaypointIndex]->origin, Color (255, 255, 0, 200), 10, 0, 0, 5, LINE_ARROW);
 
          // waypoint user facing at - white arrow
          if (m_facingAtIndex != -1)
-            engine->drawLine (g_hostEntity, g_hostEntity->v.origin, m_paths[m_facingAtIndex]->origin, Color (255, 255, 255, 200), 10, 0, 0, 5, LINE_ARROW);
+            engine->DrawLine (g_hostEntity, g_hostEntity->v.origin, m_paths[m_facingAtIndex]->origin, Color (255, 255, 255, 200), 10, 0, 0, 5, LINE_ARROW);
 
          m_arrowDisplayTime = engine->GetTime ();
       }
@@ -1672,8 +1552,8 @@ void Waypoint::Think (void)
          const Vector &src = path->origin + Vector (0, 0, (path->flags & WAYPOINT_CROUCH) ? 18.0f : 36.0f); // check if it's a source
 
          // draw it now
-         engine->drawLine (g_hostEntity, src, Vector (path->campStartX, path->campStartY, src.z), Color (255, 0, 0, 200), 10, 0, 0, 10);
-         engine->drawLine (g_hostEntity, src, Vector (path->campEndX, path->campEndY, src.z), Color (255, 0, 0, 200), 10, 0, 0, 10);
+         engine->DrawLine (g_hostEntity, src, Vector (path->campStartX, path->campStartY, src.z), Color (255, 0, 0, 200), 10, 0, 0, 10);
+         engine->DrawLine (g_hostEntity, src, Vector (path->campEndX, path->campEndY, src.z), Color (255, 0, 0, 200), 10, 0, 0, 10);
       }
 
       // draw the connections
@@ -1684,18 +1564,18 @@ void Waypoint::Think (void)
 
          // jump connection
          if (path->connectionFlags[i] & PATHFLAG_JUMP)
-            engine->drawLine (g_hostEntity, path->origin, m_paths[path->index[i]]->origin, Color (255, 0, 128, 200), 5, 0, 0, 10);
+            engine->DrawLine (g_hostEntity, path->origin, m_paths[path->index[i]]->origin, Color (255, 0, 128, 200), 5, 0, 0, 10);
          else if (IsConnected (path->index[i], nearestIndex)) // twoway connection
-            engine->drawLine (g_hostEntity, path->origin, m_paths[path->index[i]]->origin, Color (255, 255, 0, 200), 5, 0, 0, 10);
+            engine->DrawLine (g_hostEntity, path->origin, m_paths[path->index[i]]->origin, Color (255, 255, 0, 200), 5, 0, 0, 10);
          else // oneway connection
-            engine->drawLine (g_hostEntity, path->origin, m_paths[path->index[i]]->origin, Color (250, 250, 250, 200), 5, 0, 0, 10);
+            engine->DrawLine (g_hostEntity, path->origin, m_paths[path->index[i]]->origin, Color (250, 250, 250, 200), 5, 0, 0, 10);
       }
 
       // now look for oneway incoming connections
       for (int i = 0; i < g_numWaypoints; i++)
       {
          if (IsConnected (m_paths[i]->pathNumber, path->pathNumber) && !IsConnected (path->pathNumber, m_paths[i]->pathNumber))
-            engine->drawLine (g_hostEntity, path->origin, m_paths[i]->origin, Color (0, 192, 96, 200), 5, 0, 0, 10);
+            engine->DrawLine (g_hostEntity, path->origin, m_paths[i]->origin, Color (0, 192, 96, 200), 5, 0, 0, 10);
       }
 
       // draw the radius circle
@@ -1707,36 +1587,28 @@ void Waypoint::Think (void)
          const float root = sqrtf (path->radius * path->radius * 0.5f);
          const Color &def = Color (0, 0, 255, 200);
 
-         engine->drawLine (g_hostEntity, origin + Vector (path->radius, 0.0f, 0.0f), origin + Vector (root, -root, 0), def, 5, 0, 0, 10);
-         engine->drawLine (g_hostEntity, origin + Vector (root, -root, 0.0f), origin + Vector (0, -path->radius, 0), def, 5, 0, 0, 10);
+         engine->DrawLine (g_hostEntity, origin + Vector (path->radius, 0.0f, 0.0f), origin + Vector (root, -root, 0), def, 5, 0, 0, 10);
+         engine->DrawLine (g_hostEntity, origin + Vector (root, -root, 0.0f), origin + Vector (0, -path->radius, 0), def, 5, 0, 0, 10);
 
-         engine->drawLine (g_hostEntity, origin + Vector (0.0f, -path->radius, 0.0f), origin + Vector (-root, -root, 0), def, 5, 0, 0, 10);
-         engine->drawLine (g_hostEntity, origin + Vector (-root, -root, 0.0f), origin + Vector (-path->radius, 0, 0), def, 5, 0, 0, 10);
+         engine->DrawLine (g_hostEntity, origin + Vector (0.0f, -path->radius, 0.0f), origin + Vector (-root, -root, 0), def, 5, 0, 0, 10);
+         engine->DrawLine (g_hostEntity, origin + Vector (-root, -root, 0.0f), origin + Vector (-path->radius, 0, 0), def, 5, 0, 0, 10);
 
-         engine->drawLine (g_hostEntity, origin + Vector (-path->radius, 0.0f, 0.0f), origin + Vector (-root, root, 0), def, 5, 0, 0, 10);
-         engine->drawLine (g_hostEntity, origin + Vector (-root, root, 0.0f), origin + Vector (0, path->radius, 0), def, 5, 0, 0, 10);
+         engine->DrawLine (g_hostEntity, origin + Vector (-path->radius, 0.0f, 0.0f), origin + Vector (-root, root, 0), def, 5, 0, 0, 10);
+         engine->DrawLine (g_hostEntity, origin + Vector (-root, root, 0.0f), origin + Vector (0, path->radius, 0), def, 5, 0, 0, 10);
 
-         engine->drawLine (g_hostEntity, origin + Vector (0.0f, path->radius, 0.0f), origin + Vector (root, root, 0), def, 5, 0, 0, 10);
-         engine->drawLine (g_hostEntity, origin + Vector (root, root, 0.0f), origin + Vector (path->radius, 0, 0), def, 5, 0, 0, 10);
+         engine->DrawLine (g_hostEntity, origin + Vector (0.0f, path->radius, 0.0f), origin + Vector (root, root, 0), def, 5, 0, 0, 10);
+         engine->DrawLine (g_hostEntity, origin + Vector (root, root, 0.0f), origin + Vector (path->radius, 0, 0), def, 5, 0, 0, 10);
       }
       else
       {
          const float root = sqrtf (32.0f);
          const Color &def = Color (255, 0, 0, 200);
 
-         engine->drawLine (g_hostEntity, origin + Vector (root, -root, 0), origin + Vector (-root, root, 0), def, 5, 0, 0, 10);
-         engine->drawLine (g_hostEntity, origin + Vector (-root, -root, 0), origin + Vector (root, root, 0), def, 5, 0, 0, 10);
+         engine->DrawLine (g_hostEntity, origin + Vector (root, -root, 0), origin + Vector (-root, root, 0), def, 5, 0, 0, 10);
+         engine->DrawLine (g_hostEntity, origin + Vector (-root, -root, 0), origin + Vector (root, root, 0), def, 5, 0, 0, 10);
       }
 
-      // draw the danger directions
-      if (!g_waypointsChanged)
-      {
-         if ((g_experienceData + (nearestIndex * g_numWaypoints) + nearestIndex)->team0DangerIndex != -1 && GetTeam (g_hostEntity) == TEAM_TERRORIST)
-            engine->drawLine (g_hostEntity, path->origin, m_paths[(g_experienceData + (nearestIndex * g_numWaypoints) + nearestIndex)->team0DangerIndex]->origin, Color (255, 0, 0, 200), 15, 0, 0, 10, LINE_ARROW); // draw a red arrow to this index's danger point
-
-         if ((g_experienceData + (nearestIndex * g_numWaypoints) + nearestIndex)->team1DangerIndex != -1 && GetTeam (g_hostEntity) == TEAM_COUNTER)
-            engine->drawLine (g_hostEntity, path->origin, m_paths[(g_experienceData + (nearestIndex * g_numWaypoints) + nearestIndex)->team1DangerIndex]->origin, Color (0, 0, 255, 200), 15, 0, 0, 10, LINE_ARROW); // draw a blue arrow to this index's danger point
-      }
+      g_exp.DrawLines (nearestIndex, path);
 
       // display some information
       char tempMessage[4096];
@@ -1747,17 +1619,7 @@ void Waypoint::Think (void)
          "      Flags: %s\n\n", nearestIndex, g_numWaypoints, path->radius, GetWaypointInfo (nearestIndex));
 
 
-      // if waypoint is not changed display experience also
-      if (!g_waypointsChanged)
-      {
-         int dangerIndexCT = (g_experienceData + nearestIndex * g_numWaypoints + nearestIndex)->team1DangerIndex;
-         int dangerIndexT = (g_experienceData + nearestIndex * g_numWaypoints + nearestIndex)->team0DangerIndex;
-
-         length += sprintf (&tempMessage[length],
-            "      Experience Info:\n"
-            "      CT: %d / %d\n"
-            "      T: %d / %d\n", dangerIndexCT, static_cast <int> (dangerIndexCT != -1 ? (g_experienceData + nearestIndex * g_numWaypoints + dangerIndexCT)->team1Damage : 0), dangerIndexT, static_cast <int> (dangerIndexT != -1 ? (g_experienceData + nearestIndex * g_numWaypoints + dangerIndexT)->team0Damage : 0));
-      }
+      g_exp.DrawText (nearestIndex, tempMessage, length);
 
       // check if we need to show the cached point index
       if (m_cacheWaypointIndex != -1)

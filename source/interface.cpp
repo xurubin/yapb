@@ -536,7 +536,7 @@ int BotCommandHandler_O (edict_t *ent, const String &arg0, const String &arg1, c
       // write experience table (and visibility table) to hard disk
       if (stricmp (arg1, "save") == 0)
       {
-         g_waypoint->SaveExperienceTab ();
+         g_exp.Unload ();
          g_waypoint->SaveVisibilityTab ();
 
          ServerPrint ("Experience tab saved");
@@ -2231,7 +2231,7 @@ void ServerDeactivate (void)
    // the loading of new bots and the new BSP data parsing there.
 
    // save collected experience on shutdown
-   g_waypoint->SaveExperienceTab ();
+   g_exp.Unload ();
    g_waypoint->SaveVisibilityTab ();
 
    if (g_isMetamod)
@@ -2423,7 +2423,7 @@ void pfnChangeLevel (char *s1, char *s2)
    // spawn point named "tr_2lm".
 
    // save collected experience on map change
-   g_waypoint->SaveExperienceTab ();
+   g_exp.Unload ();
    g_waypoint->SaveVisibilityTab ();
 
    if (g_isMetamod)

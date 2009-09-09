@@ -408,6 +408,63 @@ bool Bot::IsFriendInLineOfFire (float distance)
    return false;
 }
 
+int CorrectGun(int weaponID)
+{
+   if (weaponID == WEAPON_SG550 || weaponID == WEAPON_G3SG1 || weaponID == WEAPON_SCOUT || weaponID == WEAPON_AWP) 
+      return 3; 
+   if (weaponID == WEAPON_AUG || weaponID == WEAPON_M249 || weaponID == WEAPON_M4A1 || weaponID == WEAPON_DEAGLE || weaponID == WEAPON_SG552 || weaponID == WEAPON_AK47|| weaponID == WEAPON_FAMAS || weaponID == WEAPON_GALIL) 
+      return 2; 
+
+   return 0; 
+}
+
+bool Bot::IsShootableThruObstacle (Vector dest)
+{
+   // This function returns true if enemy can be shoot through some obstacle, false otherwise.
+
+   if (m_skill <= 70u)
+      return false;
+
+   int currentWeaponPenetrationPower = CorrectGun (m_currentWeapon);
+
+   if (currentWeaponPenetrationPower == 0)
+      return false;
+
+   // set conditions....
+   Vector source (EyePosition ());
+   const Vector &direction ((dest - source).Normalize () * 8.0f);	// 8 units long
+
+   TraceResult tr;
+
+   do
+   {
+      // trace from the bot's eyes to destination...
+      TraceLine (source, dest, true, GetEntity (), &tr);
+
+      if (tr.fStartSolid)
+      {
+         if (tr.fAllSolid)
+            return false;
+
+         // move 8 units closer to the destination....
+         source += direction;
+      }
+      else
+      {
+         // check if line hit anything
+         if (tr.flFraction == 1.0f)
+            return true;
+
+         --currentWeaponPenetrationPower;
+
+         // move 8 units closer to the destination....
+         source = tr.vecEndPos + direction;
+      }
+   } while (currentWeaponPenetrationPower > 0);
+
+   return false;
+}
+#if 0
 bool Bot::IsShootableThruObstacle (Vector dest)
 {
    // this function returns if enemy can be shoot through some obstacle
@@ -447,7 +504,7 @@ bool Bot::IsShootableThruObstacle (Vector dest)
    }
    return false;
 }
-
+#endif
 bool Bot::DoFirePause (float distance, FireDelay *fireDelay)
 {
    // returns true if bot needs to pause between firing to compensate for punchangle & weapon spread

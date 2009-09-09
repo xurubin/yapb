@@ -84,8 +84,6 @@ extern MenuText g_menus[21];
 extern SkillDef g_skillTab[6];
 extern Task g_taskFilters[];
 
-extern Experience *g_experienceData;
-
 extern edict_t *g_hostEntity; 
 extern edict_t *g_worldEdict;
 extern Library *g_gameLib;

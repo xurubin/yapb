@@ -274,26 +274,14 @@ TacticChoosen:
          if (goalChoices[i + 1] < 0)
             break;
 
-         if (team == TEAM_TERRORIST)
+         if (g_exp.GetValue (m_currentWaypointIndex, goalChoices[i], team) < g_exp.GetValue (m_currentWaypointIndex, goalChoices[i + 1], team))
          {
-            if ((g_experienceData + (m_currentWaypointIndex * g_numWaypoints) + goalChoices[i])->team0Value < (g_experienceData + (m_currentWaypointIndex * g_numWaypoints) + goalChoices[i + 1])->team0Value)
-            {
-               goalChoices[i + 1] = goalChoices[i];
-               goalChoices[i] = goalChoices[i + 1];
+            goalChoices[i + 1] = goalChoices[i];
+            goalChoices[i] = goalChoices[i + 1];
 
-               isSorting = true;
-            }
+            isSorting = true;
          }
-         else
-         {
-            if ((g_experienceData + (m_currentWaypointIndex * g_numWaypoints) + goalChoices[i])->team1Value < (g_experienceData + (m_currentWaypointIndex * g_numWaypoints) + goalChoices[i + 1])->team1Value)
-            {
-               goalChoices[i + 1] = goalChoices[i];
-               goalChoices[i] = goalChoices[i + 1];
 
-               isSorting = true;
-            }
-         }
       }
    } while (isSorting);
 
@@ -493,36 +481,7 @@ bool Bot::DoWaypointNav (void)
          // add goal values
          if (m_chosenGoalIndex != -1)
          {
-            int waypointValue;
-            int startIndex = m_chosenGoalIndex;
-            int goalIndex = m_currentWaypointIndex;
-
-            if (GetTeam (GetEntity ()) == TEAM_TERRORIST)
-            {
-               waypointValue = (g_experienceData + (startIndex * g_numWaypoints) + goalIndex)->team0Value;
-               waypointValue += static_cast <int> (pev->health * 0.5);
-               waypointValue += static_cast <int> (m_goalValue * 0.5);
-
-               if (waypointValue < -Const_MaxGoalValue)
-                  waypointValue = -Const_MaxGoalValue;
-               else if (waypointValue > Const_MaxGoalValue)
-                  waypointValue = Const_MaxGoalValue;
-
-               (g_experienceData + (startIndex * g_numWaypoints) + goalIndex)->team0Value = static_cast <short> (waypointValue);
-            }
-            else
-            {
-               waypointValue = (g_experienceData + (startIndex * g_numWaypoints) + goalIndex)->team1Value;
-               waypointValue += static_cast <int> (pev->health * 0.5);
-               waypointValue += static_cast <int> (m_goalValue * 0.5);
-
-               if (waypointValue < -Const_MaxGoalValue)
-                  waypointValue = -Const_MaxGoalValue;
-               else if (waypointValue > Const_MaxGoalValue)
-                  waypointValue = Const_MaxGoalValue;
-
-               (g_experienceData + (startIndex * g_numWaypoints) + goalIndex)->team1Value = static_cast <short> (waypointValue);
-            }
+            g_exp.CollectValue (m_chosenGoalIndex, m_currentWaypointIndex, static_cast <int> (pev->health), m_goalValue);
          }
          return true;
       }
@@ -715,130 +674,92 @@ void PriorityQueue::HeapSiftUp (void)
    }
 }
 
-float gfunctionKillsDistT (int thisIndex, int parent, float skillOffset)
+inline const float GF_Cost (int index, int parent, int team, float offset)
 {
-   // least kills and number of nodes to goal for a team
-
-   float cost = static_cast <float> ((g_experienceData + (thisIndex * g_numWaypoints) + thisIndex)->team0Damage + g_killHistory);
+   float baseCost = g_exp.GetAStarValue (index, team, false);
 
    for (int i = 0; i < Const_MaxPathIndex; i++)
    {
-      int neighbour = g_waypoint->GetPath (thisIndex)->index[i];
+      int neighbour = g_waypoint->GetPath (index)->index[i];
 
       if (neighbour != -1)
-         cost += (g_experienceData + (neighbour * g_numWaypoints) + neighbour)->team0Damage;
+         baseCost += g_exp.GetDamage (neighbour, neighbour, team);
    }
-   float pathDistance = g_waypoint->GetPathDistanceFloat (parent, thisIndex);
+   float pathDist = g_waypoint->GetPathDistanceFloat (parent, index);
 
-   if (g_waypoint->GetPath (thisIndex)->flags & WAYPOINT_CROUCH)
-      cost += pathDistance * 2;
+   if (g_waypoint->GetPath (index)->flags & WAYPOINT_CROUCH)
+      baseCost += pathDist * 3.0f;
 
-   return pathDistance + (cost * (yb_dangerfactor.GetFloat () * 2 / skillOffset));
+   return pathDist + (baseCost * (yb_dangerfactor.GetFloat () * 2.0f / offset));
 }
 
-float gfunctionKillsT (int thisIndex, int parent, float skillOffset)
+inline const float GF_CostDist (int index, int parent, int team, float offset)
 {
-   // least kills to goal for a team
-
-   float cost = (g_experienceData + (thisIndex * g_numWaypoints) + thisIndex)->team0Damage;
+   float baseCost = g_exp.GetAStarValue (index, team, true);
 
    for (int i = 0; i < Const_MaxPathIndex; i++)
    {
-      int neighbour = g_waypoint->GetPath (thisIndex)->index[i];
+      int neighbour = g_waypoint->GetPath (index)->index[i];
 
       if (neighbour != -1)
-         cost += (g_experienceData + (neighbour * g_numWaypoints) + neighbour)->team0Damage;
+         baseCost += g_exp.GetDamage (neighbour, neighbour, team);
    }
-   float pathDistance = g_waypoint->GetPathDistanceFloat (parent, thisIndex);
+   float pathDist = g_waypoint->GetPathDistanceFloat (parent, index);
 
-   if (g_waypoint->GetPath (thisIndex)->flags & WAYPOINT_CROUCH)
-      cost += pathDistance * 3;
+   if (g_waypoint->GetPath (index)->flags & WAYPOINT_CROUCH)
+      baseCost += pathDist * 2.0f;
 
-   return pathDistance + (cost * (yb_dangerfactor.GetFloat () * 2 / skillOffset));
+   return pathDist + (baseCost * (yb_dangerfactor.GetFloat () * 2.0f / offset));
 }
 
-float gfunctionKillsDistCT (int thisIndex, int parent, float skillOffset)
+inline const float GF_CostNoHostage (int index, int parent, int, float offset)
 {
-   // least kills and number of nodes to goal for a team
+   Path *path = g_waypoint->GetPath (index);
 
-   float cost = static_cast <float> ((g_experienceData + (thisIndex * g_numWaypoints) + thisIndex)->team1Damage + g_killHistory);
+   // check if we got a hostage
+   if (path->flags & WAYPOINT_NOHOSTAGE)
+      return 65355.0f;
 
-   for (int i = 0; i < Const_MaxPathIndex; i++)
-   {
-      int neighbour = g_waypoint->GetPath (thisIndex)->index[i];
+   // or a ladder (crouch) point
+   else if (path->flags & (WAYPOINT_CROUCH | WAYPOINT_LADDER))
+      return GF_Cost (index, parent, TEAM_COUNTER, offset) * 500.0f;
 
-      if (neighbour != -1)
-         cost += (g_experienceData + (neighbour * g_numWaypoints) + neighbour)->team1Damage;
-   }
-   float pathDistance = g_waypoint->GetPathDistanceFloat (parent, thisIndex);
-
-   if (g_waypoint->GetPath (thisIndex)->flags & WAYPOINT_CROUCH)
-      cost += pathDistance * 2;
-
-   return pathDistance + (cost * (yb_dangerfactor.GetFloat () * 2 / skillOffset));
+   return GF_Cost (index, parent, TEAM_COUNTER, offset);
 }
 
-float gfunctionKillsCT (int thisIndex, int parent, float skillOffset)
+inline const float GF_CostNoHostageDist (int index, int parent, int, float offset)
 {
-   // least kills to goal for a team
+   Path *path = g_waypoint->GetPath (index);
 
-   float cost = (g_experienceData + (thisIndex * g_numWaypoints) + thisIndex)->team1Damage;
+   // check if we got a hostage
+   if (path->flags & WAYPOINT_NOHOSTAGE)
+      return 65355.0f;
 
-   for (int i = 0; i < Const_MaxPathIndex; i++)
-   {
-      int neighbour = g_waypoint->GetPath (thisIndex)->index[i];
+   // or a ladder (crouch) point
+   else if (path->flags & (WAYPOINT_CROUCH | WAYPOINT_LADDER))
+      return GF_CostDist (index, parent, TEAM_COUNTER, offset) * 500.0f;
 
-      if (neighbour != -1)
-         cost += (g_experienceData + (neighbour * g_numWaypoints) + neighbour)->team1Damage;
-   }
-   float pathDistance = static_cast <float> (g_waypoint->GetPathDistance (parent, thisIndex));
-
-   if (g_waypoint->GetPath (thisIndex)->flags & WAYPOINT_CROUCH)
-      cost += pathDistance * 3;
-
-   return pathDistance + (cost * (yb_dangerfactor.GetFloat () * 2 / skillOffset));
+   return GF_CostDist (index, parent, TEAM_COUNTER, offset);
 }
 
-float gfunctionKillsDistCTNoHostage (int thisIndex, int parent, float skillOffset)
+inline const float HF_PathDist (int start, int goal)
 {
-   if (g_waypoint->GetPath (thisIndex)->flags & WAYPOINT_NOHOSTAGE)
-      return 65355;
-   else if (g_waypoint->GetPath (thisIndex)->flags & (WAYPOINT_CROUCH | WAYPOINT_LADDER))
-      return gfunctionKillsDistCT (thisIndex, parent, skillOffset) * 500.0f;
+   Path *pathStart = g_waypoint->GetPath (start);
+   Path *pathGoal = g_waypoint->GetPath (goal);
 
-   return gfunctionKillsDistCT (thisIndex, parent, skillOffset);
+   return fabsf (pathGoal->origin.x - pathStart->origin.x) + fabsf (pathGoal->origin.y - pathStart->origin.y) + fabsf (pathGoal->origin.z - pathStart->origin.z);
 }
 
-float gfunctionKillsCTNoHostage (int thisIndex, int parent, float skillOffset)
+inline const float HF_NumberNodes (int start, int goal)
 {
-   if (g_waypoint->GetPath (thisIndex)->flags & WAYPOINT_NOHOSTAGE)
-      return 65355;
-   else if (g_waypoint->GetPath (thisIndex)->flags & (WAYPOINT_CROUCH | WAYPOINT_LADDER))
-      return gfunctionKillsCT (thisIndex, parent, skillOffset) * 500.0f;
-
-   return gfunctionKillsCT (thisIndex, parent, skillOffset);
+   return HF_PathDist (start, goal) / 128.0f * g_exp.GetKillHistory ();
 }
 
-float hfunctionPathDist (int startIndex, int goalIndex)
+inline const float HF_None (int start, int goal)
 {
-   // using square heuristic
-
-   float deltaX = fabsf (g_waypoint->GetPath (goalIndex)->origin.x - g_waypoint->GetPath (startIndex)->origin.x);
-   float deltaY = fabsf (g_waypoint->GetPath (goalIndex)->origin.y - g_waypoint->GetPath (startIndex)->origin.y);
-   float deltaZ = fabsf (g_waypoint->GetPath (goalIndex)->origin.z - g_waypoint->GetPath (startIndex)->origin.z);
-
-   return deltaX + deltaY + deltaZ;
+   return HF_PathDist (start, goal) / (128.0f * 100.0f);
 }
 
-float hfunctionNumberNodes (int startIndex, int goalIndex)
-{
-   return hfunctionPathDist (startIndex, goalIndex) / 128 * g_killHistory;
-}
-
-float hfunctionNone (int startIndex, int goalIndex)
-{
-   return hfunctionPathDist (startIndex, goalIndex) / (128 * 100);
-}
 
 void Bot::FindPath (int srcIndex, int destIndex, uint8_t pathType)
 {
@@ -855,20 +776,19 @@ void Bot::FindPath (int srcIndex, int destIndex, uint8_t pathType)
       AddLogEntry (true, LOG_ERROR, "Pathfinder destination path index not valid (%d)", destIndex);
       return;
    }
-
    DeleteSearchNodes ();
 
    m_chosenGoalIndex = srcIndex;
    m_goalValue = 0.0f;
 
    // A* Stuff
-   enum AStarState_t {OPEN, CLOSED, NEW};
+   enum AStarState_t { OPEN, CLOSED, NEW };
 
    struct AStar_t
    {
       float g;
       float f;
-      int parentIndex;
+      int parent;
 
       AStarState_t state;
    } astar[Const_MaxWaypoints];
@@ -879,42 +799,31 @@ void Bot::FindPath (int srcIndex, int destIndex, uint8_t pathType)
    {
       astar[i].g = 0;
       astar[i].f = 0;
-      astar[i].parentIndex = -1;
+      astar[i].parent = -1;
       astar[i].state = NEW;
    }
 
-   float (*gcalc) (int, int, float) = null;
-   float (*hcalc) (int, int) = null;
+   const float (*gcalc) (int, int, int, float) = null;
+   const float (*hcalc) (int, int) = null;
 
-   float soffs = 1.0f;
+   float offset = 1.0f;
+   int team = GetTeam (GetEntity ());
 
    if (pathType == 1)
    {
-      if (GetTeam (GetEntity ()) == TEAM_TERRORIST)
-         gcalc = gfunctionKillsDistT;
-      else if (HasHostage ())
-         gcalc = gfunctionKillsDistCTNoHostage;
-      else
-         gcalc = gfunctionKillsDistCT;
-
-      hcalc = hfunctionNumberNodes;
-      soffs = static_cast <float> (m_skill / 25);
+      gcalc = HasHostage () ? GF_CostNoHostageDist : GF_CostDist;
+      hcalc = HF_NumberNodes;
+      offset = static_cast <float> (m_skill / 25);
    }
    else
    {
-      if (GetTeam (GetEntity ()) == TEAM_TERRORIST)
-         gcalc = gfunctionKillsT;
-      else if (HasHostage ())
-         gcalc = gfunctionKillsCTNoHostage;
-      else
-         gcalc = gfunctionKillsCT;
-
-      hcalc = hfunctionNone;
-      soffs = static_cast <float> (m_skill / 20);
+      gcalc = HasHostage () ? GF_CostNoHostage : GF_Cost;
+      hcalc = HF_None;
+      offset = static_cast <float> (m_skill / 20);
    }
 
    // put start node into open list
-   astar[srcIndex].g = gcalc (srcIndex, -1, soffs);
+   astar[srcIndex].g = gcalc (srcIndex, -1, team, offset);
    astar[srcIndex].f = astar[srcIndex].g + hcalc (srcIndex, destIndex);
    astar[srcIndex].state = OPEN;
 
@@ -942,7 +851,7 @@ void Bot::FindPath (int srcIndex, int destIndex, uint8_t pathType)
             path->next = m_navNode;
 
             m_navNode = path;
-            currentIndex = astar[currentIndex].parentIndex;
+            currentIndex = astar[currentIndex].parent;
 
          } while (currentIndex != -1);
 
@@ -965,14 +874,14 @@ void Bot::FindPath (int srcIndex, int destIndex, uint8_t pathType)
             continue;
 
          // calculate the F value as F = G + H
-         float g = astar[currentIndex].g + gcalc (self, currentIndex, soffs);
+         float g = astar[currentIndex].g + gcalc (self, currentIndex, team, offset);
          float h = hcalc (srcIndex, destIndex);
          float f = g + h;
 
          if (astar[self].state == NEW || astar[self].f > f)
          {
             // put the current child into open list
-            astar[self].parentIndex = currentIndex;
+            astar[self].parent = currentIndex;
             astar[self].state = OPEN;
 
             astar[self].g = g;
@@ -1146,60 +1055,8 @@ void Bot::GetValidWaypoint (void)
    }
    else if ((m_navTimeset + GetEstimatedReachTime () < engine->GetTime ()) && FNullEnt (m_enemy))
    {
-      if (GetTeam (GetEntity ()) == TEAM_TERRORIST)
-      {
-         int value = (g_experienceData + (m_currentWaypointIndex * g_numWaypoints) + m_currentWaypointIndex)->team0Damage;
-         value += 100;
+      g_exp.CollectValidDamage (m_currentWaypointIndex, GetTeam (GetEntity ()));
 
-         if (value > Const_MaxDamageValue)
-            value = Const_MaxDamageValue;
-
-         (g_experienceData + (m_currentWaypointIndex * g_numWaypoints) + m_currentWaypointIndex)->team0Damage = static_cast <unsigned short> (value);
-
-         Path *path = g_waypoint->GetPath (m_currentWaypointIndex);
-
-         // affect nearby connected with victim waypoints
-         for (int i = 0; i < Const_MaxPathIndex; i++)
-         {
-            if ((path->index[i] > -1) && (path->index[i] < g_numWaypoints))
-            {
-               value = (g_experienceData + (path->index[i] * g_numWaypoints) + path->index[i])->team0Damage;
-               value += 2;
-
-               if (value > Const_MaxDamageValue)
-                  value = Const_MaxDamageValue;
-
-               (g_experienceData + (path->index[i] * g_numWaypoints) + path->index[i])->team0Damage = static_cast <unsigned short> (value);
-            }
-         }
-      }
-      else
-      {
-         int value = (g_experienceData + (m_currentWaypointIndex * g_numWaypoints) + m_currentWaypointIndex)->team1Damage;
-         value += 100;
-
-         if (value > Const_MaxDamageValue)
-            value = Const_MaxDamageValue;
-
-         (g_experienceData + (m_currentWaypointIndex * g_numWaypoints) + m_currentWaypointIndex)->team1Damage = static_cast <unsigned short> (value);
-
-         Path *path = g_waypoint->GetPath (m_currentWaypointIndex);
-
-         // affect nearby connected with victim waypoints
-         for (int i = 0; i < Const_MaxPathIndex; i++)
-         {
-            if ((path->index[i] > -1) && (path->index[i] < g_numWaypoints))
-            {
-               value = (g_experienceData + (path->index[i] * g_numWaypoints) + path->index[i])->team1Damage;
-               value += 2;
-
-               if (value > Const_MaxDamageValue)
-                  value = Const_MaxDamageValue;
-
-               (g_experienceData + (path->index[i] * g_numWaypoints) + path->index[i])->team1Damage = static_cast <unsigned short> (value);
-            }
-         }
-      }
       DeleteSearchNodes ();
       FindWaypoint ();
 
@@ -1329,15 +1186,8 @@ int Bot::FindDefendWaypoint (Vector origin)
    {
       if (waypointIndex[i] != -1)
       {
-         Experience *exp = (g_experienceData + (waypointIndex[i] * g_numWaypoints) + waypointIndex[i]);
-         int experience = -1;
+         int experience = g_exp.GetDamage (waypointIndex[i], waypointIndex[i], GetTeam (GetEntity ())) * 100 / MAX_EXPERIENCE_VALUE;
 
-         if (GetTeam (GetEntity ()) == TEAM_TERRORIST)
-            experience = exp->team0Damage;
-         else
-            experience = exp->team1Damage;
-
-         experience = (experience * 100) / Const_MaxDamageValue;
          minDistance[i] = (experience * 100) / 8192;
          minDistance[i] += experience;
       }
@@ -1465,15 +1315,8 @@ int Bot::FindCoverWaypoint (float maxDistance)
    {
       if (waypointIndex[i] != -1)
       {
-         Experience *exp = (g_experienceData + (waypointIndex[i] * g_numWaypoints) + waypointIndex[i]);
-         int experience = -1;
+         int experience = g_exp.GetDamage (waypointIndex[i], waypointIndex[i], GetTeam (GetEntity ())) * 100 / MAX_EXPERIENCE_VALUE;
 
-         if (GetTeam (GetEntity ()) == TEAM_TERRORIST)
-            experience = exp->team0Damage;
-         else
-            experience = exp->team1Damage;
-
-         experience = (experience * 100) / Const_MaxDamageValue;
          minDistance[i] = (experience * 100) / 8192;
          minDistance[i] += experience;
       }
@@ -1583,12 +1426,7 @@ bool Bot::HeadTowardWaypoint (void)
             m_campButtons = 0;
 
             int waypoint = m_navNode->next->index;
-            int kills = 0;
-
-            if (GetTeam (GetEntity ()) == TEAM_TERRORIST)
-               kills = (g_experienceData + (waypoint * g_numWaypoints) + waypoint)->team0Damage;
-            else
-               kills = (g_experienceData + (waypoint * g_numWaypoints) + waypoint)->team1Damage;
+            int kills = g_exp.GetDamage (waypoint, waypoint, GetTeam (GetEntity ()));
 
             // if damage done higher than one
             if (kills > 1 && g_timeRoundMid > engine->GetTime () && g_killHistory > 0)

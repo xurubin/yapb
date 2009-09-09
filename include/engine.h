@@ -3235,7 +3235,7 @@ public:
 
    void MaintainClients (void);
 
-   void drawLine (const Client &client, const Vector &start, const Vector &end, const Color &color, int width, int noise, int speed, int life, int lineType = LINE_SIMPLE);
+   void DrawLine (const Client &client, const Vector &start, const Vector &end, const Color &color, int width, int noise, int speed, int life, int lineType = LINE_SIMPLE);
  
 };
 

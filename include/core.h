@@ -140,7 +140,8 @@ enum CollisionProbe
 enum Team
 {
    TEAM_TERRORIST = 0,
-   TEAM_COUNTER
+   TEAM_COUNTER,
+   TEAM_COUNT
 };
 
 // client flags
@@ -415,11 +416,9 @@ enum PathConnection
 
 // bot known file headers
 const char FH_WAYPOINT[] = "PODWAY!";
-const char FH_EXPERIENCE[] = "PODEXP!";
 const char FH_VISTABLE[] = "PODVIS!";
 
 const int FV_WAYPOINT = 7;
-const int FV_EXPERIENCE = 3;
 const int FV_VISTABLE = 2;
 
 // some hardcoded desire defines used to override calculated ones
@@ -590,26 +589,6 @@ struct Client_old
    float hearingDistance; // distance this sound is heared
    float timeSoundLasting; // time sound is played/heared
    float maxTimeSoundLasting; // max time sound is played/heared (to divide the difference between that above one and the current one)
-};
-
-// experience data hold in memory while playing
-struct Experience
-{
-   unsigned short team0Damage;
-   unsigned short team1Damage;
-   signed short team0DangerIndex;
-   signed short team1DangerIndex;
-   signed short team0Value;
-   signed short team1Value;
-};
-
-// experience data when saving/loading
-struct ExperienceSaver
-{
-   unsigned short team0Damage;
-   unsigned short team1Damage;
-   signed char team0Value;
-   signed char team1Value;
 };
 
 // bot creation tab
@@ -870,8 +849,6 @@ private:
    void FindItem (void);
 
    void GetCampDirection (Vector *dest);
-   void CollectGoalExperience (int damage, int team);
-   void CollectExperienceData (edict_t *attacker, int damage);
    int GetMessageQueue (void);
    bool GoalIsValid (void);
    bool HeadTowardWaypoint (void);
@@ -1255,7 +1232,6 @@ public:
   ~Waypoint (void);
 
    void Initialize (void);
-   void InitExperienceTab (void);
    void InitVisibilityTab (void);
 
    void InitTypes (void);
@@ -1292,7 +1268,6 @@ public:
    bool IsNodeReachable (Vector src, Vector destination);
    void Think (void);
    bool NodesValid (void);
-   void SaveExperienceTab (void);
    void SaveVisibilityTab (void);
    void CreateBasic (void);
    void EraseFromHardDisk (void);
@@ -1320,6 +1295,7 @@ public:
    void SetBombPosition (bool shouldReset = false);
    String CheckSubfolderFile (void);
 };
+
 
 #define g_netMsg NetworkMsg::GetObjectPtr ()
 #define g_botManager BotControl::GetObjectPtr ()
@@ -1399,5 +1375,9 @@ extern ConVar yb_csdmplay;
 #include <globals.h>
 #include <compress.h>
 #include <resource.h>
+
+
+#include <Experience.h>
+
 
 #endif // YAPB_INCLUDED
