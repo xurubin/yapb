@@ -3460,8 +3460,12 @@ void Bot::SecondThink (void)
 {
    // this function is called from main think function every second (second not frame).
 
-   if (g_bombPlanted && GetTeam (GetEntity ()) == TEAM_COUNTER && (pev->origin - g_waypoint->GetBombPosition ()).GetLength () < 700 && !IsBombDefusing (g_waypoint->GetBombPosition ()))
+   //if (g_bombPlanted && GetTeam (GetEntity ()) == TEAM_COUNTER && (pev->origin - g_waypoint->GetBombPosition ()).GetLength () < 700 && !IsBombDefusing (g_waypoint->GetBombPosition ()))
+    if (g_bombPlanted && GetTeam (GetEntity ()) == TEAM_COUNTER && !IsBombDefusing (g_waypoint->GetBombPosition ()))
+    {
+        ClientPrint (cmd, print_console, "DISTANCE %d ", (pev->origin - g_waypoint->GetBombPosition ()).GetLength ());
       ResetTasks ();
+    }
 }
 
 void Bot::RunTask (void)
