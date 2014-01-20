@@ -935,9 +935,9 @@ void Bot::InstantChatterMessage (int type)
          WRITE_BYTE (GetIndex ());
 
          if (pev->deadflag & DEAD_DYING)
-            WRITE_STRING (FormatBuffer ("%s/%s.wav", yb_chatterpath.GetString (), painSound));
+            WRITE_STRING (FormatBuffer ("%s/%s.wav", yb_chatterpath.GetString (), (const char*)painSound));
          else if (!(pev->deadflag & DEAD_DEAD))
-            WRITE_STRING (FormatBuffer ("%s/%s.wav", yb_chatterpath.GetString (), defaultSound));
+            WRITE_STRING (FormatBuffer ("%s/%s.wav", yb_chatterpath.GetString (), (const char*)defaultSound));
 
          WRITE_SHORT (m_voicePitch);
       MESSAGE_END ();
