@@ -103,9 +103,9 @@ typedef void (*EntityPtr_t) (entvars_t *);
 #error "Platform unrecognized."
 #endif
 
-extern "C" void *__stdcall GetProcAddress(void *,const char *);
-extern "C" void *__stdcall LoadLibraryA (const char *);
-extern "C" int __stdcall FreeLibrary (void *);
+extern "C" void *STDCALL GetProcAddress(void *,const char *);
+extern "C" void *STDCALL LoadLibraryA (const char *);
+extern "C" int STDCALL FreeLibrary (void *);
 
 // library wrapper
 class Library

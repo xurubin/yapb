@@ -1082,7 +1082,7 @@ String Waypoint::CheckSubfolderFile (void)
    if (!IsNullString (yb_wptsubfolder.GetString ()))
       returnFile = String (yb_wptsubfolder.GetString ()) + "/";
 
-   returnFile = FormatBuffer ("%s%s%s.pwf", GetWaypointDir (), returnFile, GetMapName ());
+   returnFile = FormatBuffer ("%s%s%s.pwf", (const char*)GetWaypointDir (), (const char*)returnFile, (const char*)GetMapName ());
 
    if (TryFileOpen (returnFile))
       return returnFile;
@@ -2257,10 +2257,10 @@ void Waypoint::EraseFromHardDisk (void)
       if (TryFileOpen (deleteList[i]))
       {
          unlink (deleteList[i]);
-         AddLogEntry (true, LOG_DEFAULT, "File %s, has been deleted from the hard disk", deleteList[i]);
+         AddLogEntry (true, LOG_DEFAULT, "File %s, has been deleted from the hard disk", (const char*)deleteList[i]);
       }
       else
-         AddLogEntry (true, LOG_ERROR, "Unable to open %s", deleteList[i]);
+         AddLogEntry (true, LOG_ERROR, "Unable to open %s", (const char*)deleteList[i]);
    }
    Initialize (); // reintialize points
 }

@@ -140,7 +140,7 @@ int BotCommandHandler_O (edict_t *ent, const String &arg0, const String &arg1, c
       if (IsValidBot (cmd))
       {
          FakeClientCommand (cmd, arg2);
-         ClientPrint (cmd, print_withtag, "Bot %s executing command %s", STRING (ent->v.netname), arg2);
+         ClientPrint (cmd, print_withtag, "Bot %s executing command %s", (const char*)STRING (ent->v.netname), (const char*)arg2);
       }
       else
          ClientPrint (cmd, print_withtag, "Player is NOT Bot!");
@@ -755,7 +755,7 @@ void InitConfig (void)
          if (pair[0] == "MapStandard")
          {
             if (splitted.GetElementNumber () != Const_NumWeapons)
-               AddLogEntry (true, LOG_FATAL, "%s entry in general config is not valid.", pair[0]);
+               AddLogEntry (true, LOG_FATAL, "%s entry in general config is not valid.", (const char*)pair[0]);
 
             for (int i = 0; i < Const_NumWeapons; i++)
                g_weaponSelect[i].teamStandard = splitted[i];
@@ -763,7 +763,7 @@ void InitConfig (void)
          else if (pair[0] == "MapAS")
          {
             if (splitted.GetElementNumber () != Const_NumWeapons)
-               AddLogEntry (true, LOG_FATAL, "%s entry in general config is not valid.", pair[0]);
+               AddLogEntry (true, LOG_FATAL, "%s entry in general config is not valid.", (const char*)pair[0]);
 
             for (int i = 0; i < Const_NumWeapons; i++)
                g_weaponSelect[i].teamAS = splitted[i];
@@ -771,7 +771,7 @@ void InitConfig (void)
          else if (pair[0] == "GrenadePercent")
          {
             if (splitted.GetElementNumber () != 3)
-               AddLogEntry (true, LOG_FATAL, "%s entry in general config is not valid.", pair[0]);
+               AddLogEntry (true, LOG_FATAL, "%s entry in general config is not valid.", (const char*)pair[0]);
 
             for (int i = 0; i < 3; i++)
                g_grenadeBuyPrecent[i] = splitted[i];
@@ -779,7 +779,7 @@ void InitConfig (void)
          else if (pair[0] == "Economics")
          {
             if (splitted.GetElementNumber () != 11)
-               AddLogEntry (true, LOG_FATAL, "%s entry in general config is not valid.", pair[0]);
+               AddLogEntry (true, LOG_FATAL, "%s entry in general config is not valid.", (const char*)pair[0]);
 
             for (int i = 0; i < 11; i++)
                g_botBuyEconomyTable[i] = splitted[i];
@@ -787,7 +787,7 @@ void InitConfig (void)
          else if (pair[0] == "PersonalityNormal")
          {
             if (splitted.GetElementNumber () != Const_NumWeapons)
-               AddLogEntry (true, LOG_FATAL, "%s entry in general config is not valid.", pair[0]);
+               AddLogEntry (true, LOG_FATAL, "%s entry in general config is not valid.", (const char*)pair[0]);
 
             for (int i = 0; i < Const_NumWeapons; i++)
                g_normalWeaponPrefs[i] = splitted[i];
@@ -795,7 +795,7 @@ void InitConfig (void)
          else if (pair[0] == "PersonalityRusher")
          {
             if (splitted.GetElementNumber () != Const_NumWeapons)
-               AddLogEntry (true, LOG_FATAL, "%s entry in general config is not valid.", pair[0]);
+               AddLogEntry (true, LOG_FATAL, "%s entry in general config is not valid.", (const char*)pair[0]);
 
             for (int i = 0; i < Const_NumWeapons; i++)
                g_rusherWeaponPrefs[i] = splitted[i];
@@ -803,7 +803,7 @@ void InitConfig (void)
          else if (pair[0] == "PersonalityCareful")
          {
             if (splitted.GetElementNumber () != Const_NumWeapons)
-               AddLogEntry (true, LOG_FATAL, "%s entry in general config is not valid.", pair[0]);
+               AddLogEntry (true, LOG_FATAL, "%s entry in general config is not valid.", (const char*)pair[0]);
 
             for (int i = 0; i < Const_NumWeapons; i++)
                g_carefulWeaponPrefs[i] = splitted[i];
@@ -811,7 +811,7 @@ void InitConfig (void)
          else if (pair[0].Has ("Skill"))
          {
             if (splitted.GetElementNumber () != 8)
-               AddLogEntry (true, LOG_FATAL, "%s entry in general config is not valid.", pair[0]);
+               AddLogEntry (true, LOG_FATAL, "%s entry in general config is not valid.", (const char*)pair[0]);
 
             int parserState = 0;
 

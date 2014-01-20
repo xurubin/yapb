@@ -907,7 +907,7 @@ void CheckWelcomeMessage (void)
    if (receiveTime > 0.0f && receiveTime < engine->GetTime () && !isReceived && (g_numWaypoints > 0 ? g_isCommencing : true))
    {
       if (yb_synth.GetBool ())
-         ServerCommand ("speak \"%s\"", sentences.GetRandomElement ());
+         ServerCommand ("speak \"%s\"", (const char*)sentences.GetRandomElement ());
 
       ChartPrint ("----- YaPB v%s (Build: %u), {%s}, (c) %s, by %s -----", PRODUCT_VERSION, GenerateBuildNumber (), PRODUCT_DATE, PRODUCT_COPYRIGHT_YEAR, PRODUCT_AUTHOR);
       HudMessage (g_hostEntity, true, Color (engine->RandomInt (33, 255), engine->RandomInt (33, 255), engine->RandomInt (33, 255)), "\nServer is running YaPB v%s (Build: %u)\nDeveloped by %s\n\n%s", PRODUCT_VERSION, GenerateBuildNumber (), PRODUCT_AUTHOR, g_waypoint->GetInfo ());

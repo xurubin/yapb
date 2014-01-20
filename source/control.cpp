@@ -321,10 +321,10 @@ void BotControl::AddBot (const String &name, const String &skill, const String &
    const String &any = "*";
 
    queueID.name = (name.IsEmpty () || (name == any)) ?  String ("\0") : name;
-   queueID.skill = (skill.IsEmpty () || (skill == any)) ? -1 : skill;
-   queueID.team = (team.IsEmpty () || (team == any)) ? -1 : team;
-   queueID.member = (member.IsEmpty () || (member == any)) ? -1 : member;
-   queueID.personality = (personality.IsEmpty () || (personality == any)) ? -1 : personality;
+   queueID.skill = (skill.IsEmpty () || (skill == any)) ? -1 : (int)skill;
+   queueID.team = (team.IsEmpty () || (team == any)) ? -1 : (int)team;
+   queueID.member = (member.IsEmpty () || (member == any)) ? -1 : (int)member;
+   queueID.personality = (personality.IsEmpty () || (personality == any)) ? -1 : (int)personality;
 
    m_creationTab.Push (queueID);
 

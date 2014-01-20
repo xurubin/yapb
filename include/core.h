@@ -614,7 +614,7 @@ struct WeaponProperty
 };
 
 // define chatting collection structure
-struct SayText
+struct SayTextStruct
 {
    int chatProbability;
    float chatDelay;
@@ -1001,7 +1001,7 @@ public:
    float m_viewDistance; // current view distance
    float m_maxViewDistance; // maximum view distance
    Vector m_lastEnemyOrigin; // vector to last enemy origin
-   SayText m_sayTextBuffer; // holds the index & the actual message of the last unprocessed text message of a player
+   SayTextStruct m_sayTextBuffer; // holds the index & the actual message of the last unprocessed text message of a player
    BurstMode m_weaponBurstMode; // bot using burst mode? (famas/glock18, but also silencer mode)
 
    edict_t *m_enemy; // pointer to enemy entity

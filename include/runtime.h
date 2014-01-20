@@ -34,6 +34,10 @@
 
 #pragma warning (disable : 4996) // get rid of this
 
+#if defined (__linux__)
+#define stricmp strcasecmp
+#endif
+
 //
 // Type: uint32_t
 // Unsigned 32bit integer.
@@ -1507,7 +1511,7 @@ public:
    //
    bool Remove (const K &keyName)
    {
-      int hashID = Map::HashFunc <K> (keyName) % m_hashSize;
+      int hashID = Map::HashFunc(keyName) % m_hashSize;
       HashItem *hashItem = m_table[hashID], *nextHash = null;
 
       while (hashItem != null)
