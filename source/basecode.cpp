@@ -935,9 +935,9 @@ void Bot::InstantChatterMessage (int type)
          WRITE_BYTE (GetIndex ());
 
          if (pev->deadflag & DEAD_DYING)
-            WRITE_STRING (FormatBuffer ("%s/%s.wav", yb_chatterpath.GetString (), (const char*)painSound));
+            WRITE_STRING (FormatBuffer ("%s/%s.wav", yb_chatterpath.GetString (), painSound));
          else if (!(pev->deadflag & DEAD_DEAD))
-            WRITE_STRING (FormatBuffer ("%s/%s.wav", yb_chatterpath.GetString (), (const char*)defaultSound));
+            WRITE_STRING (FormatBuffer ("%s/%s.wav", yb_chatterpath.GetString (), defaultSound));
 
          WRITE_SHORT (m_voicePitch);
       MESSAGE_END ();
@@ -3463,7 +3463,7 @@ void Bot::SecondThink (void)
    //if (g_bombPlanted && GetTeam (GetEntity ()) == TEAM_COUNTER && (pev->origin - g_waypoint->GetBombPosition ()).GetLength () < 700 && !IsBombDefusing (g_waypoint->GetBombPosition ()))
     if (g_bombPlanted && GetTeam (GetEntity ()) == TEAM_COUNTER && !IsBombDefusing (g_waypoint->GetBombPosition ()))
     {
-        ClientPrint (cmd, print_console, "DISTANCE %d ", (pev->origin - g_waypoint->GetBombPosition ()).GetLength ());
+        ClientPrint (ent, print_console, "DISTANCE %d ", (pev->origin - g_waypoint->GetBombPosition ()).GetLength ());
       ResetTasks ();
     }
 }
